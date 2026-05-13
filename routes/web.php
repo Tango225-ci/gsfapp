@@ -117,3 +117,9 @@ Route::get('/image', function () {
 Route::get('/videos', function () {
     return view('pages.ui-elements.videos', ['title' => 'Videos']);
 })->name('videos');
+
+// Page de configuration des documents ACD
+
+Route::get('/documents', function () {
+    return view('pages.documents.document', ['title' => 'Gestion des documents']);
+})->name('documents.index');

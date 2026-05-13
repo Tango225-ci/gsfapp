@@ -11,6 +11,27 @@ use Illuminate\Support\Facades\Log;
 class DocumentConfigurationController extends Controller
 {
     /**
+     * Afficher la page de configuration des documents ACD
+     */
+    public function index()
+    {
+        // Correction : utiliser le bon chemin de vue
+        // Essaye plusieurs chemins possibles
+        if (view()->exists('pages.document.document')) {
+            return view('pages.document.document');
+        } elseif (view()->exists('pages.documents.document')) {
+            return view('pages.documents.document');
+        } elseif (view()->exists('documents.index')) {
+            return view('documents.index');
+        } elseif (view()->exists('pages.documents-config')) {
+            return view('pages.documents-config');
+        }
+        
+        // Vue par défaut si aucune n'existe
+        return view('documents.index');
+    }
+
+    /**
      * Récupérer tous les types de documents
      */
     public function getDocumentTypes()
@@ -53,6 +74,7 @@ class DocumentConfigurationController extends Controller
             $validated['ordre_affichage'] = $validated['ordre_affichage'] ?? 0;
             $validated['est_obligatoire'] = $validated['est_obligatoire'] ?? true;
             $validated['actif'] = $validated['actif'] ?? true;
+            $validated['valeursupprimee'] = 0;
 
             $documentType = DocumentType::create($validated);
 
@@ -62,6 +84,12 @@ class DocumentConfigurationController extends Controller
                 'document_type' => $documentType
             ], 201);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Erreur création type document: ' . $e->getMessage());
             return response()->json([
@@ -77,6 +105,10 @@ class DocumentConfigurationController extends Controller
     public function updateDocumentType(Request $request, $id)
     {
         try {
+            // Log pour debuguer
+            Log::info('Tentative de mise à jour du type ID: ' . $id);
+            Log::info('Données reçues: ', $request->all());
+            
             $documentType = DocumentType::where('id_document_type', $id)
                                         ->where('valeursupprimee', 0)
                                         ->firstOrFail();
@@ -94,10 +126,21 @@ class DocumentConfigurationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Type de document modifié avec succès',
+                'message' => 'Type de document modifié avec succès',  // Message corrigé
                 'document_type' => $documentType
             ]);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Type de document introuvable'
+            ], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Erreur modification type document: ' . $e->getMessage());
             return response()->json([
@@ -119,6 +162,7 @@ class DocumentConfigurationController extends Controller
                                         ->where('valeursupprimee', 0)
                                         ->firstOrFail();
 
+            // Vérifier si des documents de contrat existent pour ce type
             $contratDocumentsCount = $documentType->contratsDocuments()->count();
             if ($contratDocumentsCount > 0) {
                 return response()->json([
@@ -136,6 +180,12 @@ class DocumentConfigurationController extends Controller
                 'message' => 'Type de document supprimé avec succès'
             ]);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Type de document introuvable'
+            ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erreur suppression type document: ' . $e->getMessage());
@@ -149,14 +199,20 @@ class DocumentConfigurationController extends Controller
     /**
      * Récupérer tous les frais par ville
      */
-    public function getFraisParVille()
+    public function getFraisParVille(Request $request)
     {
         try {
-            $frais = VilleDocumentFrais::with('documentType')
-                                       ->where('valeursupprimee', 0)
-                                       ->orderBy('ville', 'asc')
-                                       ->orderBy('id_document_type', 'asc')
-                                       ->get();
+            $query = VilleDocumentFrais::with('documentType')
+                                       ->where('valeursupprimee', 0);
+            
+            // Filtrer par ville si spécifiée
+            if ($request->has('ville') && !empty($request->ville)) {
+                $query->where('ville', $request->ville);
+            }
+            
+            $frais = $query->orderBy('ville', 'asc')
+                           ->orderBy('id_document_type', 'asc')
+                           ->get();
 
             return response()->json([
                 'success' => true,
@@ -184,6 +240,7 @@ class DocumentConfigurationController extends Controller
                 'montant' => 'required|numeric|min:0'
             ]);
 
+            // Vérifier si le tarif existe déjà
             $existing = VilleDocumentFrais::where('ville', $validated['ville'])
                                           ->where('id_document_type', $validated['id_document_type'])
                                           ->where('valeursupprimee', 0)
@@ -201,9 +258,15 @@ class DocumentConfigurationController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $message,
-                'frais' => $frais
+                'frais' => $frais->load('documentType')
             ], 201);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Erreur création tarif: ' . $e->getMessage());
             return response()->json([
@@ -225,6 +288,7 @@ class DocumentConfigurationController extends Controller
                                        ->where('valeursupprimee', 0)
                                        ->firstOrFail();
 
+            // Vérifier si des documents de contrat utilisent ce tarif
             $documentsCount = $frais->contratsDocuments()->count();
             if ($documentsCount > 0) {
                 return response()->json([
@@ -242,6 +306,12 @@ class DocumentConfigurationController extends Controller
                 'message' => 'Tarif supprimé avec succès'
             ]);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Tarif introuvable'
+            ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erreur suppression tarif: ' . $e->getMessage());
@@ -258,15 +328,31 @@ class DocumentConfigurationController extends Controller
     public function getVilles()
     {
         try {
-            $villes = VilleDocumentFrais::where('valeursupprimee', 0)
-                                        ->select('ville')
-                                        ->distinct()
-                                        ->orderBy('ville', 'asc')
-                                        ->pluck('ville');
+            // Récupérer les villes depuis les lotissements existants
+            $lotissements = \App\Models\Lotissement::where('valeursupprimee', '!=', 1)
+                                                   ->orWhereNull('valeursupprimee')
+                                                   ->select('ville')
+                                                   ->distinct()
+                                                   ->whereNotNull('ville')
+                                                   ->where('ville', '!=', '')
+                                                   ->orderBy('ville', 'asc')
+                                                   ->get();
+            
+            $villes = $lotissements->pluck('ville')->toArray();
+            
+            // Ajouter aussi les villes qui ont déjà des tarifs configurés
+            $fraisVilles = VilleDocumentFrais::where('valeursupprimee', 0)
+                                             ->select('ville')
+                                             ->distinct()
+                                             ->pluck('ville')
+                                             ->toArray();
+            
+            $allVilles = array_unique(array_merge($villes, $fraisVilles));
+            sort($allVilles);
 
             return response()->json([
                 'success' => true,
-                'villes' => $villes
+                'villes' => $allVilles
             ]);
 
         } catch (\Exception $e) {
@@ -297,6 +383,59 @@ class DocumentConfigurationController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Erreur récupération frais par type: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Récupérer toutes les villes avec leurs tarifs (pour tableau croisé)
+     */
+    public function getMatriceFrais()
+    {
+        try {
+            // Récupérer tous les types de documents actifs
+            $documentTypes = DocumentType::where('actif', 1)
+                                         ->where('valeursupprimee', 0)
+                                         ->orderBy('ordre_affichage', 'asc')
+                                         ->get();
+            
+            // Récupérer toutes les villes
+            $villes = $this->getVilles()->getData(true);
+            $villesListe = $villes['villes'] ?? [];
+            
+            // Récupérer tous les frais
+            $frais = VilleDocumentFrais::where('valeursupprimee', 0)
+                                       ->get()
+                                       ->keyBy(function($item) {
+                                           return $item->ville . '_' . $item->id_document_type;
+                                       });
+            
+            // Construire la matrice
+            $matrice = [];
+            foreach ($villesListe as $ville) {
+                $matrice[$ville] = [];
+                foreach ($documentTypes as $docType) {
+                    $key = $ville . '_' . $docType->id_document_type;
+                    $matrice[$ville][$docType->id_document_type] = [
+                        'id_frais' => $frais[$key]->id_frais ?? null,
+                        'montant' => $frais[$key]->montant ?? 0,
+                        'existe' => isset($frais[$key])
+                    ];
+                }
+            }
+            
+            return response()->json([
+                'success' => true,
+                'document_types' => $documentTypes,
+                'villes' => $villesListe,
+                'matrice' => $matrice
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur récupération matrice frais: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur: ' . $e->getMessage()

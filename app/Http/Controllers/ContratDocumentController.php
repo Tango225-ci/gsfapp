@@ -29,22 +29,31 @@ class ContratDocumentController extends Controller
                 ], 404);
             }
 
+            // Récupérer les documents UNIQUEMENT par type de document pour éviter les doublons
             $documents = ContratDocument::with(['documentType', 'frais'])
                                         ->where('id_contrat', $idContrat)
                                         ->where('valeursupprimee', 0)
                                         ->orderBy('id_document_type', 'asc')
-                                        ->get();
+                                        ->get()
+                                        ->unique('id_document_type'); // Supprime les doublons
+
+            // Calculer les statistiques
+            $totalDocuments = $documents->count();
+            $documentsPayes = $documents->where('statut_paiement', 'paye')->count();
+            $documentsDisponibles = $documents->where('statut_document', 'disponible')->count();
+            $documentsRemis = $documents->where('statut_document', 'remis')->count();
+            $montantTotal = $documents->sum('montant');
 
             return response()->json([
                 'success' => true,
-                'documents' => $documents,
+                'documents' => $documents->values(), // Réindexer après unique
                 'resume' => [
-                    'total_documents' => $documents->count(),
-                    'documents_payes' => $documents->where('statut_paiement', 'paye')->count(),
-                    'documents_disponibles' => $documents->where('statut_document', 'disponible')->count(),
-                    'documents_remis' => $documents->where('statut_document', 'remis')->count(),
-                    'montant_total_frais' => $documents->sum('montant'),
-                    'montant_total_paye' => $documents->where('statut_paiement', 'paye')->sum('montant'),
+                    'total' => $totalDocuments,
+                    'payes' => $documentsPayes,
+                    'disponibles' => $documentsDisponibles,
+                    'remis' => $documentsRemis,
+                    'montant_total' => $montantTotal,
+                    'montant_total_formatted' => number_format($montantTotal, 0, ',', ' ') . ' FCFA',
                     'tous_obligatoires_acceptes' => $contrat->tous_documents_acceptes
                 ]
             ]);
@@ -265,6 +274,7 @@ class ContratDocumentController extends Controller
             $existingDocTypes = ContratDocument::where('id_contrat', $idContrat)
                                                ->where('valeursupprimee', 0)
                                                ->pluck('id_document_type')
+                                               ->unique() // Éviter les doublons dans les types existants
                                                ->toArray();
 
             $allDocTypes = DocumentType::where('actif', 1)

@@ -7,6 +7,8 @@ use App\Models\Client;
 use App\Models\Lot;
 use App\Models\Paiement;
 use App\Models\Echeance;
+use App\Models\VilleDocumentFrais;
+use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -54,6 +56,7 @@ class ContratController extends Controller
                 'reste_a_payer_formatted',
                 'progression_paiement',
                 'est_solde',
+                'est_totalement_solde', // NOUVEAU
                 'peut_etre_modifie',
                 'statut_label',
                 'type_paiement_label',
@@ -97,6 +100,8 @@ class ContratController extends Controller
         $contrat->verifierEtMettreAJourStatut();
         $contrat->refresh();
         $contrat->load('echeances');
+        
+        $contrat->append('est_totalement_solde'); // NOUVEAU
 
         return response()->json($contrat);
     }
@@ -137,12 +142,87 @@ class ContratController extends Controller
             $contrat->refresh();
             $contrat->load('echeances');
 
-            $contrat->append('tous_documents_acceptes');
+            $contrat->append('tous_documents_acceptes', 'est_totalement_solde'); // MODIFIÉ
 
             return response()->json($contrat);
 
         } catch (\Exception $e) {
             Log::error('Erreur récupération contrat avec documents: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Récupérer les frais ACD pour une ville donnée
+     */
+    public function getFraisAcdByVille($ville)
+    {
+        try {
+            $frais = VilleDocumentFrais::with('documentType')
+                ->where('ville', $ville)
+                ->where('valeursupprimee', 0)
+                ->get();
+
+            $total = $frais->sum('montant');
+
+            return response()->json([
+                'success' => true,
+                'ville' => $ville,
+                'frais' => $frais->map(function($item) {
+                    return [
+                        'id_frais' => $item->id_frais,
+                        'id_document_type' => $item->id_document_type,
+                        'type_document' => $item->documentType ? $item->documentType->nom : 'Inconnu',
+                        'code' => $item->documentType ? $item->documentType->code : '',
+                        'montant' => $item->montant,
+                        'montant_formatted' => number_format($item->montant, 0, ',', ' ') . ' FCFA',
+                        'est_obligatoire' => $item->documentType ? $item->documentType->est_obligatoire : false
+                    ];
+                }),
+                'total' => $total,
+                'total_formatted' => number_format($total, 0, ',', ' ') . ' FCFA'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur récupération frais ACD par ville: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Récupérer les frais ACD pour un lot spécifique (via son lotissement)
+     */
+    public function getFraisAcdByLot($idLot)
+    {
+        try {
+            $lot = Lot::with('lotissement')->find($idLot);
+            
+            if (!$lot || !$lot->lotissement) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lot ou lotissement introuvable'
+                ], 404);
+            }
+
+            $ville = $lot->lotissement->ville;
+            
+            if (!$ville) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aucune ville associée à ce lotissement'
+                ], 404);
+            }
+
+            return $this->getFraisAcdByVille($ville);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur récupération frais ACD par lot: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur: ' . $e->getMessage()
@@ -212,7 +292,14 @@ class ContratController extends Controller
                 }
             }
 
-            $peutRecevoirPaiement = $contrat->peutRecevoirPaiement() && !$estSolde;
+            // Vérifier si des frais ACD restent à payer
+            $fraisNonPayes = $contrat->contratDocuments()
+                                     ->where('statut_paiement', '!=', 'paye')
+                                     ->where('montant', '>', 0)
+                                     ->count();
+            
+            $estTotalementSolde = $estSolde && $fraisNonPayes === 0;
+            $peutRecevoirPaiement = $contrat->peutRecevoirPaiement() && !$estTotalementSolde;
 
             $prochaineEcheance = $contrat->prochaine_echeance;
 
@@ -237,6 +324,31 @@ class ContratController extends Controller
                 ];
             });
 
+            // Ajouter les frais ACD à la réponse
+            $fraisAcd = [];
+            $totalFraisAcd = 0;
+            $ville = $contrat->lot && $contrat->lot->lotissement ? $contrat->lot->lotissement->ville : null;
+            
+            if ($ville) {
+                $fraisAcdData = VilleDocumentFrais::with('documentType')
+                    ->where('ville', $ville)
+                    ->where('valeursupprimee', 0)
+                    ->get();
+                
+                $fraisAcd = $fraisAcdData->map(function($item) {
+                    return [
+                        'id_frais' => $item->id_frais,
+                        'id_document_type' => $item->id_document_type,
+                        'type_document' => $item->documentType ? $item->documentType->nom : 'Inconnu',
+                        'code' => $item->documentType ? $item->documentType->code : '',
+                        'montant' => $item->montant,
+                        'montant_formatted' => number_format($item->montant, 0, ',', ' ') . ' FCFA',
+                        'est_obligatoire' => $item->documentType ? $item->documentType->est_obligatoire : false
+                    ];
+                });
+                $totalFraisAcd = $fraisAcdData->sum('montant');
+            }
+
             return response()->json([
                 'success' => true,
                 'contrat' => [
@@ -258,10 +370,15 @@ class ContratController extends Controller
                     'banque_paiement' => $contrat->banque_paiement,
                     'banque_paiement_label' => $contrat->banque_paiement_label,
                     'est_solde' => $estSolde,
+                    'est_totalement_solde' => $estTotalementSolde, // NOUVEAU
                     'peut_etre_modifie' => $contrat->peut_etre_modifie,
                     'nombre_echeances_total' => $contrat->nombre_echeances_total,
                     'nombre_echeances_payees' => $contrat->nombre_echeances_payees,
-                    'nombre_echeances_en_retard' => $contrat->nombre_echeances_en_retard
+                    'nombre_echeances_en_retard' => $contrat->nombre_echeances_en_retard,
+                    'ville' => $ville,
+                    'frais_acd' => $fraisAcd,
+                    'total_frais_acd' => $totalFraisAcd,
+                    'total_frais_acd_formatted' => number_format($totalFraisAcd, 0, ',', ' ') . ' FCFA'
                 ],
                 'situation' => [
                     'montant_total' => number_format($montantTotal, 0, ',', ' ') . ' FCFA',
@@ -597,7 +714,9 @@ class ContratController extends Controller
                 'banque_paiement'   => 'nullable|string|max:100'
             ]);
 
-            if ($contrat->id_lot != $validated['id_lot']) {
+            $changementLot = ($contrat->id_lot != $validated['id_lot']);
+
+            if ($changementLot) {
                 $lot = Lot::find($validated['id_lot']);
                 if (!$lot || $lot->statut !== 'DISPONIBLE') {
                     return response()->json([
@@ -658,6 +777,21 @@ class ContratController extends Controller
 
             $contrat->update($validated);
 
+            // Mettre à jour les montants des documents ACD si le lot a changé
+            if ($changementLot) {
+                $nouveauLot = Lot::find($validated['id_lot']);
+                if ($nouveauLot && $nouveauLot->lotissement) {
+                    $nouvelleVille = $nouveauLot->lotissement->ville;
+                    if ($nouvelleVille) {
+                        $contrat->mettreAJourMontantsDocuments($nouvelleVille);
+                        Log::info('Montants des documents ACD mis à jour après changement de lot', [
+                            'contrat_id' => $contrat->id_contrat,
+                            'nouvelle_ville' => $nouvelleVille
+                        ]);
+                    }
+                }
+            }
+
             if ($validated['type_paiement'] === 'ECHELONNE') {
                 $totalPaye = $contrat->montant_paye;
                 $doitRegenerer = false;
@@ -675,7 +809,7 @@ class ContratController extends Controller
                 }
             }
 
-            if ($ancienIdLot != $validated['id_lot']) {
+            if ($changementLot) {
                 $autreContratAncienLot = Contrat::where('id_lot', $ancienIdLot)
                                                 ->where('id_contrat', '!=', $id)
                                                 ->where(function($query) {
@@ -763,6 +897,10 @@ class ContratController extends Controller
             Echeance::where('id_contrat', $id)
                     ->update(['valeursupprimee' => 1]);
 
+            // Soft delete des documents ACD associés
+            \App\Models\ContratDocument::where('id_contrat', $id)
+                    ->update(['valeursupprimee' => 1]);
+
             // Mettre à jour le statut du lot après suppression
             $this->updateLotStatutAfterContratDeletion($idLot, $id);
 
@@ -841,6 +979,9 @@ class ContratController extends Controller
 
             // Soft delete des échéances associées
             Echeance::where('id_contrat', $id)->update(['valeursupprimee' => 1]);
+
+            // Soft delete des documents ACD associés
+            \App\Models\ContratDocument::where('id_contrat', $id)->update(['valeursupprimee' => 1]);
 
             // Mettre à jour le statut du lot après suppression
             $this->updateLotStatutAfterContratDeletion($idLot, $id);
@@ -1022,6 +1163,29 @@ class ContratController extends Controller
                 ];
             });
 
+            // Ajouter les frais ACD à la réponse
+            $fraisAcd = [];
+            $totalFraisAcd = 0;
+            $ville = $contrat->lot && $contrat->lot->lotissement ? $contrat->lot->lotissement->ville : null;
+            
+            if ($ville) {
+                $fraisAcdData = VilleDocumentFrais::with('documentType')
+                    ->where('ville', $ville)
+                    ->where('valeursupprimee', 0)
+                    ->get();
+                
+                $fraisAcd = $fraisAcdData->map(function($item) {
+                    return [
+                        'type_document' => $item->documentType ? $item->documentType->nom : 'Inconnu',
+                        'code' => $item->documentType ? $item->documentType->code : '',
+                        'montant' => $item->montant,
+                        'montant_formatted' => number_format($item->montant, 0, ',', ' ') . ' FCFA',
+                        'est_obligatoire' => $item->documentType ? $item->documentType->est_obligatoire : false
+                    ];
+                });
+                $totalFraisAcd = $fraisAcdData->sum('montant');
+            }
+
             return response()->json([
                 'success' => true,
                 'contrat' => [
@@ -1036,7 +1200,11 @@ class ContratController extends Controller
                     'mode_paiement' => $contrat->mode_paiement,
                     'banque_paiement' => $contrat->banque_paiement,
                     'reste_a_payer' => $resteAPayer,
-                    'duree_mois' => $contrat->duree_mois
+                    'duree_mois' => $contrat->duree_mois,
+                    'ville' => $ville,
+                    'frais_acd' => $fraisAcd,
+                    'total_frais_acd' => $totalFraisAcd,
+                    'total_frais_acd_formatted' => number_format($totalFraisAcd, 0, ',', ' ') . ' FCFA'
                 ],
                 'situation' => [
                     'montant_total' => number_format($montantTotal, 0, ',', ' ') . ' FCFA',

@@ -231,6 +231,47 @@
                             </div>
                         </template>
                     </div>
+
+                    <!-- SECTION FRAIS ACD - AFFICHÉE LORS DE LA SÉLECTION D'UN LOT -->
+                    <div x-show="fraisAcdListe.length > 0 && !editingContrat" class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Frais ACD - Ville: <span x-text="fraisAcdVille" class="text-blue-600 font-medium"></span>
+                        </h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-gray-100 dark:bg-gray-700">
+                                    </table>
+                                        <th class="px-3 py-2 text-left">Type de document</th>
+                                        <th class="px-3 py-2 text-right">Montant (FCFA)</th>
+                                        <th class="px-3 py-2 text-center">Obligatoire</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    <template x-for="frais in fraisAcdListe" :key="frais.id_frais">
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                            <td class="px-3 py-2">
+                                                <p class="font-medium" x-text="frais.type_document"></p>
+                                                <p class="text-xs text-gray-500" x-text="frais.code"></p>
+                                            </td>
+                                            <td class="px-3 py-2 text-right font-semibold" x-text="frais.montant_formatted"></td>
+                                            <td class="px-3 py-2 text-center">
+                                                <span x-show="frais.est_obligatoire" class="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Obligatoire</span>
+                                                <span x-show="!frais.est_obligatoire" class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">Optionnel</span>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <tr class="bg-blue-50 dark:bg-blue-900/20 font-semibold">
+                                        <td class="px-3 py-2">TOTAL FRAIS ACD</td>
+                                        <td class="px-3 py-2 text-right text-blue-600 dark:text-blue-400" x-text="totalFraisAcdFormatted"></td>
+                                        <td class="px-3 py-2 text-center"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Ces frais seront automatiquement ajoutés au contrat et devront être payés en plus du montant total.</p>
+                    </div>
+
                     <div x-show="form.type_paiement === 'ECHELONNE' && form.duree_mois > 0" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                         <p class="text-xs text-blue-700 dark:text-blue-300 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span x-text="'Le contrat sera divisé en ' + (form.duree_mois || 0) + ' échéances mensuelles.'"></span></p>
                     </div>
@@ -301,17 +342,32 @@
                         <div class="overflow-x-auto border rounded-lg text-xs max-h-64 overflow-y-auto">
                             <table class="min-w-full">
                                 <thead class="bg-gray-100 dark:bg-gray-800 sticky top-0">
-                                    <tr><th class="px-2 py-1 text-left">N°</th><th class="px-2 py-1 text-left">Date</th><th class="px-2 py-1 text-right">Prévu</th><th class="px-2 py-1 text-right">Payé</th><th class="px-2 py-1 text-right">Reste</th><th class="px-2 py-1 text-center">Statut</th></tr></thead>
+                                    <tr>
+                                        <th class="px-2 py-1 text-left">N°</th>
+                                        <th class="px-2 py-1 text-left">Date</th>
+                                        <th class="px-2 py-1 text-right">Prévu</th>
+                                        <th class="px-2 py-1 text-right">Payé</th>
+                                        <th class="px-2 py-1 text-right">Reste</th>
+                                        <th class="px-2 py-1 text-center">Statut</th>
+                                    </tr>
+                                </thead>
                                 <tbody>
                                     <template x-for="echeance in echeances" :key="echeance.id">
-                                        <tr class="border-t"><td class="px-2 py-1" x-text="echeance.numero"></td><td class="px-2 py-1" :class="echeance.est_en_retard ? 'text-red-600 font-medium' : ''" x-text="echeance.date_echeance"></td><td class="px-2 py-1 text-right" x-text="echeance.montant_prevu_formatted"></td><td class="px-2 py-1 text-right text-green-600" x-text="echeance.montant_paye_formatted"></td><td class="px-2 py-1 text-right" :class="echeance.reste_a_payer > 0 ? 'text-orange-600' : ''" x-text="echeance.reste_a_payer_formatted"></td><td class="px-2 py-1 text-center"><span x-text="echeance.statut_label" :class="{'bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded': echeance.statut === 'A_PAYER','bg-green-100 text-green-700 px-1 py-0.5 rounded': echeance.statut === 'PAYE','bg-red-100 text-red-700 px-1 py-0.5 rounded': echeance.statut === 'EN_RETARD'}" class="text-xs"></span></td></tr>
+                                        <tr class="border-t">
+                                            <td class="px-2 py-1" x-text="echeance.numero"></td>
+                                            <td class="px-2 py-1" :class="echeance.est_en_retard ? 'text-red-600 font-medium' : ''" x-text="echeance.date_echeance"></td>
+                                            <td class="px-2 py-1 text-right" x-text="echeance.montant_prevu_formatted"></td>
+                                            <td class="px-2 py-1 text-right text-green-600" x-text="echeance.montant_paye_formatted"></td>
+                                            <td class="px-2 py-1 text-right" :class="echeance.reste_a_payer > 0 ? 'text-orange-600' : ''" x-text="echeance.reste_a_payer_formatted"></td>
+                                            <td class="px-2 py-1 text-center"><span x-text="echeance.statut_label" :class="{'bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded': echeance.statut === 'A_PAYER','bg-green-100 text-green-700 px-1 py-0.5 rounded': echeance.statut === 'PAYE','bg-red-100 text-red-700 px-1 py-0.5 rounded': echeance.statut === 'EN_RETARD'}" class="text-xs"></span></td>
+                                        </tr>
                                     </template>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- SECTION 4: DOCUMENTS ACD - VERSION CORRIGÉE -->
+                    <!-- SECTION 4: DOCUMENTS ACD -->
                     <div class="mb-4">
                         <h4 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -320,6 +376,7 @@
                             <span x-show="documentsStats?.payes > 0" class="text-xs text-green-500 ml-1">- <span x-text="documentsStats?.payes"></span> payés</span>
                             <span x-show="documentsStats?.disponibles > 0" class="text-xs text-blue-500 ml-1">- <span x-text="documentsStats?.disponibles"></span> disponibles</span>
                             <span x-show="documentsStats?.remis > 0" class="text-xs text-purple-500 ml-1">- <span x-text="documentsStats?.remis"></span> remis</span>
+                            <span x-show="documentsStats?.montant_total > 0" class="text-xs text-gray-500 ml-1">- Total: <span x-text="formatPrice(documentsStats?.montant_total || 0)"></span></span>
                         </h4>
 
                         <div x-show="!documentsAcD || documentsAcD.length === 0" class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 text-center">
@@ -373,19 +430,15 @@
                                             </td>
                                             <td class="px-3 py-2 text-center">
                                                 <div class="flex items-center justify-center gap-1 flex-wrap">
-                                                    <!-- Bouton Payer -->
                                                     <button x-show="doc.statut_paiement !== 'paye' && doc.montant > 0" @click="openDocumentPaymentModal(doc)" class="text-green-600 hover:text-green-900 p-1 rounded" title="Payer">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                     </button>
-                                                    <!-- Bouton Marquer disponible -->
                                                     <button x-show="doc.statut_paiement === 'paye' && doc.statut_document !== 'disponible' && doc.statut_document !== 'remis'" @click="marquerDocumentDisponible(doc.id_contrat_document)" class="text-blue-600 hover:text-blue-900 p-1 rounded" title="Marquer disponible">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                                                     </button>
-                                                    <!-- Bouton Marquer remis -->
                                                     <button x-show="doc.statut_document === 'disponible'" @click="marquerDocumentRemis(doc.id_contrat_document)" class="text-purple-600 hover:text-purple-900 p-1 rounded" title="Marquer remis">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                                     </button>
-                                                    <!-- Bouton Upload fichier -->
                                                     <button @click="openUploadModal(doc)" class="text-gray-600 hover:text-gray-900 p-1 rounded" title="Upload fichier">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                                                     </button>
@@ -427,7 +480,7 @@
                                     </template>
                                     <tr x-show="!historiquePaiements || historiquePaiements.length === 0">
                                         <td colspan="5" class="px-2 py-2 text-center text-gray-500">Aucun paiement</td>
-                                    </tr>
+                                    <tr>
                                 </tbody>
                             </table>
                         </div>
@@ -548,13 +601,12 @@
 <script>
 document.addEventListener('alpine:init', () => {
     Alpine.data('dataTable', () => ({
-        // ... toutes vos variables existantes ... (le script reste identique à votre version)
-        // Je conserve l'intégralité de votre script existant
         search: '', filtreStatut: '', filtreType: '', currentPage: 1, itemsPerPage: 10, selectedRow: null,
         showContratForm: false, showDetailsModal: false, selectedContrat: null, editingContrat: null,
         formErrors: [], clientsListe: [], lotsDisponibles: [], montantTotalDisplay: '',
         situationPaiement: null, historiquePaiements: [], echeances: [],
         echeancesStats: { total: 0, payees: 0, en_retard: 0 }, selectedLotInfo: null,
+        fraisAcdListe: [], fraisAcdVille: '', totalFraisAcd: 0, totalFraisAcdFormatted: '',
         form: { id_client: '', id_lot: '', date_contrat: '', date_debut: '', montant_total: '', type_paiement: 'COMPTANT', duree_mois: 12, statut: 'EN_COURS', mode_paiement: '', banque_paiement: '' },
         items: [], showDeleteModal: false, contratToDelete: null, showEditConfirmModal: false, contratToEdit: null,
         showHasPaymentsDialog: false, contratToAdminDelete: null, showAdminPasswordModal: false, adminPassword: '', showAdminPassword: false, adminPasswordError: '',
@@ -581,6 +633,34 @@ document.addEventListener('alpine:init', () => {
         formatDate(d) { if (!d) return '-'; const dt = new Date(d); return isNaN(dt.getTime()) ? d : dt.toLocaleDateString('fr-FR'); },
         getLotDisplayText() { if (!this.editingContrat) return ''; const lot = this.lotsDisponibles.find(l => l.id_lot == this.form.id_lot); if (lot) return `${lot.numero_lot} - ${lot.lotissement?.nom || 'Sans lotissement'}`; if (this.editingContrat) return `${this.editingContrat.lot_numero} - ${this.editingContrat.lot_ilot || ''}`; return 'Lot non trouvé'; },
         updateMontantTotalFromDisplay() { let raw = this.montantTotalDisplay.replace(/\s/g, '').replace('FCFA', '').trim(); let n = parseFloat(raw); if (isNaN(n)) n = 0; this.form.montant_total = n; },
+        
+        async loadFraisAcdByLot(lotId) {
+            if (!lotId) { this.fraisAcdListe = []; this.fraisAcdVille = ''; this.totalFraisAcd = 0; this.totalFraisAcdFormatted = ''; return; }
+            try {
+                const response = await fetch(`/api/contrats/frais-acd/lot/${lotId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        this.fraisAcdListe = data.frais || [];
+                        this.fraisAcdVille = data.ville || '';
+                        this.totalFraisAcd = data.total || 0;
+                        this.totalFraisAcdFormatted = data.total_formatted || '0 FCFA';
+                    } else {
+                        this.fraisAcdListe = [];
+                        this.fraisAcdVille = '';
+                        this.totalFraisAcd = 0;
+                        this.totalFraisAcdFormatted = '';
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur chargement frais ACD:', error);
+                this.fraisAcdListe = [];
+                this.fraisAcdVille = '';
+                this.totalFraisAcd = 0;
+                this.totalFraisAcdFormatted = '';
+            }
+        },
+        
         async loadDocumentsAcD(idContrat) { try { const response = await fetch(`/api/contrat-documents/contrat/${idContrat}`); if (response.ok) { const data = await response.json(); if (data.success) { this.documentsAcD = data.documents || []; this.documentsStats = data.resume || { total: 0, payes: 0, disponibles: 0, remis: 0, montant_total: 0, montant_paye: 0 }; } } } catch (error) { console.error('Erreur chargement documents:', error); } },
         async marquerDocumentDisponible(documentId) { if (!confirm('Marquer ce document comme disponible ?')) return; try { const response = await fetch(`/api/contrat-documents/${documentId}/disponible`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 'Accept': 'application/json' } }); const data = await response.json(); if (data.success) { await this.loadDocumentsAcD(this.selectedContrat?.id_contrat); alert('Document marqué comme disponible'); } else { alert(data.message || 'Erreur'); } } catch (error) { alert('Erreur de connexion'); } },
         async marquerDocumentRemis(documentId) { if (!confirm('Marquer ce document comme remis au client ?')) return; try { const response = await fetch(`/api/contrat-documents/${documentId}/remis`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 'Accept': 'application/json' } }); const data = await response.json(); if (data.success) { await this.loadDocumentsAcD(this.selectedContrat?.id_contrat); alert('Document marqué comme remis au client'); } else { alert(data.message || 'Erreur'); } } catch (error) { alert('Erreur de connexion'); } },
@@ -589,8 +669,8 @@ document.addEventListener('alpine:init', () => {
         async submitDocumentPayment() { this.documentPaymentErrors = []; if (!this.documentPaymentForm.mode_paiement) { this.documentPaymentErrors.push('Le mode de paiement est requis.'); return; } if ((this.documentPaymentForm.mode_paiement === 'VIREMENT' || this.documentPaymentForm.mode_paiement === 'CHEQUE') && !this.documentPaymentForm.banque_paiement) { this.documentPaymentErrors.push('La banque est requise pour ce mode de paiement.'); return; } if (this.documentPaymentForm.montant <= 0) { this.documentPaymentErrors.push('Le montant doit être supérieur à 0.'); return; } this.isProcessingDocumentPayment = true; try { const response = await fetch('/api/paiements/frais-document', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 'Accept': 'application/json' }, body: JSON.stringify({ id_contrat: this.selectedContrat.id_contrat, id_contrat_document: this.selectedDocument.id_contrat_document, date_paiement: this.documentPaymentForm.date_paiement, montant: this.documentPaymentForm.montant, mode_paiement: this.documentPaymentForm.mode_paiement, banque_paiement: this.documentPaymentForm.banque_paiement, statut: this.documentPaymentForm.statut, notes: this.documentPaymentForm.notes }) }); const data = await response.json(); if (data.success) { await this.loadDocumentsAcD(this.selectedContrat?.id_contrat); await this.loadSituationPaiement(this.selectedContrat?.id_contrat); this.closeDocumentPaymentModal(); alert('Paiement enregistré avec succès'); window.dispatchEvent(new CustomEvent('paiement-updated')); } else { this.documentPaymentErrors.push(data.message || 'Erreur lors du paiement'); } } catch (error) { this.documentPaymentErrors.push('Erreur de connexion au serveur'); } finally { this.isProcessingDocumentPayment = false; } },
         openUploadModal(document) { this.selectedDocument = document; this.uploadFile = null; this.showUploadModal = true; },
         closeUploadModal() { this.showUploadModal = false; this.selectedDocument = null; this.uploadFile = null; this.uploadingFile = false; },
-        async submitUpload() { if (!this.uploadFile) { alert('Veuillez sélectionner un fichier'); return; } this.uploadingFile = true; const formData = new FormData(); formData.append('fichier', this.uploadFile); try { const response = await fetch(`/api/contrat-documents/${this.selectedDocument.id_contrat_document}/upload`, { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' }, body: formData }); const data = await response.json(); if (data.success) { await this.loadDocumentsAcD(this.selectedContrat?.id_contrat); this.closeUploadModal(); alert('Fichier uploadé avec succès'); } else { alert(data.message || 'Erreur lors de l\'upload'); } } catch (error) { alert('Erreur de connexion'); } finally { this.uploadingFile = false; } },
         handleFileSelect(event) { this.uploadFile = event.target.files[0]; },
+        async submitUpload() { if (!this.uploadFile) { alert('Veuillez sélectionner un fichier'); return; } this.uploadingFile = true; const formData = new FormData(); formData.append('fichier', this.uploadFile); try { const response = await fetch(`/api/contrat-documents/${this.selectedDocument.id_contrat_document}/upload`, { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' }, body: formData }); const data = await response.json(); if (data.success) { await this.loadDocumentsAcD(this.selectedContrat?.id_contrat); this.closeUploadModal(); alert('Fichier uploadé avec succès'); } else { alert(data.message || 'Erreur lors de l\'upload'); } } catch (error) { alert('Erreur de connexion'); } finally { this.uploadingFile = false; } },
         openDeleteModal(item) { if ((item.nombre_paiements && item.nombre_paiements > 0) || item.statut === 'SOLDE' || item.est_solde) { this.contratToAdminDelete = item; this.showHasPaymentsDialog = true; return; } this.contratToDelete = item; this.showDeleteModal = true; },
         closeDeleteModal() { this.showDeleteModal = false; this.contratToDelete = null; },
         openEditConfirmModal(item) { if (item.est_solde || item.statut === 'SOLDE') { alert('Ce contrat est soldé et ne peut pas être modifié.'); return; } this.contratToEdit = item; this.showEditConfirmModal = true; },
@@ -604,21 +684,154 @@ document.addEventListener('alpine:init', () => {
         async init() { await this.loadClients(); await this.loadLotsDisponibles(); await this.loadContratsFromDB(); window.addEventListener('paiement-updated', async () => { await this.loadContratsFromDB(); if (this.showDetailsModal && this.selectedContrat) { await this.loadSituationPaiement(this.selectedContrat.id_contrat); await this.loadDocumentsAcD(this.selectedContrat.id_contrat); } }); window.addEventListener('paiement-form-closed', async () => { await this.loadContratsFromDB(); if (this.showDetailsModal && this.selectedContrat) { await this.loadSituationPaiement(this.selectedContrat.id_contrat); await this.loadDocumentsAcD(this.selectedContrat.id_contrat); } }); },
         async loadClients() { try { const r = await fetch('/api/contrats/clients/liste'); if (r.ok) this.clientsListe = await r.json(); } catch(e) {} },
         async loadLotsDisponibles() { try { const r = await fetch('/api/contrats/lots/disponibles'); if (r.ok) this.lotsDisponibles = await r.json(); } catch(e) {} },
-        async updateMontantFromLot(id) { if (id) { const lot = this.lotsDisponibles.find(l => l.id_lot == id); if (lot) { this.selectedLotInfo = { prix_comptant: parseFloat(lot.prix_comptant) || 0, prix_echelonne: parseFloat(lot.prix_echelonne) || 0 }; this.updateMontantByTypePaiement(); } } },
+        async updateMontantFromLot(id) { if (id) { const lot = this.lotsDisponibles.find(l => l.id_lot == id); if (lot) { this.selectedLotInfo = { prix_comptant: parseFloat(lot.prix_comptant) || 0, prix_echelonne: parseFloat(lot.prix_echelonne) || 0 }; this.updateMontantByTypePaiement(); await this.loadFraisAcdByLot(id); } } else { this.fraisAcdListe = []; this.fraisAcdVille = ''; this.totalFraisAcd = 0; } },
         updateMontantByTypePaiement() { if (!this.selectedLotInfo) return; const prix = this.form.type_paiement === 'COMPTANT' ? this.selectedLotInfo.prix_comptant : this.selectedLotInfo.prix_echelonne; this.montantTotalDisplay = this.formatPrice(prix); this.form.montant_total = prix; },
         handleTypePaiementChange() { if (this.form.type_paiement === 'ECHELONNE') { this.form.mode_paiement = ''; this.form.banque_paiement = ''; if (!this.form.duree_mois) this.form.duree_mois = 12; } this.updateMontantByTypePaiement(); },
-        newContrat() { this.editingContrat = null; this.selectedLotInfo = null; const today = new Date().toISOString().split('T')[0]; this.form = { id_client: '', id_lot: '', date_contrat: today, date_debut: today, montant_total: '', type_paiement: 'COMPTANT', duree_mois: 12, statut: 'EN_COURS', mode_paiement: '', banque_paiement: '' }; this.montantTotalDisplay = ''; this.formErrors = []; this.showContratForm = true; },
+        newContrat() { this.editingContrat = null; this.selectedLotInfo = null; this.fraisAcdListe = []; this.fraisAcdVille = ''; this.totalFraisAcd = 0; const today = new Date().toISOString().split('T')[0]; this.form = { id_client: '', id_lot: '', date_contrat: today, date_debut: today, montant_total: '', type_paiement: 'COMPTANT', duree_mois: 12, statut: 'EN_COURS', mode_paiement: '', banque_paiement: '' }; this.montantTotalDisplay = ''; this.formErrors = []; this.showContratForm = true; },
         editItem(item) { if (item.est_solde || item.statut === 'SOLDE') { alert('Ce contrat est soldé.'); return; } this.editingContrat = item; this.selectedLotInfo = null; this.form = { id_client: item.id_client, id_lot: item.id_lot, date_contrat: item.date_contrat, date_debut: item.date_debut || item.date_contrat, montant_total: item.montant_total, type_paiement: item.type_paiement, duree_mois: item.duree_mois || 12, statut: item.statut, mode_paiement: item.mode_paiement || '', banque_paiement: item.banque_paiement || '' }; this.montantTotalDisplay = this.formatPrice(item.montant_total); this.formErrors = []; this.showContratForm = true; },
-        closeContratForm() { this.showContratForm = false; this.editingContrat = null; this.selectedLotInfo = null; this.formErrors = []; this.montantTotalDisplay = ''; },
+        closeContratForm() { this.showContratForm = false; this.editingContrat = null; this.selectedLotInfo = null; this.formErrors = []; this.montantTotalDisplay = ''; this.fraisAcdListe = []; this.fraisAcdVille = ''; this.totalFraisAcd = 0; },
         closeDetailsModal() { this.showDetailsModal = false; this.selectedContrat = null; this.situationPaiement = null; this.historiquePaiements = []; this.echeances = []; this.echeancesStats = { total: 0, payees: 0, en_retard: 0 }; this.documentsAcD = []; this.documentsStats = { total: 0, payes: 0, disponibles: 0, remis: 0, montant_total: 0, montant_paye: 0 }; },
         async viewDetails(item) { this.selectedContrat = item; this.showDetailsModal = true; await this.loadSituationPaiement(item.id_contrat); await this.loadDocumentsAcD(item.id_contrat); },
         async loadSituationPaiement(id) { try { const r = await fetch(`/api/contrats/${id}/situation-paiement`); if (!r.ok) return; const d = await r.json(); if (d.success) { const estSolde = d.contrat?.statut === 'SOLDE' || d.contrat?.est_solde === true; if (d.contrat) this.selectedContrat = { ...this.selectedContrat, ...d.contrat, montant_total_formatted: d.contrat.montant_total_formatted || this.formatPrice(d.contrat.montant_total), client_nom: d.contrat.client_nom || this.selectedContrat?.client_nom || '-', lot_numero: d.contrat.lot_numero || this.selectedContrat?.lot_numero || '-', duree_mois: d.contrat.duree_mois || this.selectedContrat?.duree_mois, est_solde: estSolde }; this.situationPaiement = { montant_total: d.situation?.montant_total || '0 FCFA', montant_paye: estSolde ? (d.situation?.montant_total || '0 FCFA') : (d.situation?.montant_paye || '0 FCFA'), montant_paye_raw: estSolde ? (d.situation?.montant_total_raw || 0) : (d.situation?.montant_paye_raw || 0), reste_a_payer: estSolde ? '0 FCFA' : (d.situation?.reste_a_payer || '0 FCFA'), reste_a_payer_raw: estSolde ? 0 : (d.situation?.reste_a_payer_raw || 0), progression: estSolde ? 100 : (d.situation?.progression || 0), peut_recevoir_paiement: !estSolde && (d.situation?.peut_recevoir_paiement || false) }; this.historiquePaiements = Array.isArray(d.paiements) ? d.paiements : []; if (d.echeances && Array.isArray(d.echeances)) { this.echeances = d.echeances; this.echeancesStats = { total: d.echeances.length, payees: d.echeances.filter(e => e.est_paye).length, en_retard: d.echeances.filter(e => e.est_en_retard).length }; } else { this.echeances = []; this.echeancesStats = { total: 0, payees: 0, en_retard: 0 }; } } } catch(e) {} },
         editFromDetails() { const item = this.selectedContrat; if (item.est_solde || item.statut === 'SOLDE') { alert('Contrat soldé.'); return; } this.closeDetailsModal(); this.openEditConfirmModal(item); },
         nouveauPaiementDepuisContrat() { const c = this.selectedContrat; this.closeDetailsModal(); window.dispatchEvent(new CustomEvent('open-paiement-form', { detail: { id_contrat: c.id_contrat, reference_contrat: c.reference_contrat, client_nom: c.client_nom, reste_a_payer: this.situationPaiement?.reste_a_payer_raw || 0 } })); },
         async imprimerRecap() { if (!this.selectedContrat) return; try { const r = await fetch(`/api/contrats/${this.selectedContrat.id_contrat}/imprimer`); if (r.ok) { const d = await r.json(); this.genererPDF(d); } else alert('Erreur impression'); } catch(e) { alert('Erreur'); } },
-        genererPDF(data) { const contrat = data.contrat, situation = data.situation, paiements = data.paiements || [], echeances = data.echeances || [], documents = this.documentsAcD || []; const pw = window.open('', '_blank', 'width=900,height=700'); const fp = (p) => { if (!p && p !== 0) return '0 FCFA'; const n = parseFloat(p); return isNaN(n) || n === 0 ? '0 FCFA' : new Intl.NumberFormat('fr-FR').format(n) + ' FCFA'; }; const gsl = (s) => { const l = {'A_PAYER':'À payer','PAYE':'Payée','EN_RETARD':'En retard'}; return l[s] || s; }; let h = `<!DOCTYPE html><html><head><title>Contrat ${contrat.reference_contrat}</title><meta charset="UTF-8"><style>*{margin:0;padding:0}body{font-family:Arial,sans-serif;margin:30px}h1{color:#1e40af;font-size:26px}h2{color:#374151;font-size:18px;margin:25px 0 15px;border-bottom:2px solid #3b82f6;padding-bottom:8px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;background:#f9fafb;padding:20px;border-radius:10px}.label{font-size:12px;color:#6b7280;text-transform:uppercase}.value{font-size:16px;font-weight:600;color:#111827}.amount-box{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;border-radius:10px}.amount-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center}.amount-item h4{font-size:13px;font-weight:400;margin-bottom:5px}.amount-item .number{font-size:24px;font-weight:700}.progress-bar{width:100%;height:10px;background:rgba(255,255,255,.3);border-radius:5px;margin:10px 0}.progress-fill{height:100%;background:#10b981;border-radius:5px}table{width:100%;border-collapse:collapse;margin-top:15px}th{background:#f3f4f6;padding:12px;text-align:left;font-size:13px;font-weight:600}td{padding:12px;border-bottom:1px solid #e5e7eb}.status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}.status-solde{background:#d1fae5;color:#065f46}.status-encours{background:#fef3c7;color:#92400e}.status-retard{background:#fee2e2;color:#991b1b}.status-paye{background:#d1fae5;color:#065f46}.status-apayer{background:#fef3c7;color:#92400e}.footer{margin-top:40px;text-align:center;font-size:12px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:20px}.print-btn{background:#2563eb;color:#fff;padding:12px 24px;border:none;border-radius:8px;cursor:pointer;margin-bottom:20px;font-size:16px}@media print{body{margin:15px}.print-btn{display:none}.amount-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><button class="print-btn" onclick="window.print()">Imprimer</button><h1>Récapitulatif Contrat ${contrat.reference_contrat}</h1><h2>Informations Générales</h2><div class="grid"><div><span class="label">Client : </span><span class="value">${contrat.client?.nom_prenoms||'-'}</span></div><div><span class="label">Lot : </span><span class="value">${contrat.lot?.numero_lot||'-'}</span></div><div><span class="label">Date : </span><span class="value">${this.formatDate(contrat.date_contrat)}</span></div><div><span class="label">Type : </span><span class="value">${this.getTypePaiementLabel(contrat.type_paiement)}</span></div><div><span class="label">Statut : </span><span class="value"><span class="status-badge ${contrat.statut==='SOLDE'?'status-solde':(contrat.statut==='EN_RETARD'?'status-retard':'status-encours')}">${this.getStatutLabel(contrat.statut)}</span></span></div></div><h2>Situation des Paiements</h2><div class="amount-box"><div class="amount-grid"><div class="amount-item"><h4>Montant total</h4><div class="number">${situation.montant_total}</div></div><div class="amount-item"><h4>Déjà payé</h4><div class="number" style="color:#10b981">${situation.montant_paye}</div></div><div class="amount-item"><h4>Reste à payer</h4><div class="number" style="color:${contrat.reste_a_payer>0?'#f59e0b':'#10b981'}">${situation.reste_a_payer}</div></div></div><div style="margin-top:15px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>Progression</span><span>${situation.progression}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${situation.progression}%"></div></div></div></div>`; if (contrat.type_paiement==='ECHELONNE' && echeances.length>0) { h+=`<h2>Échéances</h2><td><thead><tr><th>N°</th><th>Date</th><th>Montant prévu</th><th>Payé</th><th>Reste</th><th>Statut</th></tr></thead><tbody>`; echeances.forEach(e=>{const mp=parseFloat(e.montant_prevu)||0,mpe=parseFloat(e.montant_paye)||0,r=Math.max(0,mp-mpe);h+=`<tr><td>${e.numero||'-'}</td><td>${e.date_echeance||'-'}</td><td>${fp(mp)}</td><td>${fp(mpe)}</td><td>${fp(r)}</td><td><span class="status-badge ${e.statut==='PAYE'?'status-paye':(e.statut==='EN_RETARD'?'status-retard':'status-apayer')}">${gsl(e.statut)}</span></td></tr>`}); h+=`</tbody></table>`; } if (documents.length > 0) { h+=`<h2>Documents ACD</h2><tr><thead><tr><th>Document</th><th>Montant</th><th>Statut paiement</th><th>Statut document</th></tr></thead><tbody>`; documents.forEach(doc=>{h+=`<tr><td>${doc.document_type_nom || '-'}</td><td>${doc.montant_formatted || '-'}</td><td>${doc.statut_paiement_label || '-'}</td><td>${doc.statut_document_label || '-'}</td></tr>`}); h+=`</tbody></table>`; } h+=`<h2>Historique des Paiements</h2><table><thead><tr><th>Date</th><th>Référence</th><th>Type</th><th>Mode</th><th>Montant</th><th>Statut</th></tr></thead><tbody>`; if (paiements.length>0) { paiements.forEach(p=>{h+=`<tr><td>${this.formatDate(p.date_paiement)}</td><td>${p.reference||'-'}</td><td>${p.type_paiement_label || 'Mensualité'}</td><td>${this.getModePaiementLabel(p.mode_paiement)}</td><td>${this.formatPrice(p.montant)}</td><td>${this.getStatutPaiementLabel(p.statut)}</td></tr>`}); } else h+=`<tr><td colspan="6" style="text-align:center;padding:30px">Aucun paiement</td></tr>`; h+=`</tbody></table><div class="footer">Document généré automatiquement - ${new Date().toLocaleString('fr-FR')}</div></body></html>`; pw.document.write(h); pw.document.close(); },
-        async loadContratsFromDB() { try { const r = await fetch('/api/contrats'); const d = await r.json(); if (Array.isArray(d)) { this.items = d.map(c => { const mt = parseFloat(c.montant_total) || 0; let rap = 0; if (c.statut === 'SOLDE') rap = 0; else if (c.reste_a_payer_calcule !== undefined && c.reste_a_payer_calcule !== null) rap = parseFloat(c.reste_a_payer_calcule); else if (c.reste_a_payer !== undefined && c.reste_a_payer !== null) rap = parseFloat(c.reste_a_payer); else { const mpe = parseFloat(c.montant_paye) || 0; rap = mt - mpe; } if (rap < 0) rap = 0; return { id_contrat: c.id_contrat, id_client: c.id_client, id_lot: c.id_lot, reference_contrat: c.reference_contrat, client_nom: c.client?.nom_prenoms || '-', lot_numero: c.lot?.numero_lot || '-', lot_ilot: c.lot?.numero_ilot || '', date_contrat: c.date_contrat, date_contrat_formatted: this.formatDate(c.date_contrat), date_debut: c.date_debut, montant_total: mt, montant_total_formatted: this.formatPrice(mt), reste_a_payer_raw: rap, reste_a_payer_formatted: this.formatPrice(rap), nombre_paiements: c.nombre_paiements || 0, type_paiement: c.type_paiement, type_paiement_label: this.getTypePaiementLabel(c.type_paiement), statut: c.statut, statut_label: this.getStatutLabel(c.statut), est_solde: c.statut === 'SOLDE' || rap <= 0, duree_mois: c.duree_mois, mode_paiement: c.mode_paiement, banque_paiement: c.banque_paiement }; }); } this.currentPage = 1; } catch(e) {} },
-        async saveContrat() { this.formErrors = []; if (!this.form.id_client) this.formErrors.push('Le client est requis.'); if (!this.form.id_lot) this.formErrors.push('Le lot est requis.'); if (!this.form.date_contrat) this.formErrors.push('La date du contrat est requise.'); if (!this.form.montant_total || parseFloat(this.form.montant_total) <= 0) this.formErrors.push('Le montant total doit être supérieur à 0.'); if (this.form.type_paiement === 'COMPTANT') { if (!this.form.mode_paiement) this.formErrors.push('Le mode de paiement est requis.'); if ((this.form.mode_paiement === 'VIREMENT' || this.form.mode_paiement === 'CHEQUE') && !this.form.banque_paiement) this.formErrors.push('La banque est requise.'); } if (this.form.type_paiement === 'ECHELONNE' && (!this.form.duree_mois || this.form.duree_mois < 1)) this.formErrors.push('La durée en mois est requise (minimum 1).'); if (this.formErrors.length) return; const dts = { id_client: this.form.id_client, id_lot: this.form.id_lot, date_contrat: this.form.date_contrat, date_debut: this.form.date_debut || this.form.date_contrat, montant_total: parseFloat(this.form.montant_total), type_paiement: this.form.type_paiement, duree_mois: this.form.type_paiement === 'ECHELONNE' ? parseInt(this.form.duree_mois) : null, statut: this.form.statut }; if (this.form.type_paiement === 'COMPTANT') { dts.mode_paiement = this.form.mode_paiement; if (this.form.banque_paiement) dts.banque_paiement = this.form.banque_paiement; } const url = this.editingContrat ? `/api/contrats/${this.editingContrat.id_contrat}` : '/api/contrats'; const method = this.editingContrat ? 'PUT' : 'POST'; try { const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 'Accept': 'application/json' }, body: JSON.stringify(dts) }); const d = await r.json(); if (d.success) { await new Promise(resolve => setTimeout(resolve, 500)); await this.loadContratsFromDB(); await this.loadLotsDisponibles(); this.closeContratForm(); window.dispatchEvent(new CustomEvent('contrat-updated')); window.dispatchEvent(new CustomEvent('paiement-updated')); alert(this.editingContrat ? 'Contrat modifié.' : 'Contrat créé.'); } else alert(d.message || 'Erreur'); } catch(e) { alert('Une erreur est survenue'); } },
+        genererPDF(data) { const contrat = data.contrat, situation = data.situation, paiements = data.paiements || [], echeances = data.echeances || [], documents = this.documentsAcD || []; const pw = window.open('', '_blank', 'width=900,height=700'); const fp = (p) => { if (!p && p !== 0) return '0 FCFA'; const n = parseFloat(p); return isNaN(n) || n === 0 ? '0 FCFA' : new Intl.NumberFormat('fr-FR').format(n) + ' FCFA'; }; const gsl = (s) => { const l = {'A_PAYER':'À payer','PAYE':'Payée','EN_RETARD':'En retard'}; return l[s] || s; }; let h = `<!DOCTYPE html><html><head><title>Contrat ${contrat.reference_contrat}</title><meta charset="UTF-8"><style>*{margin:0;padding:0}body{font-family:Arial,sans-serif;margin:30px}h1{color:#1e40af;font-size:26px}h2{color:#374151;font-size:18px;margin:25px 0 15px;border-bottom:2px solid #3b82f6;padding-bottom:8px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;background:#f9fafb;padding:20px;border-radius:10px}.label{font-size:12px;color:#6b7280;text-transform:uppercase}.value{font-size:16px;font-weight:600;color:#111827}.amount-box{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;border-radius:10px}.amount-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center}.amount-item h4{font-size:13px;font-weight:400;margin-bottom:5px}.amount-item .number{font-size:24px;font-weight:700}.progress-bar{width:100%;height:10px;background:rgba(255,255,255,.3);border-radius:5px;margin:10px 0}.progress-fill{height:100%;background:#10b981;border-radius:5px}table{width:100%;border-collapse:collapse;margin-top:15px}th{background:#f3f4f6;padding:12px;text-align:left;font-size:13px;font-weight:600}td{padding:12px;border-bottom:1px solid #e5e7eb}.status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}.status-solde{background:#d1fae5;color:#065f46}.status-encours{background:#fef3c7;color:#92400e}.status-retard{background:#fee2e2;color:#991b1b}.status-paye{background:#d1fae5;color:#065f46}.status-apayer{background:#fef3c7;color:#92400e}.footer{margin-top:40px;text-align:center;font-size:12px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:20px}.print-btn{background:#2563eb;color:#fff;padding:12px 24px;border:none;border-radius:8px;cursor:pointer;margin-bottom:20px;font-size:16px}@media print{body{margin:15px}.print-btn{display:none}.amount-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><button class="print-btn" onclick="window.print()">Imprimer</button><h1>Récapitulatif Contrat ${contrat.reference_contrat}</h1><h2>Informations Générales</h2><div class="grid"><div><span class="label">Client : </span><span class="value">${contrat.client?.nom_prenoms||'-'}</span></div><div><span class="label">Lot : </span><span class="value">${contrat.lot?.numero_lot||'-'}</span></div><div><span class="label">Date : </span><span class="value">${this.formatDate(contrat.date_contrat)}</span></div><div><span class="label">Type : </span><span class="value">${this.getTypePaiementLabel(contrat.type_paiement)}</span></div><div><span class="label">Statut : </span><span class="value"><span class="status-badge ${contrat.statut==='SOLDE'?'status-solde':(contrat.statut==='EN_RETARD'?'status-retard':'status-encours')}">${this.getStatutLabel(contrat.statut)}</span></span></div></div><h2>Situation des Paiements</h2><div class="amount-box"><div class="amount-grid"><div class="amount-item"><h4>Montant total</h4><div class="number">${situation.montant_total}</div></div><div class="amount-item"><h4>Déjà payé</h4><div class="number" style="color:#10b981">${situation.montant_paye}</div></div><div class="amount-item"><h4>Reste à payer</h4><div class="number" style="color:${contrat.reste_a_payer>0?'#f59e0b':'#10b981'}">${situation.reste_a_payer}</div></div></div><div style="margin-top:15px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>Progression</span><span>${situation.progression}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${situation.progression}%"></div></div></div></div>`; if (contrat.type_paiement==='ECHELONNE' && echeances.length>0) { h+=`<h2>Échéances</h2><table><thead><tr><th>N°</th><th>Date</th><th>Montant prévu</th><th>Payé</th><th>Reste</th><th>Statut</th></tr></thead><tbody>`; echeances.forEach(e=>{const mp=parseFloat(e.montant_prevu)||0,mpe=parseFloat(e.montant_paye)||0,r=Math.max(0,mp-mpe);h+=`<tr><td class="px-2 py-1">${e.numero||'-'}</td><td class="px-2 py-1">${e.date_echeance||'-'}</td><td class="px-2 py-1 text-right">${fp(mp)}</td><td class="px-2 py-1 text-right">${fp(mpe)}</td><td class="px-2 py-1 text-right">${fp(r)}</td><td class="px-2 py-1 text-center"><span class="status-badge ${e.statut==='PAYE'?'status-paye':(e.statut==='EN_RETARD'?'status-retard':'status-apayer')}">${gsl(e.statut)}</span></td></tr>`}); h+=`</tbody></table>`; } if (documents.length > 0) { h+=`<h2>Documents ACD</h2><table><thead><tr><th>Document</th><th>Montant</th><th>Statut paiement</th><th>Statut document</th></tr></thead><tbody>`; documents.forEach(doc=>{h+=`<tr><td class="px-2 py-1">${doc.document_type_nom || '-'}</td><td class="px-2 py-1 text-right">${doc.montant_formatted || '-'}</td><td class="px-2 py-1 text-center">${doc.statut_paiement_label || '-'}</td><td class="px-2 py-1 text-center">${doc.statut_document_label || '-'}</td></tr>`}); h+=`</tbody></table>`; } h+=`<h2>Historique des Paiements</h2><table><thead><tr><th>Date</th><th>Référence</th><th>Type</th><th>Mode</th><th>Montant</th><th>Statut</th></tr></thead><tbody>`; if (paiements.length>0) { paiements.forEach(p=>{h+=`<tr><td class="px-2 py-1">${this.formatDate(p.date_paiement)}</td><td class="px-2 py-1">${p.reference||'-'}</td><td class="px-2 py-1">${p.type_paiement_label || 'Mensualité'}</td><td class="px-2 py-1">${this.getModePaiementLabel(p.mode_paiement)}</td><td class="px-2 py-1 text-right">${this.formatPrice(p.montant)}</td><td class="px-2 py-1 text-center">${this.getStatutPaiementLabel(p.statut)}</td></tr>`}); } else h+=`<tr><td colspan="6" style="text-align:center;padding:30px">Aucun paiement</td></tr>`; h+=`</tbody></table><div class="footer">Document généré automatiquement - ${new Date().toLocaleString('fr-FR')}</div></body></html>`; pw.document.write(h); pw.document.close(); },
+        
+        async loadContratsFromDB() { 
+            try { 
+                const r = await fetch('/api/contrats'); 
+                const d = await r.json(); 
+                
+                let contratsData = [];
+                if (Array.isArray(d)) {
+                    contratsData = d;
+                } else if (d.success && Array.isArray(d.data)) {
+                    contratsData = d.data;
+                } else if (d.success && Array.isArray(d.contrats)) {
+                    contratsData = d.contrats;
+                } else if (d.data && Array.isArray(d.data)) {
+                    contratsData = d.data;
+                } else {
+                    contratsData = [];
+                }
+                
+                if (contratsData.length > 0) { 
+                    this.items = contratsData.map(c => { 
+                        const mt = parseFloat(c.montant_total) || 0; 
+                        let rap = 0; 
+                        if (c.statut === 'SOLDE') rap = 0; 
+                        else if (c.reste_a_payer_calcule !== undefined && c.reste_a_payer_calcule !== null) rap = parseFloat(c.reste_a_payer_calcule); 
+                        else if (c.reste_a_payer !== undefined && c.reste_a_payer !== null) rap = parseFloat(c.reste_a_payer); 
+                        else { 
+                            const mpe = parseFloat(c.montant_paye) || 0; 
+                            rap = mt - mpe; 
+                        } 
+                        if (rap < 0) rap = 0; 
+                        return { 
+                            id_contrat: c.id_contrat, 
+                            id_client: c.id_client, 
+                            id_lot: c.id_lot, 
+                            reference_contrat: c.reference_contrat, 
+                            client_nom: c.client?.nom_prenoms || c.client_nom || '-', 
+                            lot_numero: c.lot?.numero_lot || c.lot_numero || '-', 
+                            lot_ilot: c.lot?.numero_ilot || '', 
+                            date_contrat: c.date_contrat, 
+                            date_contrat_formatted: this.formatDate(c.date_contrat), 
+                            date_debut: c.date_debut, 
+                            montant_total: mt, 
+                            montant_total_formatted: this.formatPrice(mt), 
+                            reste_a_payer_raw: rap, 
+                            reste_a_payer_formatted: this.formatPrice(rap), 
+                            nombre_paiements: c.nombre_paiements || 0, 
+                            type_paiement: c.type_paiement, 
+                            type_paiement_label: this.getTypePaiementLabel(c.type_paiement), 
+                            statut: c.statut, 
+                            statut_label: this.getStatutLabel(c.statut), 
+                            est_solde: c.statut === 'SOLDE' || rap <= 0, 
+                            duree_mois: c.duree_mois, 
+                            mode_paiement: c.mode_paiement, 
+                            banque_paiement: c.banque_paiement 
+                        }; 
+                    }); 
+                } else { 
+                    this.items = []; 
+                }
+                this.currentPage = 1;
+            } catch(e) { 
+                console.error('Erreur chargement contrats:', e);
+                this.items = [];
+            } 
+        },
+        
+        async saveContrat() { 
+            this.formErrors = []; 
+            if (!this.form.id_client) this.formErrors.push('Le client est requis.'); 
+            if (!this.form.id_lot) this.formErrors.push('Le lot est requis.'); 
+            if (!this.form.date_contrat) this.formErrors.push('La date du contrat est requise.'); 
+            if (!this.form.montant_total || parseFloat(this.form.montant_total) <= 0) this.formErrors.push('Le montant total doit être supérieur à 0.'); 
+            if (this.form.type_paiement === 'COMPTANT') { 
+                if (!this.form.mode_paiement) this.formErrors.push('Le mode de paiement est requis.'); 
+                if ((this.form.mode_paiement === 'VIREMENT' || this.form.mode_paiement === 'CHEQUE') && !this.form.banque_paiement) this.formErrors.push('La banque est requise.'); 
+            } 
+            if (this.form.type_paiement === 'ECHELONNE' && (!this.form.duree_mois || this.form.duree_mois < 1)) this.formErrors.push('La durée en mois est requise (minimum 1).'); 
+            if (this.formErrors.length) return; 
+            
+            const dts = { 
+                id_client: this.form.id_client, 
+                id_lot: this.form.id_lot, 
+                date_contrat: this.form.date_contrat, 
+                date_debut: this.form.date_debut || this.form.date_contrat, 
+                montant_total: parseFloat(this.form.montant_total), 
+                type_paiement: this.form.type_paiement, 
+                duree_mois: this.form.type_paiement === 'ECHELONNE' ? parseInt(this.form.duree_mois) : null, 
+                statut: this.form.statut 
+            }; 
+            
+            if (this.form.type_paiement === 'COMPTANT') { 
+                dts.mode_paiement = this.form.mode_paiement; 
+                if (this.form.banque_paiement) dts.banque_paiement = this.form.banque_paiement; 
+            } 
+            
+            const url = this.editingContrat ? `/api/contrats/${this.editingContrat.id_contrat}` : '/api/contrats'; 
+            const method = this.editingContrat ? 'PUT' : 'POST'; 
+            
+            try { 
+                const r = await fetch(url, { 
+                    method, 
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 
+                        'Accept': 'application/json' 
+                    }, 
+                    body: JSON.stringify(dts) 
+                }); 
+                
+                const d = await r.json(); 
+                
+                if (d.success) { 
+                    await new Promise(resolve => setTimeout(resolve, 500)); 
+                    await this.loadContratsFromDB(); 
+                    await this.loadLotsDisponibles(); 
+                    
+                    // Si c'est une création, recharger les documents ACD pour ce contrat
+                    if (!this.editingContrat && d.contrat && d.contrat.id_contrat) {
+                        await this.loadDocumentsAcD(d.contrat.id_contrat);
+                    }
+                    
+                    this.closeContratForm(); 
+                    window.dispatchEvent(new CustomEvent('contrat-updated')); 
+                    window.dispatchEvent(new CustomEvent('paiement-updated')); 
+                    alert(this.editingContrat ? 'Contrat modifié avec succès.' : 'Contrat créé avec succès.'); 
+                } else { 
+                    alert(d.message || 'Erreur lors de l\'enregistrement'); 
+                } 
+            } catch(e) { 
+                console.error('Erreur:', e);
+                alert('Une erreur est survenue'); 
+            } 
+        },
+        
         exportCSV() { const headers = ['Référence', 'Client', 'Lot', 'Date', 'Montant', 'Reste', 'Paiements', 'Type', 'Statut']; const rows = this.filteredData.map(i => [i.reference_contrat, i.client_nom, i.lot_numero, i.date_contrat_formatted, i.montant_total, i.reste_a_payer_raw, i.nombre_paiements || 0, i.type_paiement_label, i.statut_label]); const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n'); const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `contrats_${new Date().toISOString().split('T')[0]}.csv`; link.click(); URL.revokeObjectURL(link.href); },
         exportExcel() { const headers = ['Référence', 'Client', 'Lot', 'Date', 'Montant', 'Reste', 'Paiements', 'Type', 'Statut']; const rows = this.filteredData.map(i => [i.reference_contrat, i.client_nom, i.lot_numero, i.date_contrat_formatted, i.montant_total, i.reste_a_payer_raw, i.nombre_paiements || 0, i.type_paiement_label, i.statut_label]); const excel = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n'); const blob = new Blob(['\uFEFF' + excel], { type: 'application/vnd.ms-excel' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `contrats_${new Date().toISOString().split('T')[0]}.xls`; link.click(); URL.revokeObjectURL(link.href); }
     }));

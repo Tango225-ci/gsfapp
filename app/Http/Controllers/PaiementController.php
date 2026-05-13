@@ -644,6 +644,14 @@ class PaiementController extends Controller
                 ], 404);
             }
 
+            // Vérifier si le document a un montant > 0
+            if ($contratDocument->montant <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce document n\'a pas de frais à payer (montant = 0 FCFA).'
+                ], 422);
+            }
+
             if ($contratDocument->statut_paiement === 'paye') {
                 return response()->json([
                     'success' => false,
@@ -664,6 +672,9 @@ class PaiementController extends Controller
 
             DB::beginTransaction();
 
+            // Générer la référence
+            $reference = $this->genererReferencePaiement();
+
             $paiementData = [
                 'id_contrat' => $validated['id_contrat'],
                 'id_contrat_document' => $validated['id_contrat_document'],
@@ -674,6 +685,7 @@ class PaiementController extends Controller
                 'statut' => $validated['statut'],
                 'notes' => $validated['notes'] ?? null,
                 'type_paiement' => 'FRAIS_DOCUMENT',
+                'reference' => $reference,
                 'valeursupprimee' => 0
             ];
 
@@ -683,7 +695,7 @@ class PaiementController extends Controller
             if ($validated['statut'] === 'VALIDE') {
                 $nouveauTotalPaye = $dejaPaye + $validated['montant'];
                 if ($nouveauTotalPaye >= $contratDocument->montant) {
-                    $contratDocument->marquerPaye($paiement->reference);
+                    $contratDocument->marquerPaye($reference);
                 } elseif ($nouveauTotalPaye > 0) {
                     $contratDocument->marquerPartiel();
                 }
@@ -712,6 +724,27 @@ class PaiementController extends Controller
                 'message' => 'Erreur: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Générer une référence de paiement unique
+     */
+    private function genererReferencePaiement()
+    {
+        $yearMonth = date('Ym');
+        $lastPaiement = Paiement::where('reference', 'LIKE', 'PAI-' . $yearMonth . '-%')
+                                ->orderBy('id_paiement', 'desc')
+                                ->first();
+
+        if ($lastPaiement && $lastPaiement->reference) {
+            $parts = explode('-', $lastPaiement->reference);
+            $lastNumber = intval(end($parts));
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $newNumber = '0001';
+        }
+
+        return 'PAI-' . $yearMonth . '-' . $newNumber;
     }
 
     /**

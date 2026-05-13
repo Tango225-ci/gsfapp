@@ -8,6 +8,7 @@ use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\LotController;
 use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\EcheanceController;
+use App\Http\Controllers\DocumentConfigurationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -112,6 +113,8 @@ Route::prefix('paiements')->group(function () {
     // Routes admin pour les paiements validés
     Route::delete('/{id}/admin-delete', [PaiementController::class, 'adminDelete']);
     Route::post('/{id}/verify-admin', [PaiementController::class, 'verifyAdmin']);
+    Route::post('/paiements/frais-document', [PaiementController::class, 'storeFraisDocument']);
+Route::get('/paiements/document/{idContratDocument}', [PaiementController::class, 'getPaiementsByDocument']);
 });
 
 /*
@@ -148,7 +151,28 @@ Route::prefix('echeances')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Routes pour les documents ACD
+| Routes pour la configuration des documents ACD
+|--------------------------------------------------------------------------
+*/
+Route::prefix('documents')->group(function () {
+    // Types de documents
+    Route::get('/types', [App\Http\Controllers\DocumentConfigurationController::class, 'getDocumentTypes']);
+    Route::post('/types', [App\Http\Controllers\DocumentConfigurationController::class, 'storeDocumentType']);
+    Route::put('/types/{id}', [App\Http\Controllers\DocumentConfigurationController::class, 'updateDocumentType']);
+    Route::delete('/types/{id}', [App\Http\Controllers\DocumentConfigurationController::class, 'deleteDocumentType']);
+    
+    // Frais par ville
+    Route::get('/frais', [App\Http\Controllers\DocumentConfigurationController::class, 'getFraisParVille']);
+    Route::post('/frais', [App\Http\Controllers\DocumentConfigurationController::class, 'storeFrais']);
+    Route::delete('/frais/{id}', [App\Http\Controllers\DocumentConfigurationController::class, 'deleteFrais']);
+    Route::get('/villes', [App\Http\Controllers\DocumentConfigurationController::class, 'getVilles']);
+    Route::get('/frais/document-type/{idDocumentType}', [App\Http\Controllers\DocumentConfigurationController::class, 'getFraisByDocumentType']);
+    Route::get('/matrice', [App\Http\Controllers\DocumentConfigurationController::class, 'getMatriceFrais']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Routes pour les Documents des Contrats
 |--------------------------------------------------------------------------
 */
 Route::prefix('contrat-documents')->group(function () {
@@ -158,40 +182,6 @@ Route::prefix('contrat-documents')->group(function () {
     Route::put('/{id}/remis', [App\Http\Controllers\ContratDocumentController::class, 'marquerRemis']);
     Route::post('/{id}/upload', [App\Http\Controllers\ContratDocumentController::class, 'uploadFichier']);
     Route::delete('/{id}', [App\Http\Controllers\ContratDocumentController::class, 'destroy']);
-    Route::post('/contrat/{idContrat}/generer-manquants', [App\Http\Controllers\ContratDocumentController::class, 'genererManquants']);
+    Route::post('/generer-manquants/{idContrat}', [App\Http\Controllers\ContratDocumentController::class, 'genererManquants']);
+    
 });
-
-/*
-|--------------------------------------------------------------------------
-| Routes pour la configuration des documents ACD
-|--------------------------------------------------------------------------
-*/
-Route::prefix('admin/documents')->group(function () {
-    Route::get('/types', [App\Http\Controllers\DocumentConfigurationController::class, 'getDocumentTypes']);
-    Route::post('/types', [App\Http\Controllers\DocumentConfigurationController::class, 'storeDocumentType']);
-    Route::put('/types/{id}', [App\Http\Controllers\DocumentConfigurationController::class, 'updateDocumentType']);
-    Route::delete('/types/{id}', [App\Http\Controllers\DocumentConfigurationController::class, 'deleteDocumentType']);
-
-    Route::get('/frais', [App\Http\Controllers\DocumentConfigurationController::class, 'getFraisParVille']);
-    Route::post('/frais', [App\Http\Controllers\DocumentConfigurationController::class, 'storeFrais']);
-    Route::delete('/frais/{id}', [App\Http\Controllers\DocumentConfigurationController::class, 'deleteFrais']);
-    Route::get('/villes', [App\Http\Controllers\DocumentConfigurationController::class, 'getVilles']);
-    Route::get('/frais/document-type/{idDocumentType}', [App\Http\Controllers\DocumentConfigurationController::class, 'getFraisByDocumentType']);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Routes supplémentaires pour les paiements de documents
-|--------------------------------------------------------------------------
-*/
-Route::post('/paiements/frais-document', [App\Http\Controllers\PaiementController::class, 'storeFraisDocument']);
-Route::get('/paiements/document/{idContratDocument}', [App\Http\Controllers\PaiementController::class, 'getPaiementsByDocument']);
-Route::post('/paiements/document/{idContratDocument}/valider', [App\Http\Controllers\PaiementController::class, 'validerPaiementDocument']);
-Route::post('/paiements/document/{idContratDocument}/rejeter', [App\Http\Controllers\PaiementController::class, 'rejeterPaiementDocument']);
-/*
-|--------------------------------------------------------------------------
-| Route contrat avec documents
-|--------------------------------------------------------------------------
-*/
-Route::get('/contrats/{id}/with-documents', [App\Http\Controllers\ContratController::class, 'showWithDocuments']);
-

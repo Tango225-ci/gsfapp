@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-common.page-breadcrumb pageTitle="Gestion des Echeances" />
+    <x-common.page-breadcrumb pageTitle="Gestion des Documents" />
     <div class="space-y-6">
         <x-common.component-card title="">
-            <x-echeances.echeance-table />
+            <x-documents.document-table />
         </x-common.component-card>
 
     </div>

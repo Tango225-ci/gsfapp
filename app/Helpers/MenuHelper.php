@@ -62,8 +62,8 @@ class MenuHelper
                 'name' => 'Parametrage',
                 'icon' => 'forms',
                 'subItems' => [
-                    ['name' => 'Form Elements', 'path' => '/form-elements', 'pro' => false],
-                    ['name' => 'Form Validation', 'path' => '/form-validation', 'pro' => false]
+                    ['name' => 'Gestion des documents', 'path' => '/documents', 'pro' => false]
+
                 ],
             ],
             [

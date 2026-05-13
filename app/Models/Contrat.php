@@ -94,12 +94,16 @@ class Contrat extends Model
         'reste_a_payer_formatted',
         'progression_paiement',
         'est_solde',
+        'est_totalement_solde',
         'peut_etre_modifie',
         'prochaine_echeance',
         'nombre_echeances_en_retard',
         'nombre_echeances_total',
         'nombre_echeances_payees',
-        'tous_documents_acceptes'
+        'tous_documents_acceptes',
+        'frais_acd_par_ville',
+        'total_frais_acd',
+        'frais_acd_par_ville_formatted'
     ];
 
     /**
@@ -150,6 +154,22 @@ class Contrat extends Model
                         'lot_id' => $lot->id_lot,
                         'contrat_id' => $contrat->id_contrat
                     ]);
+                }
+            }
+        });
+
+        // Mettre à jour les documents ACD si le lot (et donc la ville) change
+        static::updating(function ($contrat) {
+            // Vérifier si l'ID du lot a changé
+            if ($contrat->isDirty('id_lot')) {
+                $oldLotId = $contrat->getOriginal('id_lot');
+                $newLotId = $contrat->id_lot;
+                
+                if ($oldLotId != $newLotId) {
+                    // Programmer la mise à jour des documents après la sauvegarde
+                    static::updated(function ($updatedContrat) use ($oldLotId, $newLotId) {
+                        $updatedContrat->mettreAJourDocumentsApresChangementLot($oldLotId, $newLotId);
+                    });
                 }
             }
         });
@@ -253,10 +273,217 @@ class Contrat extends Model
     }
 
     /**
+     * Récupérer les frais ACD par ville (formaté pour l'affichage)
+     */
+    public function getFraisAcdParVilleAttribute()
+    {
+        $lot = $this->lot;
+        if (!$lot || !$lot->lotissement) {
+            return [];
+        }
+        
+        $ville = $lot->lotissement->ville;
+        if (!$ville) {
+            return [];
+        }
+        
+        $frais = VilleDocumentFrais::with('documentType')
+            ->where('ville', $ville)
+            ->where('valeursupprimee', 0)
+            ->get();
+        
+        return $frais->map(function($item) {
+            return [
+                'id_frais' => $item->id_frais,
+                'id_document_type' => $item->id_document_type,
+                'type_document' => $item->documentType ? $item->documentType->nom : 'Inconnu',
+                'code' => $item->documentType ? $item->documentType->code : '',
+                'montant' => $item->montant,
+                'montant_formatted' => number_format($item->montant, 0, ',', ' ') . ' FCFA',
+                'est_obligatoire' => $item->documentType ? $item->documentType->est_obligatoire : false
+            ];
+        });
+    }
+
+    /**
+     * Total des frais ACD pour ce contrat
+     */
+    public function getTotalFraisAcdAttribute()
+    {
+        $lot = $this->lot;
+        if (!$lot || !$lot->lotissement) {
+            return 0;
+        }
+        
+        $ville = $lot->lotissement->ville;
+        if (!$ville) {
+            return 0;
+        }
+        
+        return VilleDocumentFrais::where('ville', $ville)
+            ->where('valeursupprimee', 0)
+            ->sum('montant');
+    }
+
+    /**
+     * Récupérer les frais ACD formatés en HTML (pour le formulaire)
+     */
+    public function getFraisAcdParVilleFormattedAttribute()
+    {
+        $frais = $this->frais_acd_par_ville;
+        
+        if (empty($frais)) {
+            return '<div class="text-center text-gray-500 py-4">Aucun frais ACD configuré pour cette ville</div>';
+        }
+        
+        $html = '<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-900">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type de document</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Montant (FCFA)</th>
+                            <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Obligatoire</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200">';
+        
+        foreach ($frais as $item) {
+            $html .= '<tr>
+                        <td class="px-4 py-3">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">' . e($item['type_document']) . '</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">' . e($item['code']) . '</div>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">' . e($item['montant_formatted']) . '</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' . ($item['est_obligatoire'] ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300') . '">
+                                ' . ($item['est_obligatoire'] ? 'Obligatoire' : 'Optionnel') . '
+                            </span>
+                        </td>
+                    </tr>';
+        }
+        
+        $html .= '</tbody>
+                </table>';
+        
+        return $html;
+    }
+
+    /**
+     * Vérifier si le contrat est totalement soldé (contrat + tous les frais ACD)
+     */
+    public function getEstTotalementSoldeAttribute()
+    {
+        // Vérifier si le contrat est soldé
+        $contratSolde = $this->statut === 'SOLDE' || $this->reste_a_payer_calcule <= 0;
+        
+        // Vérifier si tous les frais ACD sont payés
+        $fraisNonPayes = $this->contratDocuments()
+                             ->where('statut_paiement', '!=', 'paye')
+                             ->where('montant', '>', 0)
+                             ->count();
+        
+        $fraisSolde = $fraisNonPayes === 0;
+        
+        return $contratSolde && $fraisSolde;
+    }
+
+    /**
+     * Mettre à jour les documents ACD après un changement de lot
+     */
+    public function mettreAJourDocumentsApresChangementLot($oldLotId, $newLotId)
+    {
+        // Récupérer l'ancienne et la nouvelle ville
+        $oldLot = Lot::find($oldLotId);
+        $newLot = Lot::find($newLotId);
+        
+        $oldVille = $oldLot && $oldLot->lotissement ? $oldLot->lotissement->ville : null;
+        $newVille = $newLot && $newLot->lotissement ? $newLot->lotissement->ville : null;
+        
+        if ($oldVille != $newVille && $newVille) {
+            // Mettre à jour les documents avec les nouveaux tarifs
+            $this->mettreAJourMontantsDocuments($newVille);
+            Log::info('Documents ACD mis à jour après changement de lot', [
+                'contrat_id' => $this->id_contrat,
+                'ancienne_ville' => $oldVille,
+                'nouvelle_ville' => $newVille
+            ]);
+        }
+    }
+
+    /**
+     * Mettre à jour les montants des documents ACD pour ce contrat
+     */
+    public function mettreAJourMontantsDocuments($ville = null)
+    {
+        if (!$ville) {
+            $lot = $this->lot;
+            if (!$lot || !$lot->lotissement) {
+                return false;
+            }
+            $ville = $lot->lotissement->ville;
+        }
+        
+        if (!$ville) {
+            return false;
+        }
+        
+        // Récupérer tous les documents du contrat
+        $documents = $this->contratDocuments()->get();
+        
+        if ($documents->isEmpty()) {
+            return false;
+        }
+        
+        $compteur = 0;
+        foreach ($documents as $document) {
+            // Chercher le nouveau tarif pour cette ville et ce type de document
+            $frais = VilleDocumentFrais::where('ville', $ville)
+                                       ->where('id_document_type', $document->id_document_type)
+                                       ->where('valeursupprimee', 0)
+                                       ->first();
+            
+            $nouveauMontant = $frais ? $frais->montant : 0;
+            $idFrais = $frais ? $frais->id_frais : null;
+            
+            if ($document->montant != $nouveauMontant) {
+                $document->update([
+                    'montant' => $nouveauMontant,
+                    'id_frais' => $idFrais
+                ]);
+                $compteur++;
+            }
+        }
+        
+        if ($compteur > 0) {
+            Log::info('Montants des documents ACD mis à jour', [
+                'contrat_id' => $this->id_contrat,
+                'ville' => $ville,
+                'nombre_modifies' => $compteur
+            ]);
+        }
+        
+        return true;
+    }
+
+    /**
      * Générer automatiquement les documents ACD pour ce contrat
      */
     public function genererDocumentsAcD()
     {
+        // Vérifier si des documents existent déjà pour ce contrat (évite les doublons)
+        $existingDocs = ContratDocument::where('id_contrat', $this->id_contrat)
+                                       ->where('valeursupprimee', 0)
+                                       ->count();
+        
+        if ($existingDocs > 0) {
+            Log::info('Les documents ACD existent déjà pour ce contrat', [
+                'contrat_id' => $this->id_contrat,
+                'nombre_existant' => $existingDocs
+            ]);
+            return true;
+        }
+
         // Récupérer le lotissement et sa ville
         $lot = $this->lot;
         if (!$lot || !$lot->lotissement) {
@@ -527,10 +754,15 @@ class Contrat extends Model
     }
 
     /**
-     * Vérifier si le contrat peut recevoir un nouveau paiement
+     * Vérifier si le contrat peut recevoir un nouveau paiement (mensualité)
      */
     public function peutRecevoirPaiement()
     {
+        // Si totalement soldé, aucun paiement possible
+        if ($this->est_totalement_solde) {
+            return false;
+        }
+        
         if ($this->statut === 'SOLDE') {
             return false;
         }
@@ -540,6 +772,20 @@ class Contrat extends Model
         }
 
         return true;
+    }
+
+    /**
+     * Vérifier si le contrat peut recevoir un paiement pour les frais de dossier
+     */
+    public function peutRecevoirPaiementFraisDocument()
+    {
+        // Vérifier s'il reste des frais ACD non payés
+        $fraisNonPayes = $this->contratDocuments()
+                              ->where('statut_paiement', '!=', 'paye')
+                              ->where('montant', '>', 0)
+                              ->count();
+        
+        return $fraisNonPayes > 0;
     }
 
     /**
