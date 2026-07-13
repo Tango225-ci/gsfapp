@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\PortailDocumentDisponibleNotification;
 
 class ContratDocument extends Model
 {
@@ -274,6 +275,10 @@ class ContratDocument extends Model
             'contrat_document_id' => $this->id_contrat_document,
             'contrat_id' => $this->id_contrat
         ]);
+
+        if ($this->contrat && $this->contrat->client) {
+            $this->contrat->client->notify(new PortailDocumentDisponibleNotification($this));
+        }
 
         return $this;
     }

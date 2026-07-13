@@ -25,7 +25,7 @@
                     </div>
 
                     <!-- Bouton Nouvelle Visite -->
-                    <button @click="newVisite"
+                    <button @click="newVisite" x-show="window.gsfUser.can.visites.create"
                         class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -56,52 +56,23 @@
 
         <!-- Cartes statistiques -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Total visites</p>
-                        <p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total visites</p>
+                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Aujourd'hui</p>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="stats.aujourdhui"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Aujourd'hui</p>
+                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.aujourdhui"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Ce mois</p>
-                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.ce_mois"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ce mois</p>
+                <p class="mt-2 text-4xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.ce_mois"></p>
             </div>
         </div>
 
         <!-- Overlay formulaire création visite -->
-        <div x-show="showVisiteForm" x-cloak @keydown.escape.window="closeVisiteForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showVisiteForm" x-cloak @keydown.escape.window="closeVisiteForm" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
 
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
@@ -165,9 +136,11 @@
                 </form>
             </div>
         </div>
+        </template>
 
         <!-- Overlay formulaire affichage détails visite -->
-        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900">
                     <div><h3 class="text-lg font-semibold text-gray-900 dark:text-white">Détails de la visite</h3><p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Informations complètes (lecture seule)</p></div>
@@ -192,6 +165,7 @@
                 </div>
             </div>
         </div>
+        </template>
 
         <!-- Tableau -->
         <div class="overflow-x-auto">
@@ -229,8 +203,8 @@
                             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate" x-text="item.motif"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <button @click.stop="viewDetails(item)" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3 transition-colors" title="Voir détails"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
-                                <button @click.stop="editItem(item)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 transition-colors" title="Modifier"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
-                                <button @click.stop="deleteItem(item.id_visite)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" title="Supprimer"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                <button @click.stop="editItem(item)" x-show="window.gsfUser.can.visites.update" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 transition-colors" title="Modifier"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+                                <button @click.stop="deleteItem(item.id_visite)" x-show="window.gsfUser.can.visites.delete" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" title="Supprimer"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                             </td>
                         </tr>
                     </template>
@@ -407,7 +381,7 @@ document.addEventListener('alpine:init', () => {
                 .catch(error => { console.error('Erreur:', error); this.items = []; });
         },
 
-        saveVisite() {
+        async saveVisite() {
             this.formErrors = [];
             if (!this.form.nom_visiteur.trim()) this.formErrors.push('Le nom du visiteur est requis.');
             if (!this.form.contact_visiteur.trim()) this.formErrors.push('Le contact est requis.');
@@ -418,6 +392,16 @@ document.addEventListener('alpine:init', () => {
             if (this.form.heure_arrivee && this.form.heure_depart && this.form.heure_arrivee >= this.form.heure_depart) this.formErrors.push('L\'heure d\'arrivée doit être avant l\'heure de départ.');
             if (!this.form.motif.trim()) this.formErrors.push('Le motif est requis.');
             if (this.formErrors.length) return;
+
+            const confirmed = await window.gsfConfirm({
+                title: this.editingVisite ? 'Modifier la visite' : 'Enregistrer la visite',
+                message: this.editingVisite
+                    ? `Confirmer la modification de la visite de <strong>${this.form.nom_visiteur}</strong> ?`
+                    : `Confirmer l'enregistrement de la visite de <strong>${this.form.nom_visiteur}</strong> ?`,
+                type: 'info',
+                confirmText: this.editingVisite ? 'Modifier' : 'Enregistrer'
+            });
+            if (!confirmed) return;
 
             let url = '/api/visites', method = 'POST';
             if (this.editingVisite) { url = `/api/visites/${this.editingVisite.id_visite}`; method = 'PUT'; }
@@ -434,26 +418,33 @@ document.addEventListener('alpine:init', () => {
                         if (index !== -1) {
                             this.items[index] = { ...this.items[index], nom_visiteur: data.visite.nom_visiteur, contact_visiteur: data.visite.contact_visiteur, adresse_visiteur: data.visite.adresse_visiteur, date_visite: data.visite.date_visite, heure_arrivee: data.visite.heure_arrivee, heure_depart: data.visite.heure_depart, motif: data.visite.motif, initials: this.generateInitials(data.visite.nom_visiteur) };
                         }
-                        alert('Visite modifiée.');
+                        window.gsfToast('Visite modifiée avec succès.', 'success');
                     } else {
                         this.items.push({ id_visite: data.visite.id_visite, nom_visiteur: data.visite.nom_visiteur, contact_visiteur: data.visite.contact_visiteur, adresse_visiteur: data.visite.adresse_visiteur, date_visite: data.visite.date_visite, heure_arrivee: data.visite.heure_arrivee, heure_depart: data.visite.heure_depart, motif: data.visite.motif, date_create: data.visite.date_create, valeursupprimee: 0, initials: this.generateInitials(data.visite.nom_visiteur) });
-                        alert('Visite créée.');
+                        window.gsfToast('Visite créée avec succès.', 'success');
                     }
                     this.closeVisiteForm();
-                } else { alert('Erreur: ' + (data.message || 'Erreur inconnue')); }
+                } else { window.gsfToast('Erreur: ' + (data.message || 'Erreur inconnue'), 'error'); }
             })
-            .catch(error => { console.error('Erreur:', error); alert('Erreur: ' + error.message); });
+            .catch(error => { console.error('Erreur:', error); window.gsfToast('Erreur: ' + error.message, 'error'); });
         },
 
-        deleteItem(id) {
-            if (!confirm('Supprimer cette visite ?')) return;
+        async deleteItem(id) {
+            const item = this.items.find(v => v.id_visite === id);
+            const confirmed = await window.gsfConfirm({
+                title: 'Supprimer la visite',
+                message: `Êtes-vous sûr de vouloir supprimer la visite de <strong>${item?.nom_visiteur || 'ce visiteur'}</strong> ?<br><span class="text-xs text-red-500 mt-1 block">Cette action est irréversible.</span>`,
+                type: 'danger',
+                confirmText: 'Supprimer'
+            });
+            if (!confirmed) return;
             fetch(`/api/visites/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' } })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) { this.items = this.items.filter(item => item.id_visite !== id); if (this.selectedRow === id) this.selectedRow = null; if (this.paginatedData.length === 0 && this.currentPage > 1) this.currentPage--; alert('Visite supprimée.'); }
-                    else alert('Erreur lors de la suppression');
+                    if (data.success) { this.items = this.items.filter(item => item.id_visite !== id); if (this.selectedRow === id) this.selectedRow = null; if (this.paginatedData.length === 0 && this.currentPage > 1) this.currentPage--; window.gsfToast('Visite supprimée avec succès', 'success'); }
+                    else window.gsfToast('Erreur lors de la suppression', 'error');
                 })
-                .catch(error => { console.error('Erreur:', error); alert('Une erreur est survenue'); });
+                .catch(error => { console.error('Erreur:', error); window.gsfToast('Une erreur est survenue', 'error'); });
         },
 
         exportCSV() {
@@ -476,3 +467,4 @@ document.addEventListener('alpine:init', () => {
 <style>
 [x-cloak] { display: none !important; }
 </style>
+

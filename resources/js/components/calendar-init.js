@@ -5,6 +5,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import listPlugin from "@fullcalendar/list";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import frLocale from "@fullcalendar/core/locales/fr";
 
 export function calendarInit() {
   const calendarWrapper = document.querySelector("#calendar");
@@ -44,32 +45,32 @@ export function calendarInit() {
     const calendarEventsList = [
       {
         id: "1",
-        title: "Event Conf.",
+        title: "Conférence",
         start: `${newDate.getFullYear()}-${getDynamicMonth()}-01`,
         extendedProps: { calendar: "Danger" },
       },
       {
         id: "2",
-        title: "Seminar #4",
+        title: "Séminaire #4",
         start: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
         end: `${newDate.getFullYear()}-${getDynamicMonth()}-10`,
         extendedProps: { calendar: "Success" },
       },
       {
         id: "3",
-        title: "Meeting #5",
+        title: "Réunion #5",
         start: `${newDate.getFullYear()}-${getDynamicMonth()}-09T16:00:00`,
         extendedProps: { calendar: "Primary" },
       },
       {
         id: "4",
-        title: "Submission #1",
+        title: "Soumission #1",
         start: `${newDate.getFullYear()}-${getDynamicMonth()}-16T16:00:00`,
         extendedProps: { calendar: "Warning" },
       },
       {
         id: "5",
-        title: "Seminar #6",
+        title: "Séminaire #6",
         start: `${newDate.getFullYear()}-${getDynamicMonth()}-11`,
         end: `${newDate.getFullYear()}-${getDynamicMonth()}-13`,
         extendedProps: { calendar: "Danger" },
@@ -114,7 +115,7 @@ export function calendarInit() {
 
       // Update modal header
       if (getModalHeaderEl) {
-        getModalHeaderEl.textContent = "Add Event";
+        getModalHeaderEl.textContent = "Ajouter un événement";
       }
 
       // Show Add button, hide Update button
@@ -136,7 +137,7 @@ export function calendarInit() {
 
       // Update modal header
       if (getModalHeaderEl) {
-        getModalHeaderEl.textContent = "Add Event";
+        getModalHeaderEl.textContent = "Ajouter un événement";
       }
 
       // Show Add button, hide Update button
@@ -167,7 +168,7 @@ export function calendarInit() {
 
         // Update modal header
         if (getModalHeaderEl) {
-          getModalHeaderEl.textContent = "Edit Event";
+          getModalHeaderEl.textContent = "Modifier l'événement";
         }
 
         // Get event details
@@ -209,6 +210,8 @@ export function calendarInit() {
     // Initialize Calendar
     const calendar = new Calendar(calendarEl, {
       plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
+      locales: [frLocale],
+      locale: "fr",
       selectable: true,
       initialView: "dayGridMonth",
       initialDate: `${newDate.getFullYear()}-${getDynamicMonth()}-07`,
@@ -219,7 +222,7 @@ export function calendarInit() {
       displayEventTime: false, // Hide time display
       customButtons: {
         addEventButton: {
-          text: "Add Event +",
+          text: "Ajouter un événement +",
           click: calendarAddEvent,
         },
       },

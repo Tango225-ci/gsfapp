@@ -30,11 +30,28 @@
 
         <!-- Cartes statistiques -->
         <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm"><p class="text-sm text-gray-500 dark:text-gray-400">Total contrats</p><p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="stats.total_contrats"></p></div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm"><p class="text-sm text-gray-500 dark:text-gray-400">Total échéances</p><p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p></div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm"><p class="text-sm text-gray-500 dark:text-gray-400">Montant total</p><p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="formatPrice(stats.montant_total)"></p></div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm"><p class="text-sm text-gray-500 dark:text-gray-400">Montant payé</p><p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="formatPrice(stats.montant_paye)"></p></div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm"><p class="text-sm text-gray-500 dark:text-gray-400">En retard</p><p class="text-2xl font-bold text-red-600 dark:text-red-400" x-text="stats.en_retard"></p></div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total contrats</p>
+                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total_contrats"></p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total échéances</p>
+                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Montant total</p>
+                <p class="mt-2 text-[10px] font-bold tracking-[0.15em] text-gray-400 dark:text-gray-500 uppercase">FCFA</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white leading-tight" x-text="formatPrice(stats.montant_total).replace(' FCFA','')"></p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Montant payé</p>
+                <p class="mt-2 text-[10px] font-bold tracking-[0.15em] text-gray-400 dark:text-gray-500 uppercase">FCFA</p>
+                <p class="text-2xl font-bold text-green-600 dark:text-green-400 leading-tight" x-text="formatPrice(stats.montant_paye).replace(' FCFA','')"></p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">En retard</p>
+                <p class="mt-2 text-4xl font-bold text-red-600 dark:text-red-400" x-text="stats.en_retard"></p>
+            </div>
         </div>
 
         <!-- Tableau avec accordéon -->
@@ -133,7 +150,8 @@
     </div>
 
     <!-- Modale détails échéance -->
-    <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <template x-teleport="body">
+    <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div @click.stop class="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-900">
             <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900">
                 <div><h3 class="text-lg font-semibold text-gray-900 dark:text-white">Détails de l'échéance</h3><p class="mt-0.5 text-xs text-gray-500">Informations complètes</p></div>
@@ -157,6 +175,7 @@
             </div>
         </div>
     </div>
+    </template>
 </div>
 
 <script>
@@ -191,20 +210,28 @@ document.addEventListener('alpine:init', () => {
             return d;
         },
 
-        // Nouveau getter qui aplatit les contrats en lignes individuelles
+        // Getter qui aplatit les contrats en lignes individuelles.
+        // La ligne d'en-tête (résumé du contrat) est distincte de la 1ère échéance :
+        // sinon l'échéance n°1 est "consommée" par l'en-tête et disparaît de la liste détaillée.
         get lignesVisibles() {
             const lignes = [];
             this.paginatedData.forEach(contrat => {
-                contrat.echeances.forEach((echeance, index) => {
-                    if (index === 0 || contrat.expanded) {
+                lignes.push({
+                    key: contrat.id_contrat + '_header',
+                    contrat: contrat,
+                    echeance: contrat.echeances[0] || null,
+                    isFirst: true
+                });
+                if (contrat.expanded) {
+                    contrat.echeances.forEach(echeance => {
                         lignes.push({
                             key: contrat.id_contrat + '_' + echeance.id,
                             contrat: contrat,
                             echeance: echeance,
-                            isFirst: index === 0
+                            isFirst: false
                         });
-                    }
-                });
+                    });
+                }
             });
             return lignes;
         },
@@ -218,6 +245,10 @@ document.addEventListener('alpine:init', () => {
 
         formatPrice(p){if(!p&&p!==0)return'0 FCFA';const n=parseFloat(p);return isNaN(n)||n===0?'0 FCFA':new Intl.NumberFormat('fr-FR').format(n)+' FCFA'},
         formatDate(d){if(!d)return'-';const dt=new Date(d);return isNaN(dt.getTime())?d:dt.toLocaleDateString('fr-FR')},
+        getStatutLabel(s) { const l = {'EN_COURS':'En cours','SOLDE':'Soldé','RESILIE':'Résilié','EN_RETARD':'En retard'}; return l[s] || s; },
+        getTypePaiementLabel(t) { const l = {'COMPTANT':'Comptant','ECHELONNE':'Échelonné'}; return l[t] || t; },
+        getModePaiementLabel(m) { const l = {'ESPECES':'Espèces','VIREMENT':'Virement bancaire','CHEQUE':'Chèque','MOBILE_MONEY':'Mobile Money'}; return l[m] || m || '-'; },
+        getStatutPaiementLabel(s) { const l = {'EN_ATTENTE':'En attente','VALIDE':'Validé','REJETE':'Rejeté','ANNULE':'Annulé'}; return l[s] || s; },
 
         async init(){await this.loadEcheancesFromDB();window.addEventListener('paiement-updated',()=>{this.loadEcheancesFromDB()})},
 
@@ -290,17 +321,150 @@ document.addEventListener('alpine:init', () => {
         ouvrirPaiementDepuisContrat(c){window.dispatchEvent(new CustomEvent('open-paiement-form',{detail:{id_contrat:c.id_contrat,reference_contrat:c.contrat_reference,client_nom:c.client_nom,reste_a_payer:c.reste_a_payer}}))},
         async marquerCommePayee(){if(this.selectedEcheance){await this.marquerCommePayeeEcheance(this.selectedEcheance);this.closeDetailsModal()}},
         async marquerCommePayeeEcheance(e){
-            if(!confirm(`Marquer l'échéance n°${e.numero} comme payée ?`))return;
+            const confirmed = await window.gsfConfirm({
+                title: 'Confirmer le paiement',
+                message: `Marquer l'échéance <strong>n°${e.numero}</strong>${e.contrat_reference ? ' du contrat <strong>' + e.contrat_reference + '</strong>' : ''} comme payée ?`,
+                type: 'info',
+                confirmText: 'Marquer payée',
+                cancelText: 'Annuler'
+            });
+            if(!confirmed)return;
             try{
                 const r=await fetch(`/api/echeances/${e.id}/marquer-payee`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')||'','Accept':'application/json'}});
                 const d=await r.json();
-                if(d.success){await this.loadEcheancesFromDB();alert(d.message||'Succès');window.dispatchEvent(new CustomEvent('paiement-updated'))}
-                else alert(d.message||'Erreur');
-            }catch(er){alert('Erreur')}
+                if(d.success){await this.loadEcheancesFromDB();window.gsfToast(d.message||'Échéance marquée comme payée','success');window.dispatchEvent(new CustomEvent('paiement-updated'))}
+                else window.gsfToast(d.message||'Erreur','error');
+            }catch(er){window.gsfToast('Erreur de connexion','error')}
         },
 
-        async imprimerContrat(c){if(!c.id_contrat)return;try{const r=await fetch(`/api/contrats/${c.id_contrat}/imprimer`);if(r.ok){const d=await r.json();this.genererPDF(d)}else alert('Erreur')}catch(e){alert('Erreur')}},
-        genererPDF(data){const contrat=data.contrat,situation=data.situation,paiements=data.paiements||[],echeances=data.echeances||[];const pw=window.open('','_blank','width=900,height=700');const fp=(p)=>{if(!p&&p!==0)return'0 FCFA';const n=parseFloat(p);return isNaN(n)||n===0?'0 FCFA':new Intl.NumberFormat('fr-FR').format(n)+' FCFA'};const gsl=(s)=>{const l={'A_PAYER':'À payer','PAYE':'Payée','EN_RETARD':'En retard'};return l[s]||s};const ltp=(t)=>{const l={'COMPTANT':'Comptant','ECHELONNE':'Échelonné'};return l[t]||t};const ls=(s)=>{const l={'EN_COURS':'En cours','SOLDE':'Soldé','RESILIE':'Résilié','EN_RETARD':'En retard'};return l[s]||s};const lmp=(m)=>{const l={'ESPECES':'Espèces','VIREMENT':'Virement','CHEQUE':'Chèque','MOBILE_MONEY':'Mobile Money'};return l[m]||m||'-'};const lsp=(s)=>{const l={'EN_ATTENTE':'En attente','VALIDE':'Validé','REJETE':'Rejeté','ANNULE':'Annulé'};return l[s]||s};const fd=(d)=>{if(!d)return'-';const dt=new Date(d);return isNaN(dt.getTime())?d:dt.toLocaleDateString('fr-FR')};let h=`<!DOCTYPE html><html><head><title>Contrat ${contrat.reference_contrat}</title><meta charset="UTF-8"><style>*{margin:0;padding:0}body{font-family:Arial;margin:30px}h1{color:#1e40af;font-size:26px}h2{color:#374151;font-size:18px;margin:25px 0 15px;border-bottom:2px solid #3b82f6}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;background:#f9fafb;padding:20px;border-radius:10px}.label{font-size:12px;color:#6b7280}.value{font-size:16px;font-weight:600}.amount-box{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;border-radius:10px}.amount-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center}.amount-item h4{font-size:13px}.amount-item .number{font-size:24px;font-weight:700}.progress-bar{width:100%;height:10px;background:rgba(255,255,255,.3);border-radius:5px;margin:10px 0}.progress-fill{height:100%;background:#10b981}table{width:100%;border-collapse:collapse;margin-top:15px}th{background:#f3f4f6;padding:12px;text-align:left;font-size:13px}td{padding:12px;border-bottom:1px solid #e5e7eb}.footer{margin-top:40px;text-align:center;font-size:12px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:20px}.print-btn{background:#2563eb;color:#fff;padding:12px 24px;border:none;border-radius:8px;cursor:pointer;margin-bottom:20px;font-size:16px}@media print{body{margin:15px}.print-btn{display:none}}</style></head><body><button class="print-btn" onclick="window.print()">Imprimer</button><h1>Contrat ${contrat.reference_contrat}</h1><h2>Informations</h2><div class="grid"><div><span class="label">Client:</span><span class="value">${contrat.client?.nom_prenoms||'-'}</span></div><div><span class="label">Date:</span><span class="value">${fd(contrat.date_contrat)}</span></div><div><span class="label">Type:</span><span class="value">${ltp(contrat.type_paiement)}</span></div><div><span class="label">Statut:</span><span class="value">${ls(contrat.statut)}</span></div></div><h2>Situation</h2><div class="amount-box"><div class="amount-grid"><div class="amount-item"><h4>Total</h4><div class="number">${situation.montant_total}</div></div><div class="amount-item"><h4>Payé</h4><div class="number" style="color:#10b981">${situation.montant_paye}</div></div><div class="amount-item"><h4>Reste</h4><div class="number" style="color:${contrat.reste_a_payer>0?'#f59e0b':'#10b981'}">${situation.reste_a_payer}</div></div></div><div style="margin-top:15px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>Progression</span><span>${situation.progression}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${situation.progression}%"></div></div></div></div>`;if(contrat.type_paiement==='ECHELONNE'&&echeances.length>0){h+=`<h2>Échéances</h2><table><thead><tr><th>N°</th><th>Date</th><th>Montant</th><th>Payé</th><th>Reste</th><th>Statut</th></tr></thead><tbody>`;echeances.forEach(e=>{const mp=parseFloat(e.montant_prevu)||0,mpe=parseFloat(e.montant_paye)||0,r=Math.max(0,mp-mpe);h+=`<tr><td>${e.numero||'-'}</td><td>${e.date_echeance||'-'}</td><td>${fp(mp)}</td><td>${fp(mpe)}</td><td>${fp(r)}</td><td>${gsl(e.statut)}</td></tr>`});h+=`</tbody></table>`}h+=`<h2>Paiements</h2><table><thead><tr><th>Date</th><th>Réf</th><th>Mode</th><th>Montant</th><th>Statut</th></tr></thead><tbody>`;if(paiements.length>0){paiements.forEach(p=>{h+=`<tr><td>${fd(p.date_paiement)}</td><td>${p.reference||'-'}</td><td>${lmp(p.mode_paiement)}</td><td>${fp(p.montant)}</td><td>${lsp(p.statut)}</td></tr>`})}else h+=`<tr><td colspan="5" style="text-align:center;padding:30px">Aucun</td></tr>`;h+=`</tbody></table><div class="footer">${new Date().toLocaleString('fr-FR')}</div></body></html>`;pw.document.write(h);pw.document.close()},
+        async imprimerContrat(c){
+            if(!c.id_contrat)return;
+            try{
+                const [rContrat, rDocs] = await Promise.all([
+                    fetch(`/api/contrats/${c.id_contrat}/imprimer`),
+                    fetch(`/api/contrat-documents/contrat/${c.id_contrat}`)
+                ]);
+                if(!rContrat.ok){alert('Erreur');return}
+                const d = await rContrat.json();
+                let documents = [];
+                if (rDocs.ok) { const dd = await rDocs.json(); if (dd.success) documents = dd.documents || []; }
+                this.genererPDF(d, documents);
+            }catch(e){alert('Erreur')}
+        },
+
+        // Identique au récapitulatif imprimé depuis la page Contrats (mêmes sections : Informations,
+        // Situation des paiements, Échéances, Documents ACD, Historique des paiements).
+        genererPDF(data, documents) {
+            const contrat = data.contrat;
+            const situation = data.situation;
+            const paiements = (data.paiements || []).slice().sort((a, b) => {
+                const da = new Date(a.date_paiement_raw || a.date_paiement).getTime() || 0;
+                const db = new Date(b.date_paiement_raw || b.date_paiement).getTime() || 0;
+                if (da !== db) return da - db;
+                return (a.id_paiement || 0) - (b.id_paiement || 0);
+            });
+            const echeances = data.echeances || [];
+            documents = documents || [];
+            const logoUrl = `${window.location.origin}/images/logo/gsf-logo.png`;
+
+            const pw = window.open('', '_blank', 'width=900,height=700');
+
+            const fp = (p) => {
+                if (!p && p !== 0) return '0 FCFA';
+                const n = parseFloat(p);
+                return isNaN(n) || n === 0 ? '0 FCFA' : new Intl.NumberFormat('fr-FR').format(n) + ' FCFA';
+            };
+
+            const gsl = (s) => {
+                const l = {'A_PAYER':'À payer','PAYE':'Payée','EN_RETARD':'En retard'};
+                return l[s] || s;
+            };
+
+            const getTypePaiementLabel = (p) => {
+                if (p.type_paiement === 'FRAIS_DOCUMENT') {
+                    if (documents && documents.length > 0) {
+                        const doc = documents.find(d => d.id_contrat_document == p.id_contrat_document);
+                        if (doc && doc.document_type_nom) {
+                            return doc.document_type_nom;
+                        }
+                    }
+                    return 'Frais document ACD';
+                }
+                return p.type_paiement_label || 'Mensualité';
+            };
+
+            let documentsHtml = '';
+            if (documents && documents.length > 0) {
+                documentsHtml = '<h2>Documents ACD</h2><table style="width:100%;border-collapse:collapse;margin-top:15px;margin-bottom:20px"><thead>';
+                documentsHtml += '<tr><th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb">Document</th>';
+                documentsHtml += '<th style="padding:8px;text-align:right;border-bottom:1px solid #e5e7eb">Montant</th>';
+                documentsHtml += '<th style="padding:8px;text-align:center;border-bottom:1px solid #e5e7eb">Statut paiement</th>';
+                documentsHtml += '<th style="padding:8px;text-align:center;border-bottom:1px solid #e5e7eb">Statut document</th></tr></thead><tbody>';
+
+                documents.forEach(doc => {
+                    const statutPaiementClass = doc.statut_paiement === 'paye' ? 'background:#d1fae5;color:#065f46' : (doc.statut_paiement === 'partiel' ? 'background:#fed7aa;color:#9a3412' : 'background:#fee2e2;color:#991b1b');
+                    const statutDocumentClass = doc.statut_document === 'remis' ? 'background:#dbeafe;color:#1e40af' : (doc.statut_document === 'disponible' ? 'background:#d1fae5;color:#065f46' : (doc.statut_document === 'paye' ? 'background:#fef3c7;color:#92400e' : 'background:#f3f4f6;color:#374151'));
+                    documentsHtml += `<tr>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb">${doc.document_type_nom || '-'}</td>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right">${doc.montant_formatted || '0 FCFA'}</td>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center">
+                            <span style="display:inline-block;padding:4px 8px;border-radius:20px;font-size:11px;${statutPaiementClass}">${doc.statut_paiement_label || 'Non payé'}</span>
+                        </td>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center">
+                            <span style="display:inline-block;padding:4px 8px;border-radius:20px;font-size:11px;${statutDocumentClass}">${doc.statut_document_label || 'En attente'}</span>
+                        </td>
+                    </tr>`;
+                });
+                documentsHtml += '</tbody></table><br><br>';
+            }
+
+            let historiqueHtml = '';
+            if (paiements && paiements.length > 0) {
+                historiqueHtml = '<h2>Historique des Paiements</h2>';
+                historiqueHtml += '<table style="width:100%;border-collapse:collapse;margin-top:15px;margin-bottom:20px"><thead>';
+                historiqueHtml += '<tr style="background:#f3f4f6"><th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb;white-space:nowrap">Date</th>';
+                historiqueHtml += '<th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb;white-space:nowrap">Référence</th>';
+                historiqueHtml += '<th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb">Type</th>';
+                historiqueHtml += '<th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb">Mode</th>';
+                historiqueHtml += '<th style="padding:8px;text-align:right;border-bottom:2px solid #e5e7eb;white-space:nowrap">Montant</th>';
+                historiqueHtml += '<th style="padding:8px;text-align:center;border-bottom:2px solid #e5e7eb">Statut</th></tr></thead><tbody>';
+
+                paiements.forEach(p => {
+                    const typeLabel = getTypePaiementLabel(p);
+                    const statutClass = p.statut === 'VALIDE' ? 'background:#d1fae5;color:#065f46' : (p.statut === 'EN_ATTENTE' ? 'background:#fef3c7;color:#92400e' : 'background:#fee2e2;color:#991b1b');
+                    historiqueHtml += `<tr>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb;white-space:nowrap">${this.formatDate(p.date_paiement)}</td>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb;white-space:nowrap;font-size:13px">${p.reference || '-'}</td>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb">${typeLabel}</td>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb;white-space:nowrap">${this.getModePaiementLabel(p.mode_paiement)}</td>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums">${this.formatPrice(p.montant)}</td>
+                        <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center">
+                            <span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;white-space:nowrap;${statutClass}">${this.getStatutPaiementLabel(p.statut)}</span>
+                        </td>
+                    </tr>`;
+                });
+                historiqueHtml += '</tbody></table><br><br>';
+            }
+
+            let h = `<!DOCTYPE html><html><head><title>Contrat ${contrat.reference_contrat}</title><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;margin:30px;background:#fff;color:#1f2937}.letterhead{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #dc2626;padding-bottom:16px;margin-bottom:25px}.letterhead-brand{display:flex;align-items:center;gap:14px}.letterhead-brand img{height:50px;display:block}.letterhead-name{font-size:14px;font-weight:700;color:#111827;letter-spacing:.5px}.letterhead-tagline{font-size:11px;color:#6b7280;margin-top:2px}.letterhead-meta{text-align:right;font-size:11px;color:#6b7280;line-height:1.5}h1{color:#dc2626;font-size:24px;margin-bottom:14px}h2{color:#374151;font-size:18px;margin:25px 0 15px;border-bottom:2px solid #dc2626;padding-bottom:8px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;background:#f9fafb;padding:20px;border-radius:10px;margin-bottom:20px}.label{font-size:12px;color:#6b7280;text-transform:uppercase}.value{font-size:16px;font-weight:600;color:#111827}.amount-box{background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;padding:20px;border-radius:10px;margin-bottom:20px}.amount-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center}.amount-item h4{font-size:13px;font-weight:400;margin-bottom:5px}.amount-item .number{font-size:24px;font-weight:700}.progress-bar{width:100%;height:10px;background:rgba(255,255,255,.3);border-radius:5px;margin:10px 0}.progress-fill{height:100%;background:#10b981;border-radius:5px}table{width:100%;border-collapse:collapse;margin-top:15px;margin-bottom:20px}th{background:#f3f4f6;padding:12px;text-align:left;font-size:13px;font-weight:600;border-bottom:2px solid #e5e7eb}td{padding:12px;border-bottom:1px solid #e5e7eb}tbody tr:nth-child(even){background:#fafafa}.text-right{text-align:right}.status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}.status-solde{background:#d1fae5;color:#065f46}.status-encours{background:#fef3c7;color:#92400e}.status-retard{background:#fee2e2;color:#991b1b}.footer{margin-top:40px;text-align:center;font-size:12px;color:#9ca3af;border-top:2px solid #dc2626;padding-top:16px}.footer .footer-company{font-weight:700;color:#374151;margin-bottom:4px}.print-btn{background:#dc2626;color:#fff;padding:12px 24px;border:none;border-radius:8px;cursor:pointer;margin-bottom:20px;font-size:16px}@media print{body{margin:15px}.print-btn{display:none}.amount-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><button class="print-btn" onclick="window.print()">Imprimer</button><div class="letterhead"><div class="letterhead-brand"><img src="${logoUrl}" alt="GSF"></div><div class="letterhead-meta"><div>Yopougon Agbayate, Résidence Amado</div><div>contact@geometresonfemme.com</div></div></div><h1>Récapitulatif Contrat ${contrat.reference_contrat}</h1><h2>Informations Générales</h2><div class="grid"><div><span class="label">Client : </span><span class="value">${contrat.client?.nom_prenoms || contrat.client_nom || '-'}</span></div><div><span class="label">Lot : </span><span class="value">${contrat.lot?.numero_lot || contrat.lot_numero || '-'}</span></div><div><span class="label">Date : </span><span class="value">${this.formatDate(contrat.date_contrat)}</span></div><div><span class="label">Type : </span><span class="value">${this.getTypePaiementLabel(contrat.type_paiement)}</span></div><div><span class="label">Statut : </span><span class="value"><span class="status-badge ${contrat.statut === 'SOLDE' ? 'status-solde' : (contrat.statut === 'EN_RETARD' ? 'status-retard' : 'status-encours')}">${this.getStatutLabel(contrat.statut)}</span></span></div></div><h2>Situation des Paiements</h2><div class="amount-box"><div class="amount-grid"><div class="amount-item"><h4>Montant total</h4><div class="number">${situation.montant_total}</div></div><div class="amount-item"><h4>Déjà payé</h4><div class="number" style="color:#bbf7d0">${situation.montant_paye}</div></div><div class="amount-item"><h4>Reste à payer</h4><div class="number" style="color:${(situation.reste_a_payer_raw || 0) > 0 ? '#fde68a' : '#bbf7d0'}">${situation.reste_a_payer}</div></div></div><div style="margin-top:15px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>Progression</span><span>${situation.progression}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${situation.progression}%"></div></div></div></div>`;
+
+            if (contrat.type_paiement === 'ECHELONNE' && echeances.length > 0) {
+                h += `<h2>Échéances</h2><table style="width:100%;border-collapse:collapse;margin-top:15px;margin-bottom:20px"><thead><tr><th style="padding:8px">N°</th><th style="padding:8px">Date</th><th style="padding:8px;text-align:right">Montant prévu</th><th style="padding:8px;text-align:right">Payé</th><th style="padding:8px;text-align:right">Reste</th><th style="padding:8px;text-align:center">Statut</th></tr></thead><tbody>`;
+                echeances.forEach(e => {
+                    const mp = parseFloat(e.montant_prevu) || 0;
+                    const mpe = parseFloat(e.montant_paye) || 0;
+                    const r = Math.max(0, mp - mpe);
+                    h += `<tr><td style="padding:8px;border-bottom:1px solid #e5e7eb">${e.numero || '-'}</td><td style="padding:8px;border-bottom:1px solid #e5e7eb">${e.date_echeance || '-'}</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right">${fp(mp)}</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right">${fp(mpe)}</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right">${fp(r)}</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center"><span class="status-badge ${e.statut === 'PAYE' ? 'status-solde' : (e.statut === 'EN_RETARD' ? 'status-retard' : 'status-encours')}">${gsl(e.statut)}</span></td></tr>`;
+                });
+                h += `</tbody></table><br><br>`;
+            }
+
+            h += documentsHtml;
+            h += historiqueHtml;
+            h += `<div class="footer"><div class="footer-company">Géomètre Son Femme SARL</div><div>Yopougon Agbayate, Résidence Amado — contact@geometresonfemme.com</div><div style="margin-top:8px">Document généré automatiquement le ${new Date().toLocaleString('fr-FR')}</div></div></body></html>`;
+            pw.document.write(h);
+            pw.document.close();
+        },
 
         exportCSV(){const hdr=['Contrat','Client','N°','Date','Montant','Payé','Reste','Statut'];const rows=[];this.filteredData.forEach(c=>{c.echeances.forEach(e=>{rows.push([c.contrat_reference,c.client_nom,e.numero,e.date_echeance,e.montant_prevu,e.montant_paye,e.reste_a_payer,e.statut_label])})});const csv=[hdr.join(','),...rows.map(r=>r.map(c=>`"${c}"`).join(','))].join('\n');const b=new Blob(['\uFEFF'+csv],{type:'text/csv'});const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=`echeances_${new Date().toISOString().split('T')[0]}.csv`;l.click()},
         exportExcel(){const hdr=['Contrat','Client','N°','Date','Montant','Payé','Reste','Statut'];const rows=[];this.filteredData.forEach(c=>{c.echeances.forEach(e=>{rows.push([c.contrat_reference,c.client_nom,e.numero,e.date_echeance,e.montant_prevu,e.montant_paye,e.reste_a_payer,e.statut_label])})});const xl=[hdr.join('\t'),...rows.map(r=>r.join('\t'))].join('\n');const b=new Blob(['\uFEFF'+xl],{type:'application/vnd.ms-excel'});const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=`echeances_${new Date().toISOString().split('T')[0]}.xls`;l.click()}
@@ -308,3 +472,4 @@ document.addEventListener('alpine:init', () => {
 })
 </script>
 <style>[x-cloak]{display:none!important}</style>
+

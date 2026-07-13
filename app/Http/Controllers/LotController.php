@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PermissionHelper;
 use App\Models\Lot;
 use App\Models\Lotissement;
 use App\Models\Contrat;
@@ -106,6 +107,8 @@ class LotController extends Controller
      */
     public function store(Request $request)
     {
+        PermissionHelper::abort403('lots', 'create');
+
         try {
             $validated = $request->validate([
                 'numero_lot'        => 'required|string|max:100|unique:lots,numero_lot',
@@ -114,8 +117,10 @@ class LotController extends Controller
                 'superficie'        => 'nullable|numeric|min:0',
                 'prix_comptant'     => 'nullable|numeric|min:0',
                 'prix_echelonne'    => 'nullable|numeric|min:0',
+                'prix_achat'        => 'nullable|numeric|min:0',
                 'statut'            => 'required|in:DISPONIBLE,RESERVE,VENDU',
-                'id_lotissement'    => 'nullable|exists:lotissements,id_lotissement'
+                'id_lotissement'    => 'nullable|exists:lotissements,id_lotissement',
+                'id_proprietaire'   => 'nullable|exists:proprietaires_terriens,id_proprietaire',
             ]);
 
             // Vérifier qu'au moins un prix est > 0
@@ -162,6 +167,8 @@ class LotController extends Controller
      */
     public function update(Request $request, $id)
     {
+        PermissionHelper::abort403('lots', 'update');
+
         try {
             $lot = Lot::where('id_lot', $id)
                       ->where('valeursupprimee', '!=', 1)
@@ -204,8 +211,10 @@ class LotController extends Controller
                 'superficie'        => 'nullable|numeric|min:0',
                 'prix_comptant'     => 'nullable|numeric|min:0',
                 'prix_echelonne'    => 'nullable|numeric|min:0',
+                'prix_achat'        => 'nullable|numeric|min:0',
                 'statut'            => 'required|in:DISPONIBLE,RESERVE,VENDU',
-                'id_lotissement'    => 'nullable|exists:lotissements,id_lotissement'
+                'id_lotissement'    => 'nullable|exists:lotissements,id_lotissement',
+                'id_proprietaire'   => 'nullable|exists:proprietaires_terriens,id_proprietaire',
             ]);
 
             // Vérifier qu'au moins un prix est > 0
@@ -256,6 +265,8 @@ class LotController extends Controller
      */
     public function destroy($id)
     {
+        PermissionHelper::abort403('lots', 'delete');
+
         try {
             $lot = Lot::findOrFail($id);
 

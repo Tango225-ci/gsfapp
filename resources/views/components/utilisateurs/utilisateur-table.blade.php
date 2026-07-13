@@ -64,65 +64,27 @@
 
         <!-- Cartes statistiques -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Total utilisateurs</p>
-                        <p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total utilisateurs</p>
+                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Actifs</p>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="stats.actifs"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Actifs</p>
+                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.actifs"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Inactifs</p>
-                        <p class="text-2xl font-bold text-red-600 dark:text-red-400" x-text="stats.inactifs"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-red-600 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Inactifs</p>
+                <p class="mt-2 text-4xl font-bold text-red-600 dark:text-red-400" x-text="stats.inactifs"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Administrateurs</p>
-                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.admins"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Administrateurs</p>
+                <p class="mt-2 text-4xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.admins"></p>
             </div>
         </div>
 
         <!-- Modal Création/Modification Utilisateur -->
-        <div x-show="showFormModal" x-cloak @keydown.escape.window="closeFormModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showFormModal" x-cloak @keydown.escape.window="closeFormModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-900">
 
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900 z-10">
@@ -179,7 +141,8 @@
                         <!-- Mot de passe -->
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Mot de passe
+                                <span x-show="!isEditing">Mot de passe temporaire</span>
+                                <span x-show="isEditing">Mot de passe</span>
                                 <span x-show="!isEditing" class="text-red-500">*</span>
                                 <span x-show="isEditing" class="text-xs text-gray-500">(optionnel)</span>
                             </label>
@@ -200,7 +163,16 @@
                                 </button>
                             </div>
                             <p x-show="isEditing" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                Laissez vide pour conserver le mot de passe actuel
+                                Laissez vide pour conserver le mot de passe actuel. Si vous en définissez un nouveau, l'utilisateur devra le changer à sa prochaine connexion.
+                            </p>
+                        </div>
+                        <!-- Note première connexion (création uniquement) -->
+                        <div x-show="!isEditing" class="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+                            <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-xs text-amber-700 dark:text-amber-300">
+                                L'utilisateur devra <strong>obligatoirement changer ce mot de passe</strong> lors de sa première connexion.
                             </p>
                         </div>
 
@@ -306,7 +278,7 @@
                         </button>
                         <button type="submit"
                             class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            :disabled="isSubmitting || (form.password_confirmation && form.password !== form.password_confirmation)">
+                            :disabled="isSubmitting || (form.password.length > 0 && form.password !== form.password_confirmation)">
                             <span x-show="!isSubmitting" class="flex items-center justify-center gap-2">
                                 <svg x-show="!isEditing" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -328,9 +300,11 @@
                 </form>
             </div>
         </div>
+        </template>
 
         <!-- Overlay Confirmation Suppression -->
-        <div x-show="showDeleteModal" x-cloak @keydown.escape.window="closeDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showDeleteModal" x-cloak @keydown.escape.window="closeDeleteModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-900 p-6">
                 <div class="text-center">
                     <svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,6 +328,7 @@
                 </div>
             </div>
         </div>
+        </template>
 
         <!-- Tableau -->
         <div class="overflow-x-auto">
@@ -635,6 +610,16 @@ document.addEventListener('alpine:init', () => {
                 }
             }
 
+            const confirmed = await window.gsfConfirm({
+                title: this.isEditing ? 'Modifier l\'utilisateur' : 'Créer l\'utilisateur',
+                message: this.isEditing
+                    ? `Confirmer la modification de <strong>${this.form.nom}</strong> ?`
+                    : `Confirmer la création de l'utilisateur <strong>${this.form.nom}</strong> ?`,
+                type: 'info',
+                confirmText: this.isEditing ? 'Modifier' : 'Créer'
+            });
+            if (!confirmed) { this.isSubmitting = false; return; }
+
             try {
                 const url = this.isEditing
                     ? `/api/utilisateurs/${this.editingUtilisateurId}`
@@ -661,17 +646,17 @@ document.addEventListener('alpine:init', () => {
                     const message = this.isEditing
                         ? 'Utilisateur modifié avec succès !'
                         : 'Utilisateur créé avec succès !';
-                    alert(message);
+                    window.gsfToast(message, 'success');
                 } else {
                     if (data.errors) {
                         this.formErrors = Object.values(data.errors).flat();
                     } else {
-                        alert(data.message || 'Une erreur est survenue');
+                        window.gsfToast(data.message || 'Une erreur est survenue', 'error');
                     }
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue lors de la communication avec le serveur');
+                window.gsfToast('Une erreur est survenue lors de la communication avec le serveur', 'error');
             } finally {
                 this.isSubmitting = false;
             }
@@ -695,13 +680,13 @@ document.addEventListener('alpine:init', () => {
                 if (data.success) {
                     await this.loadUtilisateurs();
                     this.closeDeleteModal();
-                    alert('Utilisateur supprimé avec succès !');
+                    window.gsfToast('Utilisateur supprimé avec succès', 'success');
                 } else {
-                    alert(data.message || 'Erreur lors de la suppression');
+                    window.gsfToast(data.message || 'Erreur lors de la suppression', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue lors de la suppression');
+                window.gsfToast('Une erreur est survenue lors de la suppression', 'error');
             }
         },
 
@@ -721,11 +706,11 @@ document.addEventListener('alpine:init', () => {
                 if (data.success) {
                     await this.loadUtilisateurs();
                 } else {
-                    alert(data.message || 'Erreur lors du changement de statut');
+                    window.gsfToast(data.message || 'Erreur lors du changement de statut', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue');
+                window.gsfToast('Une erreur est survenue', 'error');
             }
         },
 
@@ -773,3 +758,4 @@ document.addEventListener('alpine:init', () => {
 <style>
 [x-cloak] { display: none !important; }
 </style>
+

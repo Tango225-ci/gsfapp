@@ -264,12 +264,45 @@ class Contrat extends Model
         }
 
         // Récupérer les documents du contrat qui sont payés ou disponibles
-        $documentsOk = $this->contratDocuments()
-                            ->whereIn('id_document_type', $docTypesObligatoires)
-                            ->whereIn('statut_document', ['paye', 'disponible', 'remis'])
-                            ->count();
+        if ($this->relationLoaded('contratDocuments')) {
+            $documentsOk = $this->contratDocuments
+                                ->whereIn('id_document_type', $docTypesObligatoires)
+                                ->whereIn('statut_document', ['paye', 'disponible', 'remis'])
+                                ->count();
+        } else {
+            $documentsOk = $this->contratDocuments()
+                                ->whereIn('id_document_type', $docTypesObligatoires)
+                                ->whereIn('statut_document', ['paye', 'disponible', 'remis'])
+                                ->count();
+        }
 
         return $documentsOk === count($docTypesObligatoires);
+    }
+
+    /**
+     * Cache mémoire (durée de vie de l'instance) des frais ACD de la ville du lot,
+     * pour éviter de relancer la même requête depuis frais_acd_par_ville, total_frais_acd
+     * et frais_acd_par_ville_formatted.
+     */
+    private $fraisAcdVilleDataCache = null;
+
+    private function getFraisAcdVilleData()
+    {
+        if ($this->fraisAcdVilleDataCache !== null) {
+            return $this->fraisAcdVilleDataCache;
+        }
+
+        $lot = $this->lot;
+        $ville = ($lot && $lot->lotissement) ? $lot->lotissement->ville : null;
+
+        if (!$ville) {
+            return $this->fraisAcdVilleDataCache = collect();
+        }
+
+        return $this->fraisAcdVilleDataCache = VilleDocumentFrais::with('documentType')
+            ->where('ville', $ville)
+            ->where('valeursupprimee', 0)
+            ->get();
     }
 
     /**
@@ -277,22 +310,7 @@ class Contrat extends Model
      */
     public function getFraisAcdParVilleAttribute()
     {
-        $lot = $this->lot;
-        if (!$lot || !$lot->lotissement) {
-            return [];
-        }
-        
-        $ville = $lot->lotissement->ville;
-        if (!$ville) {
-            return [];
-        }
-        
-        $frais = VilleDocumentFrais::with('documentType')
-            ->where('ville', $ville)
-            ->where('valeursupprimee', 0)
-            ->get();
-        
-        return $frais->map(function($item) {
+        return $this->getFraisAcdVilleData()->map(function($item) {
             return [
                 'id_frais' => $item->id_frais,
                 'id_document_type' => $item->id_document_type,
@@ -310,19 +328,7 @@ class Contrat extends Model
      */
     public function getTotalFraisAcdAttribute()
     {
-        $lot = $this->lot;
-        if (!$lot || !$lot->lotissement) {
-            return 0;
-        }
-        
-        $ville = $lot->lotissement->ville;
-        if (!$ville) {
-            return 0;
-        }
-        
-        return VilleDocumentFrais::where('ville', $ville)
-            ->where('valeursupprimee', 0)
-            ->sum('montant');
+        return $this->getFraisAcdVilleData()->sum('montant');
     }
 
     /**
@@ -378,11 +384,18 @@ class Contrat extends Model
         $contratSolde = $this->statut === 'SOLDE' || $this->reste_a_payer_calcule <= 0;
         
         // Vérifier si tous les frais ACD sont payés
-        $fraisNonPayes = $this->contratDocuments()
-                             ->where('statut_paiement', '!=', 'paye')
-                             ->where('montant', '>', 0)
-                             ->count();
-        
+        if ($this->relationLoaded('contratDocuments')) {
+            $fraisNonPayes = $this->contratDocuments
+                                 ->where('statut_paiement', '!=', 'paye')
+                                 ->where('montant', '>', 0)
+                                 ->count();
+        } else {
+            $fraisNonPayes = $this->contratDocuments()
+                                 ->where('statut_paiement', '!=', 'paye')
+                                 ->where('montant', '>', 0)
+                                 ->count();
+        }
+
         $fraisSolde = $fraisNonPayes === 0;
         
         return $contratSolde && $fraisSolde;
@@ -551,7 +564,9 @@ class Contrat extends Model
     }
 
     /**
-     * Générer les échéances pour un contrat échelonné (MONTANTS ENTIERS)
+     * Générer les échéances pour un contrat échelonné (MONTANTS RONDS)
+     * Les montants sont arrondis à 50 000 FCFA près (ex: 145000, 175000, 200000)
+     * La différence est ajustée sur la première échéance
      */
     public function genererEcheances()
     {
@@ -569,21 +584,36 @@ class Contrat extends Model
 
         $montantTotal = floatval($this->montant_total ?? 0);
 
-        // Calculer un montant ENTIER par échéance
-        $montantParEcheance = floor($montantTotal / $dureeMois);
-        $reste = $montantTotal - ($montantParEcheance * $dureeMois);
+        // Définir le pas d'arrondi (50 000 FCFA)
+        $arrondi = 50000;
+        
+        // Calculer un montant de base arrondi à l'arrondi spécifié
+        $montantBase = floor($montantTotal / $dureeMois / $arrondi) * $arrondi;
+        
+        // Si le montant de base est trop petit, prendre l'arrondi minimum
+        if ($montantBase < $arrondi) {
+            $montantBase = $arrondi;
+        }
+        
+        // Calculer la différence entre le total réel et le total avec montants arrondis
+        $difference = $montantTotal - ($montantBase * $dureeMois);
 
         $dateDebut = $this->date_debut ?? $this->date_contrat ?? now();
         $dateEcheance = Carbon::parse($dateDebut);
 
         $echeances = [];
         for ($i = 1; $i <= $dureeMois; $i++) {
-            $montant = $montantParEcheance;
-
-            // Ajouter 1 FCFA aux premières échéances si nécessaire
-            if ($reste > 0) {
-                $montant++;
-                $reste--;
+            // La première échéance prend la différence
+            // Les autres prennent le montant de base
+            if ($i == 1) {
+                $montant = $montantBase + $difference;
+            } else {
+                $montant = $montantBase;
+            }
+            
+            // S'assurer que le montant est positif
+            if ($montant < 0) {
+                $montant = $montantBase;
             }
 
             $echeances[] = [
@@ -603,24 +633,46 @@ class Contrat extends Model
 
         $this->update(['date_fin' => $dateEcheance->copy()->subMonth()]);
 
-        Log::info('Échéances générées pour le contrat', [
+        Log::info('Échéances générées pour le contrat (montants ronds)', [
             'contrat_id' => $this->id_contrat,
             'reference' => $this->reference_contrat,
             'nombre_echeances' => $dureeMois,
-            'montant_par_echeance' => $montantParEcheance,
-            'reste_reparti' => $montantTotal - ($montantParEcheance * $dureeMois)
+            'montant_par_echeance' => $montantBase,
+            'difference' => $difference,
+            'arrondi' => $arrondi,
+            'echeances' => array_column($echeances, 'montant_prevu')
         ]);
 
         return $result;
     }
 
     /**
-     * Récupérer le montant total des paiements validés (non supprimés)
+     * Récupérer le montant total payé pour le PRIX DU TERRAIN (paiements validés, non supprimés).
+     * Les frais de dossier ACD (type_paiement = FRAIS_DOCUMENT) sont exclus : ce sont des frais
+     * administratifs distincts du prix du terrain, ils ne doivent jamais réduire le reste à payer
+     * du terrain ni faire passer le contrat à SOLDE.
      */
     public function getMontantPayeAttribute()
     {
+        // Si la relation est déjà chargée, on calcule en mémoire plutôt que de relancer une requête
+        if ($this->relationLoaded('paiements')) {
+            $total = $this->paiements
+                          ->where('statut', 'VALIDE')
+                          ->where('type_paiement', '!=', 'FRAIS_DOCUMENT')
+                          ->filter(function($paiement) {
+                              return $paiement->valeursupprimee != 1;
+                          })
+                          ->sum('montant');
+
+            return floatval($total ?? 0);
+        }
+
         $total = $this->paiements()
                       ->where('statut', 'VALIDE')
+                      ->where(function($query) {
+                          $query->where('type_paiement', '!=', 'FRAIS_DOCUMENT')
+                                ->orWhereNull('type_paiement');
+                      })
                       ->where(function($query) {
                           $query->where('valeursupprimee', '!=', 1)
                                 ->orWhereNull('valeursupprimee');
@@ -706,10 +758,17 @@ class Contrat extends Model
      */
     public function getProchaineEcheanceAttribute()
     {
-        $echeance = $this->echeances()
-                         ->whereIn('statut', ['A_PAYER', 'EN_RETARD'])
-                         ->orderBy('date_echeance', 'asc')
-                         ->first();
+        if ($this->relationLoaded('echeances')) {
+            $echeance = $this->echeances
+                             ->whereIn('statut', ['A_PAYER', 'EN_RETARD'])
+                             ->sortBy('date_echeance')
+                             ->first();
+        } else {
+            $echeance = $this->echeances()
+                             ->whereIn('statut', ['A_PAYER', 'EN_RETARD'])
+                             ->orderBy('date_echeance', 'asc')
+                             ->first();
+        }
 
         if (!$echeance) {
             return null;
@@ -734,6 +793,9 @@ class Contrat extends Model
      */
     public function getNombreEcheancesEnRetardAttribute()
     {
+        if ($this->relationLoaded('echeances')) {
+            return $this->echeances->where('statut', 'EN_RETARD')->count();
+        }
         return $this->echeances()->where('statut', 'EN_RETARD')->count();
     }
 
@@ -742,6 +804,9 @@ class Contrat extends Model
      */
     public function getNombreEcheancesTotalAttribute()
     {
+        if ($this->relationLoaded('echeances')) {
+            return $this->echeances->count();
+        }
         return $this->echeances()->count();
     }
 
@@ -750,6 +815,9 @@ class Contrat extends Model
      */
     public function getNombreEcheancesPayeesAttribute()
     {
+        if ($this->relationLoaded('echeances')) {
+            return $this->echeances->where('statut', 'PAYE')->count();
+        }
         return $this->echeances()->where('statut', 'PAYE')->count();
     }
 
@@ -793,13 +861,9 @@ class Contrat extends Model
      */
     public function updateContratStatut()
     {
-        $totalPaye = $this->paiements()
-                          ->where('statut', 'VALIDE')
-                          ->where(function($query) {
-                              $query->where('valeursupprimee', '!=', 1)
-                                    ->orWhereNull('valeursupprimee');
-                          })
-                          ->sum('montant');
+        // montant_paye exclut déjà les frais de dossier ACD (FRAIS_DOCUMENT) : seul le prix
+        // du terrain compte pour déterminer si le contrat est soldé.
+        $totalPaye = $this->montant_paye;
 
         $montantTotal = $this->montant_total;
 

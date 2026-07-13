@@ -44,7 +44,7 @@
                     </div>
 
                     <!-- Bouton Nouveau Lot -->
-                    <button @click="newLot"
+                    <button @click="newLot" x-show="window.gsfUser.can.lots.create"
                         class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -75,65 +75,27 @@
 
         <!-- Cartes statistiques -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Total lots</p>
-                        <p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total lots</p>
+                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Disponibles</p>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="stats.disponibles"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Disponibles</p>
+                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.disponibles"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Réservés</p>
-                        <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.reserves"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Réservés</p>
+                <p class="mt-2 text-4xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.reserves"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Vendus</p>
-                        <p class="text-2xl font-bold text-red-600 dark:text-red-400" x-text="stats.vendus"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-red-600 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Vendus</p>
+                <p class="mt-2 text-4xl font-bold text-red-600 dark:text-red-400" x-text="stats.vendus"></p>
             </div>
         </div>
 
         <!-- Overlay formulaire création lot -->
-        <div x-show="showLotForm" x-cloak @keydown.escape.window="closeLotForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showLotForm" x-cloak @keydown.escape.window="closeLotForm" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
 
                 <!-- En-tête -->
@@ -233,6 +195,30 @@
                                 </template>
                             </select>
                         </div>
+
+                        <div class="sm:col-span-2 border-t border-gray-100 dark:border-gray-700 pt-4">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Propriétaire terrien</p>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Propriétaire terrien</label>
+                            <select x-model="form.id_proprietaire"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                                <option value="">Aucun / Non renseigné</option>
+                                <template x-for="p in proprietairesListe" :key="p.id_proprietaire">
+                                    <option :value="p.id_proprietaire" x-text="p.nom + (p.contact ? ' — ' + p.contact : '')"></option>
+                                </template>
+                            </select>
+                            <p class="mt-1 text-xs text-gray-400">Propriétaire foncier du terrain (facultatif)</p>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Prix d'achat (FCFA)</label>
+                            <input type="number" step="1000" min="0" x-model="form.prix_achat"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                                placeholder="0">
+                            <p class="mt-1 text-xs text-gray-500">Montant dû au propriétaire pour ce lot</p>
+                        </div>
                     </div>
 
                     <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -257,9 +243,11 @@
                 </form>
             </div>
         </div>
+        </template>
 
         <!-- Overlay formulaire affichage détails lot -->
-        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-900">
 
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900">
@@ -339,6 +327,18 @@
                                 class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
                                 placeholder="Non rattaché">
                         </div>
+
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Propriétaire terrien</label>
+                            <input type="text" :value="selectedLot?.proprietaire_nom || '—'" readonly disabled
+                                class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Prix d'achat</label>
+                            <input type="text" :value="selectedLot?.prix_achat > 0 ? new Intl.NumberFormat('fr-FR').format(selectedLot.prix_achat) + ' FCFA' : '—'" readonly disabled
+                                class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                        </div>
                     </div>
 
                     <div class="mt-5 flex gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
@@ -355,6 +355,7 @@
                 </div>
             </div>
         </div>
+        </template>
 
         <!-- Tableau -->
         <div class="overflow-x-auto">
@@ -404,14 +405,14 @@
                                     </svg>
                                 </button>
                                 <button @click.stop="editItem(item)"
-                                    x-show="item.can_be_modified"
+                                    x-show="item.can_be_modified && window.gsfUser.can.lots.update"
                                     class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 transition-colors" title="Modifier">
                                     <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </button>
                                 <button @click.stop="deleteItem(item.id_lot)"
-                                    x-show="item.can_be_deleted"
+                                    x-show="item.can_be_deleted && window.gsfUser.can.lots.delete"
                                     class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" title="Supprimer">
                                     <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -482,6 +483,7 @@ document.addEventListener('alpine:init', () => {
         editingLot: null,
         formErrors: [],
         lotissementsListe: [],
+        proprietairesListe: [],
         form: {
             numero_lot: '',
             numero_ilot: '',
@@ -489,8 +491,10 @@ document.addEventListener('alpine:init', () => {
             superficie: '',
             prix_comptant: '',
             prix_echelonne: '',
+            prix_achat: '',
             statut: 'DISPONIBLE',
-            id_lotissement: ''
+            id_lotissement: '',
+            id_proprietaire: ''
         },
         items: [],
 
@@ -609,7 +613,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async init() {
-            await this.loadLotissements();
+            await Promise.all([this.loadLotissements(), this.loadProprietaires()]);
             await this.loadLotsFromDB();
         },
 
@@ -627,6 +631,25 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        async loadProprietaires() {
+            try {
+                const response = await fetch('/api/proprietaires/liste');
+                if (response.ok) {
+                    this.proprietairesListe = await response.json();
+                } else {
+                    this.proprietairesListe = [];
+                }
+            } catch (error) {
+                this.proprietairesListe = [];
+            }
+        },
+
+        getProprietaireNom(id) {
+            if (!id) return '—';
+            const p = this.proprietairesListe.find(p => p.id_proprietaire == id);
+            return p ? p.nom : '—';
+        },
+
         getLotissementNom(idLotissement) {
             if (!idLotissement) return '-';
             const lotissement = this.lotissementsListe.find(l => l.id_lotissement == idLotissement);
@@ -642,8 +665,10 @@ document.addEventListener('alpine:init', () => {
                 superficie: '',
                 prix_comptant: '',
                 prix_echelonne: '',
+                prix_achat: '',
                 statut: 'DISPONIBLE',
-                id_lotissement: ''
+                id_lotissement: '',
+                id_proprietaire: ''
             };
             this.formErrors = [];
             this.showLotForm = true;
@@ -651,7 +676,7 @@ document.addEventListener('alpine:init', () => {
 
         editItem(item) {
             if (!item.can_be_modified) {
-                alert('Ce lot ne peut pas être modifié car il est ' + item.statut_label.toLowerCase());
+                window.gsfToast('Ce lot ne peut pas être modifié car il est ' + item.statut_label.toLowerCase(), 'warning');
                 return;
             }
             this.editingLot = item;
@@ -662,8 +687,10 @@ document.addEventListener('alpine:init', () => {
                 superficie: item.superficie || '',
                 prix_comptant: item.prix_comptant || '',
                 prix_echelonne: item.prix_echelonne || '',
+                prix_achat: item.prix_achat || '',
                 statut: item.statut,
-                id_lotissement: item.id_lotissement || ''
+                id_lotissement: item.id_lotissement || '',
+                id_proprietaire: item.id_proprietaire || ''
             };
             this.formErrors = [];
             this.showLotForm = true;
@@ -708,10 +735,13 @@ document.addEventListener('alpine:init', () => {
                         prix_comptant_formatted: lot.prix_comptant_formatted || this.formatPrice(lot.prix_comptant),
                         prix_echelonne: parseFloat(lot.prix_echelonne) || 0,
                         prix_echelonne_formatted: lot.prix_echelonne_formatted || this.formatPrice(lot.prix_echelonne),
+                        prix_achat: parseFloat(lot.prix_achat) || 0,
                         statut: lot.statut,
                         statut_label: this.getStatutLabel(lot.statut),
                         id_lotissement: lot.id_lotissement,
                         lotissement_nom: lot.lotissement_nom || this.getLotissementNom(lot.id_lotissement),
+                        id_proprietaire: lot.id_proprietaire,
+                        proprietaire_nom: lot.proprietaire_nom || this.getProprietaireNom(lot.id_proprietaire),
                         created_at: lot.created_at,
                         created_at_formatted: this.formatDate(lot.created_at),
                         can_be_modified: lot.can_be_modified || false,
@@ -752,6 +782,16 @@ document.addEventListener('alpine:init', () => {
 
             if (this.formErrors.length) return;
 
+            const confirmed = await window.gsfConfirm({
+                title: this.editingLot ? 'Modifier le lot' : 'Créer le lot',
+                message: this.editingLot
+                    ? `Confirmer la modification du lot <strong>${this.editingLot.numero_lot}</strong> ?`
+                    : `Confirmer la création du lot <strong>${this.form.numero_lot}</strong> ?`,
+                type: 'info',
+                confirmText: this.editingLot ? 'Modifier' : 'Créer'
+            });
+            if (!confirmed) return;
+
             let url = '/api/lots';
             let method = 'POST';
 
@@ -777,13 +817,13 @@ document.addEventListener('alpine:init', () => {
                     await this.loadLotissements();
                     await this.loadLotsFromDB();
                     this.closeLotForm();
-                    alert(this.editingLot ? 'Lot modifié avec succès.' : 'Lot créé avec succès.');
+                    window.gsfToast(this.editingLot ? 'Lot modifié avec succès.' : 'Lot créé avec succès.', 'success');
                 } else {
-                    alert('Erreur: ' + (data.message || 'Erreur inconnue'));
+                    window.gsfToast('Erreur: ' + (data.message || 'Erreur inconnue'), 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Erreur: ' + error.message);
+                window.gsfToast('Erreur: ' + error.message, 'error');
             }
         },
 
@@ -791,11 +831,17 @@ document.addEventListener('alpine:init', () => {
             const item = this.items.find(i => i.id_lot === id);
 
             if (item && !item.can_be_deleted) {
-                alert('Ce lot ne peut pas être supprimé car il est ' + item.statut_label.toLowerCase());
+                window.gsfToast('Ce lot ne peut pas être supprimé car il est ' + item.statut_label.toLowerCase(), 'warning');
                 return;
             }
 
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce lot ?')) return;
+            const confirmed = await window.gsfConfirm({
+                title: 'Supprimer le lot',
+                message: `Êtes-vous sûr de vouloir supprimer le lot <strong>${item?.numero_lot || ('#' + id)}</strong> ?<br><span class="text-xs text-red-500 mt-1 block">Cette action est irréversible.</span>`,
+                type: 'danger',
+                confirmText: 'Supprimer'
+            });
+            if (!confirmed) return;
 
             try {
                 const response = await fetch(`/api/lots/${id}`, {
@@ -810,13 +856,13 @@ document.addEventListener('alpine:init', () => {
 
                 if (data.success) {
                     await this.loadLotsFromDB();
-                    alert('Lot supprimé avec succès');
+                    window.gsfToast('Lot supprimé avec succès', 'success');
                 } else {
-                    alert('Erreur lors de la suppression: ' + (data.message || 'Erreur inconnue'));
+                    window.gsfToast('Erreur : ' + (data.message || 'Erreur inconnue'), 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue');
+                window.gsfToast('Une erreur est survenue', 'error');
             }
         },
 
@@ -872,3 +918,4 @@ document.addEventListener('alpine:init', () => {
 <style>
 [x-cloak] { display: none !important; }
 </style>
+

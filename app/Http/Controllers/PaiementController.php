@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\NotifHelper;
+use App\Helpers\PermissionHelper;
 use App\Models\Paiement;
 use App\Models\Contrat;
 use App\Models\Lot;
@@ -107,6 +109,8 @@ class PaiementController extends Controller
      */
     public function store(Request $request)
     {
+        PermissionHelper::abort403('paiements', 'create');
+
         try {
             $validated = $request->validate([
                 'id_contrat'      => 'required|exists:contrats,id_contrat',
@@ -189,6 +193,16 @@ class PaiementController extends Controller
                 $contrat->refresh();
                 $contrat->load(['echeances', 'paiements']);
 
+                NotifHelper::notifyAdmins('Nouveau paiement enregistré', [
+                    '**Un nouveau paiement a été enregistré.**',
+                    'Référence : ' . ($paiement->reference ?? '—'),
+                    'Contrat : ' . ($contrat->reference_contrat ?? '—'),
+                    'Client : ' . ($contrat->client->nom_prenoms ?? '—'),
+                    'Montant : ' . number_format($validated['montant'], 0, ',', ' ') . ' FCFA',
+                    'Mode de paiement : ' . $validated['mode_paiement'],
+                    'Statut : ' . $validated['statut'],
+                ]);
+
                 $response = [
                     'success' => true,
                     'message' => 'Paiement enregistré avec succès.',
@@ -229,6 +243,8 @@ class PaiementController extends Controller
      */
     public function update(Request $request, $id)
     {
+        PermissionHelper::abort403('paiements', 'update');
+
         try {
             $paiement = Paiement::where('id_paiement', $id)
                                 ->where('valeursupprimee', '!=', 1)
@@ -346,6 +362,8 @@ class PaiementController extends Controller
      */
     public function destroy($id)
     {
+        PermissionHelper::abort403('paiements', 'delete');
+
         try {
             DB::beginTransaction();
 
@@ -383,6 +401,13 @@ class PaiementController extends Controller
 
             DB::commit();
 
+            NotifHelper::notifyAdmins('Paiement supprimé', [
+                '**Un paiement a été supprimé.**',
+                'Référence : ' . ($paiement->reference ?? '—'),
+                'Contrat : ' . ($contrat->reference_contrat ?? '—'),
+                'Montant : ' . number_format($paiement->montant, 0, ',', ' ') . ' FCFA',
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Paiement supprimé avec succès',
@@ -406,6 +431,8 @@ class PaiementController extends Controller
      */
     public function valider($id)
     {
+        PermissionHelper::abort403('paiements', 'valider');
+
         try {
             DB::beginTransaction();
 
@@ -463,6 +490,14 @@ class PaiementController extends Controller
 
             $contrat->refresh();
 
+            NotifHelper::notifyAdmins('Paiement validé', [
+                '**Un paiement a été validé.**',
+                'Référence : ' . ($paiement->reference ?? '—'),
+                'Contrat : ' . ($contrat->reference_contrat ?? '—'),
+                'Client : ' . ($contrat->client->nom_prenoms ?? '—'),
+                'Montant : ' . number_format($paiement->montant, 0, ',', ' ') . ' FCFA',
+            ]);
+
             $response = [
                 'success' => true,
                 'message' => 'Paiement validé avec succès',
@@ -495,6 +530,8 @@ class PaiementController extends Controller
      */
     public function rejeter($id)
     {
+        PermissionHelper::abort403('paiements', 'rejeter');
+
         try {
             DB::beginTransaction();
 
@@ -514,6 +551,14 @@ class PaiementController extends Controller
             }
 
             DB::commit();
+
+            NotifHelper::notifyAdmins('Paiement rejeté', [
+                '**Un paiement a été rejeté.**',
+                'Référence : ' . ($paiement->reference ?? '—'),
+                'Contrat : ' . ($contrat->reference_contrat ?? '—'),
+                'Client : ' . ($contrat->client->nom_prenoms ?? '—'),
+                'Montant : ' . number_format($paiement->montant, 0, ',', ' ') . ' FCFA',
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -620,6 +665,8 @@ class PaiementController extends Controller
      */
     public function storeFraisDocument(Request $request)
     {
+        PermissionHelper::abort403('paiements', 'create');
+
         try {
             $validated = $request->validate([
                 'id_contrat'           => 'required|exists:contrats,id_contrat',

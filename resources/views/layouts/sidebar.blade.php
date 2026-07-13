@@ -65,13 +65,9 @@
         'justify-start'">
         <a href="/">
             <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" width="150" height="40" />
-            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" width="150"
-                height="40" />
+                src="/images/logo/gsf-logo.png" alt="GSF Logo" style="height:44px;width:auto;max-width:180px;object-fit:contain;" />
             <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
-                src="/images/logo/logo-icon.svg" alt="Logo" width="32" height="32" />
-
+                src="/images/logo/gsf-logo.png" alt="GSF" style="height:32px;width:auto;max-width:60px;object-fit:contain;" />
         </a>
     </div>
 

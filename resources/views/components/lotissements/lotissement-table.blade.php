@@ -36,7 +36,7 @@
                     </div>
 
                     <!-- Bouton Nouveau Lotissement -->
-                    <button @click="newLotissement"
+                    <button @click="newLotissement" x-show="window.gsfUser.can.lotissements.create"
                         class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -67,65 +67,27 @@
 
         <!-- Cartes statistiques -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Total lotissements</p>
-                        <p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total lotissements</p>
+                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Approuvés & diffusés</p>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="stats.approuves_diffuses"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Approuvés & diffusés</p>
+                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.approuves_diffuses"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Non approuvés</p>
-                        <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.non_approuves"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Non approuvés</p>
+                <p class="mt-2 text-4xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.non_approuves"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">ACD (Individuel/Global)</p>
-                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.acd"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">ACD (Individuel/Global)</p>
+                <p class="mt-2 text-4xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.acd"></p>
             </div>
         </div>
 
         <!-- Overlay formulaire création lotissement -->
-        <div x-show="showLotissementForm" x-cloak @keydown.escape.window="closeLotissementForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showLotissementForm" x-cloak @keydown.escape.window="closeLotissementForm" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
 
                 <!-- En-tête -->
@@ -230,9 +192,11 @@
                 </form>
             </div>
         </div>
+        </template>
 
         <!-- Overlay formulaire affichage détails lotissement - MODIFIÉ AVEC SECTION FRAIS ACD -->
-        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-900">
 
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900">
@@ -418,6 +382,7 @@
                 </div>
             </div>
         </div>
+        </template>
 
         <!-- Tableau -->
         <div class="overflow-x-auto">
@@ -471,13 +436,13 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                     </svg>
                                 </button>
-                                <button @click.stop="editItem(item)"
+                                <button @click.stop="editItem(item)" x-show="window.gsfUser.can.lotissements.update"
                                     class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 transition-colors" title="Modifier">
                                     <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </button>
-                                <button @click.stop="deleteItem(item.id_lotissement)"
+                                <button @click.stop="deleteItem(item.id_lotissement)" x-show="window.gsfUser.can.lotissements.delete"
                                     class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" title="Supprimer">
                                     <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -848,6 +813,16 @@ document.addEventListener('alpine:init', () => {
 
             if (this.formErrors.length) return;
 
+            const confirmed = await window.gsfConfirm({
+                title: this.editingLotissement ? 'Modifier le lotissement' : 'Créer le lotissement',
+                message: this.editingLotissement
+                    ? `Confirmer la modification de <strong>${this.editingLotissement.nom}</strong> ?`
+                    : `Confirmer la création du lotissement <strong>${this.form.nom}</strong> ?`,
+                type: 'info',
+                confirmText: this.editingLotissement ? 'Modifier' : 'Créer'
+            });
+            if (!confirmed) return;
+
             let url = '/api/lotissements';
             let method = 'POST';
 
@@ -872,18 +847,25 @@ document.addEventListener('alpine:init', () => {
                 if (data.success) {
                     await this.loadLotissementsFromDB();
                     this.closeLotissementForm();
-                    alert(this.editingLotissement ? 'Lotissement modifié avec succès.' : 'Lotissement créé avec succès.');
+                    window.gsfToast(this.editingLotissement ? 'Lotissement modifié avec succès.' : 'Lotissement créé avec succès.', 'success');
                 } else {
-                    alert('Erreur: ' + (data.message || 'Erreur inconnue'));
+                    window.gsfToast('Erreur: ' + (data.message || 'Erreur inconnue'), 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Erreur: ' + error.message);
+                window.gsfToast('Erreur: ' + error.message, 'error');
             }
         },
 
         async deleteItem(id) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce lotissement ?')) return;
+            const item = this.items.find(l => l.id_lotissement === id);
+            const confirmed = await window.gsfConfirm({
+                title: 'Supprimer le lotissement',
+                message: `Êtes-vous sûr de vouloir supprimer <strong>${item?.nom || 'ce lotissement'}</strong> ?<br><span class="text-xs text-red-500 mt-1 block">Cette action est irréversible.</span>`,
+                type: 'danger',
+                confirmText: 'Supprimer'
+            });
+            if (!confirmed) return;
 
             try {
                 const response = await fetch(`/api/lotissements/${id}`, {
@@ -898,13 +880,13 @@ document.addEventListener('alpine:init', () => {
 
                 if (data.success) {
                     await this.loadLotissementsFromDB();
-                    alert('Lotissement supprimé avec succès');
+                    window.gsfToast('Lotissement supprimé avec succès', 'success');
                 } else {
-                    alert('Erreur lors de la suppression');
+                    window.gsfToast('Erreur lors de la suppression', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue');
+                window.gsfToast('Une erreur est survenue', 'error');
             }
         },
 
@@ -964,3 +946,4 @@ document.addEventListener('alpine:init', () => {
 <style>
 [x-cloak] { display: none !important; }
 </style>
+

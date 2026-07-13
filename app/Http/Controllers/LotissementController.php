@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PermissionHelper;
 use App\Models\Lotissement;
 use App\Models\Lot;
 use Illuminate\Http\Request;
@@ -74,6 +75,8 @@ class LotissementController extends Controller
      */
     public function store(Request $request)
     {
+        PermissionHelper::abort403('lotissements', 'create');
+
         try {
             $validated = $request->validate([
                 'nom'                 => 'required|string|max:150|unique:lotissements,nom',
@@ -115,6 +118,8 @@ class LotissementController extends Controller
      */
     public function update(Request $request, $id)
     {
+        PermissionHelper::abort403('lotissements', 'update');
+
         try {
             $lotissement = Lotissement::where('id_lotissement', $id)
                                       ->where(function($query) {
@@ -167,6 +172,8 @@ class LotissementController extends Controller
      */
     public function destroy($id)
     {
+        PermissionHelper::abort403('lotissements', 'delete');
+
         try {
             $lotissement = Lotissement::where('id_lotissement', $id)->first();
 
@@ -310,6 +317,8 @@ class LotissementController extends Controller
      */
     public function updateStatut(Request $request, $id)
     {
+        PermissionHelper::abort403('lotissements', 'update');
+
         try {
             $lotissement = Lotissement::where('id_lotissement', $id)
                                       ->where(function($query) {

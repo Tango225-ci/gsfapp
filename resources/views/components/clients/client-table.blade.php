@@ -17,7 +17,7 @@
 
                     <!-- Barre de recherche -->
                     <div class="relative w-64">
-                        <input type="text" x-model="search" placeholder="Rechercher nom, email, contact..."
+                        <input type="text" x-model="search" placeholder="Rechercher référence, nom, email..."
                             class="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm">
                         <svg class="absolute right-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -25,7 +25,7 @@
                     </div>
 
                     <!-- Bouton Nouveau Client -->
-                    <button @click="newClient"
+                    <button @click="newClient" x-show="window.gsfUser.can.clients.create"
                         class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -56,83 +56,119 @@
 
         <!-- Cartes statistiques -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Total clients</p>
-                        <p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total clients</p>
+                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Actifs</p>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="stats.actifs"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Actifs</p>
+                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.actifs"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Prospects</p>
-                        <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.prospects"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Prospects</p>
+                <p class="mt-2 text-4xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.prospects"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Suspendus</p>
-                        <p class="text-2xl font-bold text-red-600 dark:text-red-400" x-text="stats.suspendus"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-red-600 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Suspendus</p>
+                <p class="mt-2 text-4xl font-bold text-red-600 dark:text-red-400" x-text="stats.suspendus"></p>
             </div>
         </div>
 
         <!-- Overlay formulaire création client -->
-        <div x-show="showClientForm" x-cloak @keydown.escape.window="closeClientForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showClientForm" x-cloak @keydown.escape.window="closeClientForm" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
 
                 <!-- En-tête -->
-                <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
-                    <div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white" x-text="editingClient ? 'Modifier le client' : 'Nouveau client'"></h3>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="editingClient ? 'Modifiez les informations du client' : 'Ajoutez un client avec un formulaire clair et rapide'"></p>
+                <div class="sticky top-0 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+                    <div class="flex items-center justify-between px-6 py-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white" x-text="editingClient ? 'Modifier le client' : 'Nouveau client'"></h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-text="editingClient ? 'Modifiez les informations du client' : 'Ajoutez un client avec un formulaire clair et rapide'"></p>
+                        </div>
+                        <button type="button" @click="closeClientForm"
+                            class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
-                    <button type="button" @click="closeClientForm"
-                        class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+
+                    <!-- Onglets (uniquement à la création d'un client) -->
+                    <div x-show="!editingClient" class="flex gap-1 px-6">
+                        <button type="button" @click="modalTab = 'form'"
+                            :class="modalTab === 'form' ? 'border-blue-600 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400'"
+                            class="px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors">
+                            1. Informations
+                        </button>
+                        <button type="button" @click="createdAccountInfo && (modalTab = 'account')"
+                            :disabled="!createdAccountInfo"
+                            :class="modalTab === 'account' ? 'border-blue-600 text-blue-600 dark:text-blue-400' : (createdAccountInfo ? 'border-transparent text-gray-500 dark:text-gray-400' : 'border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed')"
+                            class="px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors">
+                            2. Accès portail
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Onglet 2 : Accès portail (affiché juste après la création du client) -->
+                <div x-show="modalTab === 'account'" class="p-6">
+                    <div class="rounded-lg border border-green-200 bg-green-50 p-4 mb-5 dark:border-green-800 dark:bg-green-900/20">
+                        <p class="text-sm font-medium text-green-800 dark:text-green-300">
+                            Client créé avec succès — son compte pour l'espace client (portail) a été généré.
+                        </p>
+                        <p class="mt-1 text-xs text-green-700 dark:text-green-400">
+                            Communiquez les informations ci-dessous au client. Il devra changer ce mot de passe à sa première connexion.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Identifiant de connexion (téléphone)</label>
+                            <div class="flex items-center gap-2">
+                                <code class="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-mono select-all dark:border-gray-600 dark:bg-gray-800 dark:text-white" x-text="createdAccountInfo?.identifiant"></code>
+                                <button type="button" @click="copyToClipboard(createdAccountInfo?.identifiant)" title="Copier"
+                                    class="rounded-lg border border-gray-300 p-2 text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Mot de passe temporaire</label>
+                            <div class="flex items-center gap-2">
+                                <code class="flex-1 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-mono select-all dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300" x-text="createdAccountInfo?.password"></code>
+                                <button type="button" @click="copyToClipboard(createdAccountInfo?.password)" title="Copier"
+                                    class="rounded-lg border border-gray-300 p-2 text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                </button>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-400">À changer obligatoirement lors de la première connexion du client.</p>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Lien de connexion au portail</label>
+                            <div class="flex items-center gap-2">
+                                <a :href="createdAccountInfo?.login_url" target="_blank"
+                                    class="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-mono text-blue-600 hover:underline truncate dark:border-gray-600 dark:bg-gray-800"
+                                    x-text="createdAccountInfo?.login_url"></a>
+                                <button type="button" @click="copyToClipboard(createdAccountInfo?.login_url)" title="Copier"
+                                    class="rounded-lg border border-gray-300 p-2 text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end border-t border-gray-200 pt-6 dark:border-gray-700">
+                        <button type="button" @click="closeClientForm"
+                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Terminé
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Formulaire -->
-                <form @submit.prevent="saveClient" class="p-6">
+                <form x-show="modalTab === 'form'" @submit.prevent="saveClient" class="p-6">
                     <!-- Messages d'erreur -->
                     <template x-if="formErrors.length">
                         <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
@@ -233,9 +269,11 @@
                 </form>
             </div>
         </div>
+        </template>
 
         <!-- Overlay formulaire affichage détails client -->
-        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-900">
 
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900">
@@ -254,9 +292,9 @@
                 <div class="p-5">
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">ID Client</label>
-                            <input type="text" x-model="selectedClient?.id" readonly disabled
-                                class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                            <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Référence client</label>
+                            <input type="text" x-model="selectedClient?.reference_client" readonly disabled
+                                class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm font-mono font-semibold text-blue-700 cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-blue-300">
                         </div>
 
                         <div>
@@ -322,6 +360,12 @@
                             class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
                             Fermer
                         </button>
+                        <button type="button" @click="resetPortailPassword(selectedClient)" x-show="window.gsfUser.can.clients.update"
+                            :disabled="resettingPortail"
+                            class="rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400">
+                            <span x-show="!resettingPortail">Réinitialiser mot de passe portail</span>
+                            <span x-show="resettingPortail">Réinitialisation…</span>
+                        </button>
                         <button type="button" @click="editFromDetails"
                             class="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                             Modifier le client
@@ -330,13 +374,14 @@
                 </div>
             </div>
         </div>
+        </template>
 
         <!-- Tableau -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr class="border-b border-gray-200 dark:border-gray-700">
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">RÉFÉRENCE</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">NOM</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">EMAIL</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">CONTACT</th>
@@ -350,7 +395,10 @@
                         <tr @click="selectRow(item.id)"
                             :class="selectedRow === item.id ? 'bg-gray-200 dark:bg-gray-700 border-l-4 border-blue-500 shadow-sm' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'"
                             class="cursor-pointer transition-all duration-200">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white" x-text="item.id"></td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/20 dark:text-blue-300 font-mono"
+                                        x-text="item.reference_client"></span>
+                                </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
@@ -381,13 +429,13 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                     </svg>
                                 </button>
-                                <button @click.stop="editItem(item)"
+                                <button @click.stop="editItem(item)" x-show="window.gsfUser.can.clients.update"
                                     class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 transition-colors" title="Modifier">
                                     <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </button>
-                                <button @click.stop="deleteItem(item.id)"
+                                <button @click.stop="deleteItem(item.id)" x-show="window.gsfUser.can.clients.delete"
                                     class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" title="Supprimer">
                                     <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -455,6 +503,9 @@ document.addEventListener('alpine:init', () => {
         selectedClient: null,
         editingClient: null,
         formErrors: [],
+        resettingPortail: false,
+        modalTab: 'form',
+        createdAccountInfo: null,
         form: {
             nom_prenoms: '',
             contact: '',
@@ -491,6 +542,7 @@ document.addEventListener('alpine:init', () => {
                 const searchLower = this.search.toLowerCase();
                 data = data.filter(item =>
                     item.name.toLowerCase().includes(searchLower) ||
+                    item.reference_client.toLowerCase().includes(searchLower) ||
                     (item.email && item.email.toLowerCase().includes(searchLower)) ||
                     item.contact.includes(searchLower) ||
                     (item.adresse && item.adresse.toLowerCase().includes(searchLower))
@@ -547,6 +599,12 @@ document.addEventListener('alpine:init', () => {
                 .join('');
         },
 
+        escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value ?? '';
+            return div.innerHTML;
+        },
+
         validatePhoneNumber() {
             this.form.contact = this.form.contact.replace(/\D/g, '');
             if (this.form.contact.length > 10) {
@@ -567,6 +625,7 @@ document.addEventListener('alpine:init', () => {
                 if (Array.isArray(data) && data.length > 0) {
                     this.items = data.map(client => ({
                         id: client.id,
+                        reference_client: client.reference_client || ('CLI-ID' + client.id),
                         name: client.nom_prenoms,
                         email: client.email || '',
                         contact: client.contact,
@@ -602,6 +661,8 @@ document.addEventListener('alpine:init', () => {
                 statut: 'ACTIF',
             };
             this.formErrors = [];
+            this.modalTab = 'form';
+            this.createdAccountInfo = null;
             this.showClientForm = true;
         },
 
@@ -618,6 +679,8 @@ document.addEventListener('alpine:init', () => {
                 statut: item.status === 'Actif' ? 'ACTIF' : (item.status === 'Suspendu' ? 'SUSPENDU' : 'PROSPECT'),
             };
             this.formErrors = [];
+            this.modalTab = 'form';
+            this.createdAccountInfo = null;
             this.showClientForm = true;
         },
 
@@ -625,6 +688,18 @@ document.addEventListener('alpine:init', () => {
             this.showClientForm = false;
             this.editingClient = null;
             this.formErrors = [];
+            this.modalTab = 'form';
+            this.createdAccountInfo = null;
+        },
+
+        async copyToClipboard(text) {
+            if (!text) return;
+            try {
+                await navigator.clipboard.writeText(text);
+                window.gsfToast('Copié dans le presse-papiers.', 'success', 2000);
+            } catch (error) {
+                console.error('Erreur copie:', error);
+            }
         },
 
         closeDetailsModal() {
@@ -657,6 +732,16 @@ document.addEventListener('alpine:init', () => {
 
             if (this.formErrors.length) return;
 
+            const confirmed = await window.gsfConfirm({
+                title: this.editingClient ? 'Modifier le client' : 'Créer le client',
+                message: this.editingClient
+                    ? `Confirmer la modification de <strong>${this.editingClient.nom_prenoms}</strong> ?`
+                    : `Confirmer la création du nouveau client <strong>${this.form.nom_prenoms}</strong> ?`,
+                type: 'info',
+                confirmText: this.editingClient ? 'Modifier' : 'Créer'
+            });
+            if (!confirmed) return;
+
             let url = '/api/clients';
             let method = 'POST';
 
@@ -680,19 +765,81 @@ document.addEventListener('alpine:init', () => {
 
                 if (data.success) {
                     await this.loadClientsFromDB();
-                    this.closeClientForm();
-                    alert(this.editingClient ? 'Client modifié avec succès.' : 'Client créé avec succès.');
+
+                    if (this.editingClient) {
+                        this.closeClientForm();
+                        window.gsfToast('Client modifié avec succès.', 'success');
+                    } else {
+                        // Création : on garde la modale ouverte pour afficher l'accès portail (onglet 2)
+                        this.createdAccountInfo = data.portail || null;
+                        this.modalTab = this.createdAccountInfo ? 'account' : 'form';
+                        window.gsfToast('Client créé avec succès.', 'success');
+                        if (!this.createdAccountInfo) {
+                            this.closeClientForm();
+                        }
+                    }
                 } else {
-                    alert('Erreur: ' + (data.message || 'Erreur inconnue'));
+                    window.gsfToast('Erreur: ' + (data.message || 'Erreur inconnue'), 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Erreur: ' + error.message);
+                window.gsfToast('Erreur: ' + error.message, 'error');
+            }
+        },
+
+        async resetPortailPassword(item) {
+            if (!item) return;
+
+            const confirmed = await window.gsfConfirm({
+                title: 'Réinitialiser le mot de passe portail',
+                message: `Générer un nouveau mot de passe temporaire pour <strong>${item.name}</strong> ?<br><span class="text-xs text-gray-500 mt-1 block">Le client devra en choisir un nouveau à sa prochaine connexion. Utile aussi pour activer le compte d'un client qui n'a jamais reçu ses identifiants.</span>`,
+                type: 'info',
+                confirmText: 'Réinitialiser'
+            });
+            if (!confirmed) return;
+
+            this.resettingPortail = true;
+            try {
+                const response = await fetch(`/api/clients/${item.id}/reset-portail`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    await window.gsfConfirm({
+                        title: 'Mot de passe régénéré',
+                        message: `Identifiant : <strong>${this.escapeHtml(item.contact)}</strong> (ou email)<br>Mot de passe temporaire :<br>
+                            <code class="block mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded text-sm font-mono select-all">${this.escapeHtml(data.password)}</code>
+                            <span class="text-xs text-gray-500 mt-2 block">Communiquez-le au client — il devra le changer à sa première connexion sur l'espace client.</span>`,
+                        type: 'info',
+                        confirmText: 'OK'
+                    });
+                    window.gsfToast('Mot de passe portail réinitialisé.', 'success');
+                } else {
+                    window.gsfToast('Erreur: ' + (data.message || 'Erreur inconnue'), 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                window.gsfToast('Erreur: ' + error.message, 'error');
+            } finally {
+                this.resettingPortail = false;
             }
         },
 
         async deleteItem(id) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) return;
+            const item = this.items.find(c => c.id === id);
+            const confirmed = await window.gsfConfirm({
+                title: 'Supprimer le client',
+                message: `Êtes-vous sûr de vouloir supprimer <strong>${item?.nom_prenoms || 'ce client'}</strong> ?<br><span class="text-xs text-red-500 mt-1 block">Cette action est irréversible.</span>`,
+                type: 'danger',
+                confirmText: 'Supprimer'
+            });
+            if (!confirmed) return;
 
             try {
                 const response = await fetch(`/api/clients/${id}`, {
@@ -707,20 +854,20 @@ document.addEventListener('alpine:init', () => {
 
                 if (data.success) {
                     await this.loadClientsFromDB();
-                    alert('Client supprimé avec succès');
+                    window.gsfToast('Client supprimé avec succès', 'success');
                 } else {
-                    alert('Erreur lors de la suppression');
+                    window.gsfToast('Erreur lors de la suppression', 'error');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue');
+                window.gsfToast('Une erreur est survenue', 'error');
             }
         },
 
         exportCSV() {
-            const headers = ['ID', 'Nom', 'Email', 'Contact', 'Adresse', 'Statut', 'Solde compte'];
+            const headers = ['Référence', 'Nom', 'Email', 'Contact', 'Adresse', 'Statut', 'Solde compte'];
             const rows = this.filteredData.map(item => [
-                item.id,
+                item.reference_client,
                 item.name,
                 item.email,
                 item.contact,
@@ -743,9 +890,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         exportExcel() {
-            const headers = ['ID', 'Nom', 'Email', 'Contact', 'Adresse', 'Statut', 'Solde compte'];
+            const headers = ['Référence', 'Nom', 'Email', 'Contact', 'Adresse', 'Statut', 'Solde compte'];
             const rows = this.filteredData.map(item => [
-                item.id,
+                item.reference_client,
                 item.name,
                 item.email,
                 item.contact,
@@ -773,3 +920,4 @@ document.addEventListener('alpine:init', () => {
 <style>
 [x-cloak] { display: none !important; }
 </style>
+

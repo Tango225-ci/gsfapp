@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ProprietaireTerrienController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\VisiteController;
 use App\Http\Controllers\LotissementController;
@@ -9,14 +11,22 @@ use App\Http\Controllers\LotController;
 use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\EcheanceController;
 use App\Http\Controllers\DocumentConfigurationController;
+use App\Http\Controllers\Api\Client\AuthController as ClientAuthController;
+use App\Http\Controllers\Api\Client\PasswordResetController as ClientPasswordResetController;
+use App\Http\Controllers\Api\Client\DashboardController as ClientDashboardController;
+use App\Http\Controllers\Api\Client\ContratController as ClientContratController;
+use App\Http\Controllers\Api\Client\PaiementController as ClientPaiementController;
+use App\Http\Controllers\Api\Client\DocumentController as ClientDocumentController;
+use App\Http\Controllers\Api\Client\NotificationController as ClientNotificationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| API Routes — protégées par session (web) + authentification utilisateurs
 |--------------------------------------------------------------------------
 */
+Route::middleware(['web', 'auth:utilisateurs'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +39,7 @@ Route::prefix('clients')->group(function () {
     Route::get('/{id}', [ClientController::class, 'show']);
     Route::put('/{id}', [ClientController::class, 'update']);
     Route::delete('/{id}', [ClientController::class, 'destroy']);
+    Route::post('/{id}/reset-portail', [ClientController::class, 'resetPortailPassword']);
 });
 
 /*
@@ -113,8 +124,10 @@ Route::prefix('paiements')->group(function () {
     // Routes admin pour les paiements validés
     Route::delete('/{id}/admin-delete', [PaiementController::class, 'adminDelete']);
     Route::post('/{id}/verify-admin', [PaiementController::class, 'verifyAdmin']);
-    Route::post('/paiements/frais-document', [PaiementController::class, 'storeFraisDocument']);
-Route::get('/paiements/document/{idContratDocument}', [PaiementController::class, 'getPaiementsByDocument']);
+    
+    // Route pour les paiements des frais de document ACD
+    Route::post('/frais-document', [PaiementController::class, 'storeFraisDocument']);
+    Route::get('/document/{idContratDocument}', [PaiementController::class, 'getPaiementsByDocument']);
 });
 
 /*
@@ -175,6 +188,19 @@ Route::prefix('documents')->group(function () {
 | Routes pour les Documents des Contrats
 |--------------------------------------------------------------------------
 */
+/*
+|--------------------------------------------------------------------------
+| Routes pour les Utilisateurs (API)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('utilisateurs')->group(function () {
+    Route::get('/', [UtilisateurController::class, 'index']);
+    Route::post('/', [UtilisateurController::class, 'store']);
+    Route::put('/{id}', [UtilisateurController::class, 'update']);
+    Route::delete('/{id}', [UtilisateurController::class, 'destroy']);
+    Route::post('/{id}/toggle-status', [UtilisateurController::class, 'toggleStatus']);
+});
+
 Route::prefix('contrat-documents')->group(function () {
     Route::get('/contrat/{idContrat}', [App\Http\Controllers\ContratDocumentController::class, 'index']);
     Route::get('/{id}', [App\Http\Controllers\ContratDocumentController::class, 'show']);
@@ -183,5 +209,58 @@ Route::prefix('contrat-documents')->group(function () {
     Route::post('/{id}/upload', [App\Http\Controllers\ContratDocumentController::class, 'uploadFichier']);
     Route::delete('/{id}', [App\Http\Controllers\ContratDocumentController::class, 'destroy']);
     Route::post('/generer-manquants/{idContrat}', [App\Http\Controllers\ContratDocumentController::class, 'genererManquants']);
-    
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| Routes Import CSV (ADMIN — protection dans le contrôleur)
+|--------------------------------------------------------------------------
+*/
+Route::post('/import/{entity}', [ImportController::class, 'import']);
+
+/*
+|--------------------------------------------------------------------------
+| Routes Propriétaires Terriens (ADMIN)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('proprietaires')->group(function () {
+    Route::get('/',           [ProprietaireTerrienController::class, 'apiIndex']);
+    Route::post('/',          [ProprietaireTerrienController::class, 'store']);
+    Route::get('/liste',      [ProprietaireTerrienController::class, 'getListe']);
+    Route::get('/{id}',       [ProprietaireTerrienController::class, 'apiShow']);
+    Route::put('/{id}',       [ProprietaireTerrienController::class, 'update']);
+    Route::delete('/{id}',    [ProprietaireTerrienController::class, 'destroy']);
+    Route::post('/{id}/versements',                     [ProprietaireTerrienController::class, 'storeVersement']);
+    Route::delete('/{id}/versements/{idVersement}',     [ProprietaireTerrienController::class, 'destroyVersement']);
+});
+
+}); // fin du groupe web + auth:utilisateurs
+
+// ── Routes API — Portail client mobile (Sanctum) ────────────────────────────
+Route::prefix('client')->name('api.client.')->group(function () {
+
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::post('/auth/login', [ClientAuthController::class, 'login'])->name('auth.login');
+        Route::post('/password/otp/send', [ClientPasswordResetController::class, 'sendCode'])->name('password.otp.send');
+        Route::post('/password/otp/verify', [ClientPasswordResetController::class, 'verify'])->name('password.otp.verify');
+    });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/auth/me', [ClientAuthController::class, 'me'])->name('auth.me');
+        Route::post('/auth/logout', [ClientAuthController::class, 'logout'])->name('auth.logout');
+        Route::post('/auth/change-password', [ClientAuthController::class, 'changePassword'])->name('auth.change-password');
+
+        Route::middleware('client.password.not.forced')->group(function () {
+            Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/contrats', [ClientContratController::class, 'index'])->name('contrats.index');
+            Route::get('/contrats/{id}', [ClientContratController::class, 'show'])->name('contrats.show');
+            Route::get('/contrats/{id}/etat', [ClientContratController::class, 'etat'])->name('contrats.etat');
+            Route::get('/documents/{id}/telecharger-url', [ClientDocumentController::class, 'downloadUrl'])->name('documents.download-url');
+            Route::get('/paiements/{id}/recu', [ClientPaiementController::class, 'recu'])->name('paiements.recu');
+            Route::get('/notifications', [ClientNotificationController::class, 'index'])->name('notifications.index');
+            Route::post('/notifications/{id}/ouvrir', [ClientNotificationController::class, 'ouvrir'])->name('notifications.ouvrir');
+            Route::post('/notifications/tout-lire', [ClientNotificationController::class, 'toutLire'])->name('notifications.tout-lire');
+        });
+    });
 });

@@ -73,65 +73,27 @@
 
         <!-- Cartes statistiques -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Types de documents</p>
-                        <p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="stats.total_types"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Types de documents</p>
+                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total_types"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Documents actifs</p>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="stats.types_actifs"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Documents actifs</p>
+                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.types_actifs"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Villes configurées</p>
-                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.villes_count"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Villes configurées</p>
+                <p class="mt-2 text-4xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.villes_count"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Tarifs configurés</p>
-                        <p class="text-2xl font-bold text-orange-600 dark:text-orange-400" x-text="stats.tarifs_count"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-orange-600 dark:text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tarifs configurés</p>
+                <p class="mt-2 text-4xl font-bold text-orange-600 dark:text-orange-400" x-text="stats.tarifs_count"></p>
             </div>
         </div>
 
         <!-- Overlay formulaire type de document -->
-        <div x-show="showTypeModal" x-cloak @keydown.escape.window="closeTypeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showTypeModal" x-cloak @keydown.escape.window="closeTypeModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
                     <div>
@@ -166,9 +128,11 @@
                 </form>
             </div>
         </div>
+        </template>
 
         <!-- Overlay formulaire tarif -->
-        <div x-show="showFraisModal" x-cloak @keydown.escape.window="closeFraisModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showFraisModal" x-cloak @keydown.escape.window="closeFraisModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
                     <div>
@@ -198,9 +162,11 @@
                 </form>
             </div>
         </div>
+        </template>
 
         <!-- Overlay détails tarifs par ville -->
-        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900">
                     <div>
@@ -262,8 +228,9 @@
                 </div>
             </div>
         </div>
+        </template>
 
-        <!-- Tableau des types de documents (style gris) -->
+        <!-- Tableau des types de documents -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-900">
@@ -312,92 +279,115 @@
             </table>
         </div>
 
-        <!-- Tableau des tarifs (style gris) -->
+        <!-- Tableau des tarifs groupés par ville AVEC ACCORDÉON -->
         <div class="mt-8" x-show="afficherTableauTarifs">
-            <div class="px-6 py-3 bg-gray-50 dark:bg-gray-900 border-t border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300">Tarifs par ville</h3>
+            <div class="px-6 py-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-t border-b border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="text-md font-semibold text-gray-700 dark:text-gray-300">Tarifs ACD par ville</h3>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <span x-text="filteredFrais.length"></span> tarif(s) configuré(s)
+                    </div>
+                </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-900">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">VILLE</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">TYPE DE DOCUMENT</th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MONTANT (FCFA)</th>
-                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                        <template x-for="frais in paginatedFrais" :key="frais.id_frais">
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
-                                <!-- VILLE avec badge gris -->
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
-                                            <span class="text-sm font-medium text-white" x-text="frais.ville ? frais.ville.charAt(0).toUpperCase() : '?'"></span>
-                                        </div>
-                                        <div class="ml-3">
-                                            <div class="text-sm font-medium text-gray-500 dark:text-gray-400" x-text="frais.ville"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <!-- TYPE DE DOCUMENT avec code -->
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-500 dark:text-gray-400" x-text="frais.document_type?.nom || '-'"></div>
-                                    <div class="text-xs text-gray-400 dark:text-gray-500" x-text="frais.document_type?.code"></div>
-                                </td>
-                                <!-- MONTANT avec mise en forme -->
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <div class="text-sm font-semibold text-gray-600 dark:text-gray-300" x-text="formatPrice(frais.montant)"></div>
-                                    <div class="text-xs text-gray-400 dark:text-gray-500">
-                                        <span x-show="frais.document_type?.est_obligatoire" class="text-red-500 dark:text-red-400">Obligatoire</span>
-                                        <span x-show="!frais.document_type?.est_obligatoire" class="text-gray-400">Optionnel</span>
-                                    </div>
-                                </td>
-                                <!-- ACTIONS -->
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="editFrais(frais)" 
-                                            class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors" 
-                                            title="Modifier">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
-                                        </button>
-                                        <button @click="viewFraisByVille(frais.ville)" 
-                                            class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors" 
-                                            title="Voir tous les tarifs de cette ville">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                            </svg>
-                                        </button>
-                                        <button @click="deleteFrais(frais)" 
-                                            class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" 
-                                            title="Supprimer">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-                        <tr x-show="paginatedFrais.length === 0">
-                            <td colspan="4" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+
+            <!-- Affichage groupé par ville avec accordéon -->
+            <div x-show="filteredFrais.length === 0" class="p-8 text-center bg-gray-50 dark:bg-gray-800/50">
+                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-lg font-medium text-gray-500">Aucun tarif configuré</p>
+                <p class="text-sm text-gray-400 mt-1">Cliquez sur "Nouveau tarif" pour ajouter des frais ACD par ville</p>
+            </div>
+
+            <div x-show="filteredFrais.length > 0">
+                <template x-for="(group, ville) in groupedFrais" :key="ville">
+                    <div class="mb-3 last:mb-0 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                        <!-- En-tête de ville (clic pour dérouler/rouler) -->
+                        <div @click="toggleVille(ville)" 
+                             class="flex items-center justify-between px-6 py-3 bg-gray-100 dark:bg-gray-700/50 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <div class="flex items-center gap-3">
+                                <!-- Flèche d'accordéon -->
+                                <svg class="w-5 h-5 text-gray-500 transition-transform duration-200" :class="{'rotate-90': villesOuvertes.includes(ville)}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
-                                <p class="text-lg font-medium">Aucun tarif configuré</p>
-                                <p class="text-sm mt-1">Cliquez sur "Nouveau tarif" pour ajouter des frais ACD</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                <div class="flex-shrink-0 h-9 w-9 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-sm">
+                                    <span class="text-sm font-bold text-white" x-text="ville.charAt(0).toUpperCase()"></span>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-bold text-gray-800 dark:text-white" x-text="ville"></h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        <span x-text="group.length"></span> document(s) - 
+                                        Total: <span class="font-semibold text-green-600 dark:text-green-400" x-text="formatPrice(group.reduce((sum, f) => sum + (parseFloat(f.montant) || 0), 0))"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button @click.stop="viewFraisByVille(ville)" 
+                                    class="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    Détails
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Corps du tableau (visible seulement si la ville est ouverte) -->
+                        <div x-show="villesOuvertes.includes(ville)" 
+                             x-collapse
+                             class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                    <tr>
+                                        <th class="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type de document</th>
+                                        <th class="px-6 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Montant (FCFA)</th>
+                                        <th class="px-6 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Obligatoire</th>
+                                        <th class="px-6 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <template x-for="frais in group" :key="frais.id_frais">
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+                                            <td class="px-6 py-3 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900 dark:text-white" x-text="frais.document_type?.nom || '-'"></div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400" x-text="frais.document_type?.code"></div>
+                                            </td>
+                                            <td class="px-6 py-3 whitespace-nowrap text-right">
+                                                <div class="text-sm font-semibold text-gray-700 dark:text-gray-300" x-text="formatPrice(frais.montant)"></div>
+                                            </td>
+                                            <td class="px-6 py-3 whitespace-nowrap text-center">
+                                                <span x-show="frais.document_type?.est_obligatoire" class="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 rounded-full text-xs font-semibold">Obligatoire</span>
+                                                <span x-show="!frais.document_type?.est_obligatoire" class="px-2 py-1 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 rounded-full text-xs font-semibold">Optionnel</span>
+                                            </td>
+                                            <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
+                                                <button @click.stop="editFrais(frais)" class="text-blue-600 hover:text-blue-900 mr-2 transition-colors" title="Modifier">
+                                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    </svg>
+                                                </button>
+                                                <button @click.stop="deleteFrais(frais)" class="text-red-600 hover:text-red-900 transition-colors" title="Supprimer">
+                                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
 
-        <!-- Pagination -->
+        <!-- Pagination pour les types de documents -->
         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-sm text-gray-700 dark:text-gray-300">Affichage de <span class="font-medium" x-text="startIndex"></span> à <span class="font-medium" x-text="endIndex"></span> sur <span class="font-medium" x-text="filteredData.length"></span> résultats</div>
@@ -434,6 +424,7 @@ document.addEventListener('alpine:init', () => {
         fraisDetailsListe: [],
         loadingFrais: false,
         afficherTableauTarifs: true,
+        villesOuvertes: [], // Liste des villes dont l'accordéon est ouvert
 
         typeForm: { nom: '', code: '', description: '', ordre_affichage: 0, est_obligatoire: true, actif: 1 },
         fraisForm: { ville: '', id_document_type: '', montant: 0 },
@@ -459,13 +450,37 @@ document.addEventListener('alpine:init', () => {
             return data;
         },
 
+        // Grouper les frais par ville
+        get groupedFrais() {
+            const groups = {};
+            this.filteredFrais.forEach(frais => {
+                if (!groups[frais.ville]) groups[frais.ville] = [];
+                groups[frais.ville].push(frais);
+            });
+            // Trier les villes par ordre alphabétique
+            const sortedGroups = {};
+            Object.keys(groups).sort().forEach(ville => {
+                sortedGroups[ville] = groups[ville];
+            });
+            return sortedGroups;
+        },
+
         get totalPages() { return Math.ceil(this.filteredData.length / this.itemsPerPage) || 1; },
         get paginatedData() { const start = (this.currentPage - 1) * this.itemsPerPage; return this.filteredData.slice(start, start + this.itemsPerPage); },
-        get paginatedFrais() { return this.filteredFrais; },
         get startIndex() { return this.filteredData.length === 0 ? 0 : (this.currentPage - 1) * this.itemsPerPage + 1; },
         get endIndex() { return Math.min(this.currentPage * this.itemsPerPage, this.filteredData.length); },
         get totalFraisMontantDetails() { return this.fraisDetailsListe.reduce((s, f) => s + (parseFloat(f.montant) || 0), 0); },
         get fraisObligatoiresCountDetails() { return this.fraisDetailsListe.filter(f => f.document_type?.est_obligatoire).length; },
+
+        // Fonction pour ouvrir/fermer l'accordéon d'une ville
+        toggleVille(ville) {
+            const index = this.villesOuvertes.indexOf(ville);
+            if (index === -1) {
+                this.villesOuvertes.push(ville);
+            } else {
+                this.villesOuvertes.splice(index, 1);
+            }
+        },
 
         nextPage() { if (this.currentPage < this.totalPages) { this.currentPage++; this.selectedRow = null; } },
         prevPage() { if (this.currentPage > 1) { this.currentPage--; this.selectedRow = null; } },
@@ -477,6 +492,13 @@ document.addEventListener('alpine:init', () => {
             await this.loadVilles();
             await this.loadTypes();
             await this.loadFrais();
+            // Ouvrir automatiquement la première ville par défaut (optionnel)
+            // this.$nextTick(() => {
+            //     const premieresVilles = Object.keys(this.groupedFrais);
+            //     if (premieresVilles.length > 0 && this.villesOuvertes.length === 0) {
+            //         this.villesOuvertes = [premieresVilles[0]];
+            //     }
+            // });
         },
 
         async loadVilles() {
@@ -530,19 +552,25 @@ document.addEventListener('alpine:init', () => {
             try {
                 const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' }, body: JSON.stringify(this.typeForm) });
                 const data = await response.json();
-                if (data.success) { await this.loadTypes(); this.closeTypeModal(); alert(this.editingType ? 'Type modifié avec succès' : 'Type créé avec succès'); }
-                else alert(data.message || 'Erreur');
-            } catch (error) { console.error('Erreur:', error); alert('Erreur'); }
+                if (data.success) { await this.loadTypes(); this.closeTypeModal(); window.gsfToast(this.editingType ? 'Type modifié avec succès' : 'Type créé avec succès', 'success'); }
+                else window.gsfToast(data.message || 'Erreur', 'error');
+            } catch (error) { console.error('Erreur:', error); window.gsfToast('Erreur', 'error'); }
         },
 
         async deleteType(type) {
-            if (!confirm(`Supprimer le type "${type.nom}" ?`)) return;
+            const confirmed = await window.gsfConfirm({
+                title: 'Supprimer le type de document',
+                message: `Êtes-vous sûr de vouloir supprimer le type <strong>${type.nom}</strong> ?<br><span class="text-xs text-red-500 mt-1 block">Cette action est irréversible.</span>`,
+                type: 'danger',
+                confirmText: 'Supprimer'
+            });
+            if (!confirmed) return;
             try {
                 const response = await fetch(`/api/documents/types/${type.id_document_type}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' } });
                 const data = await response.json();
-                if (data.success) { await this.loadTypes(); alert('Type supprimé'); }
-                else alert(data.message || 'Erreur');
-            } catch (error) { console.error('Erreur:', error); alert('Erreur'); }
+                if (data.success) { await this.loadTypes(); window.gsfToast('Type supprimé avec succès', 'success'); }
+                else window.gsfToast(data.message || 'Erreur', 'error');
+            } catch (error) { console.error('Erreur:', error); window.gsfToast('Erreur', 'error'); }
         },
 
         openFraisModal() { this.editingFrais = null; this.fraisForm = { ville: '', id_document_type: '', montant: 0 }; this.fraisErrors = []; this.showFraisModal = true; },
@@ -561,19 +589,25 @@ document.addEventListener('alpine:init', () => {
             try {
                 const response = await fetch('/api/documents/frais', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' }, body: JSON.stringify(this.fraisForm) });
                 const data = await response.json();
-                if (data.success) { await this.loadFrais(); await this.loadVilles(); this.closeFraisModal(); alert(data.message); }
-                else alert(data.message || 'Erreur');
-            } catch (error) { console.error('Erreur:', error); alert('Erreur'); }
+                if (data.success) { await this.loadFrais(); await this.loadVilles(); this.closeFraisModal(); window.gsfToast(data.message || 'Tarif enregistré avec succès', 'success'); }
+                else window.gsfToast(data.message || 'Erreur', 'error');
+            } catch (error) { console.error('Erreur:', error); window.gsfToast('Erreur', 'error'); }
         },
 
         async deleteFrais(frais) {
-            if (!confirm(`Supprimer le tarif pour ${frais.ville} ?`)) return;
+            const confirmed = await window.gsfConfirm({
+                title: 'Supprimer le tarif',
+                message: `Supprimer le tarif pour <strong>${frais.ville}</strong> — <strong>${frais.document_type?.nom || ''}</strong> ?<br><span class="text-xs text-red-500 mt-1 block">Cette action est irréversible.</span>`,
+                type: 'danger',
+                confirmText: 'Supprimer'
+            });
+            if (!confirmed) return;
             try {
                 const response = await fetch(`/api/documents/frais/${frais.id_frais}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '' } });
                 const data = await response.json();
-                if (data.success) { await this.loadFrais(); alert('Tarif supprimé'); }
-                else alert(data.message || 'Erreur');
-            } catch (error) { console.error('Erreur:', error); alert('Erreur'); }
+                if (data.success) { await this.loadFrais(); window.gsfToast('Tarif supprimé avec succès', 'success'); }
+                else window.gsfToast(data.message || 'Erreur', 'error');
+            } catch (error) { console.error('Erreur:', error); window.gsfToast('Erreur', 'error'); }
         },
 
         async deleteFraisFromDetails(frais) { await this.deleteFrais(frais); if (this.selectedVille) await this.loadFraisByVille(this.selectedVille); },

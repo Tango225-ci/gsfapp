@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PermissionHelper;
 use App\Models\DocumentType;
 use App\Models\VilleDocumentFrais;
 use Illuminate\Http\Request;
@@ -61,6 +62,8 @@ class DocumentConfigurationController extends Controller
      */
     public function storeDocumentType(Request $request)
     {
+        PermissionHelper::abort403('documents', 'manage');
+
         try {
             $validated = $request->validate([
                 'nom' => 'required|string|max:100|unique:document_types,nom',
@@ -104,6 +107,8 @@ class DocumentConfigurationController extends Controller
      */
     public function updateDocumentType(Request $request, $id)
     {
+        PermissionHelper::abort403('documents', 'manage');
+
         try {
             // Log pour debuguer
             Log::info('Tentative de mise à jour du type ID: ' . $id);
@@ -233,6 +238,8 @@ class DocumentConfigurationController extends Controller
      */
     public function storeFrais(Request $request)
     {
+        PermissionHelper::abort403('documents', 'manage');
+
         try {
             $validated = $request->validate([
                 'ville' => 'required|string|max:150',

@@ -1,43 +1,61 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ProprietaireTerrienController;
+use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Portail\PortailAuthController;
+use App\Http\Controllers\Portail\PortailDashboardController;
+use App\Http\Controllers\Portail\PortailContratController;
+use App\Http\Controllers\Portail\PortailDocumentController;
+use App\Http\Controllers\Portail\PortailPaiementController;
+use App\Http\Controllers\Portail\PortailNotificationController;
+use App\Http\Controllers\Portail\PortailPasswordResetController;
+use App\Http\Controllers\Client\SignedDocumentController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Toutes les routes sont publiques (pas d'authentification requise)
-|--------------------------------------------------------------------------
-*/
+// ── Authentification ─────────────────────────────────────────────────────────
+Route::middleware('guest:utilisateurs')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+
+    // Mot de passe oublié
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+
+    // Réinitialisation du mot de passe
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth:utilisateurs')
+    ->name('logout');
+
+// Changement de mot de passe forcé + profil (auth requis, sans force.password.change pour éviter la boucle)
+Route::middleware('auth:utilisateurs')->group(function () {
+    Route::get('/change-password', [AuthController::class, 'showChangePassword'])->name('password.change');
+    Route::post('/change-password', [AuthController::class, 'changePassword'])->name('password.change.update');
+});
+
+// Profil (dans l'app principale)
+Route::middleware(['auth:utilisateurs', 'force.password.change'])->group(function () {
+    Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile');
+    Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
+});
+
+// ── Pages protégées ──────────────────────────────────────────────────────────
+Route::middleware(['auth:utilisateurs', 'force.password.change'])->group(function () {
 
 // Dashboard
-Route::get('/', function () {
-    return view('pages.dashboard.ecommerce', ['title' => 'GSF APP']);
-})->name('dashboard');
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 // Calendrier
 Route::get('/calendar', function () {
     return view('pages.calender', ['title' => 'Calendrier']);
 })->name('calendar');
-
-// Profil
-Route::get('/profile', function () {
-    return view('pages.profile', ['title' => 'Profile']);
-})->name('profile');
-
-// Formulaires
-Route::get('/form-elements', function () {
-    return view('pages.form.form-elements', ['title' => 'Form Elements']);
-})->name('form-elements');
-
-// Tableaux de base
-Route::get('/basic-tables', function () {
-    return view('pages.tables.basic-tables', ['title' => 'Basic Tables']);
-})->name('basic-tables');
-
-// Page Vide
-Route::get('/blank', function () {
-    return view('pages.blank', ['title' => 'Blank']);
-})->name('blank');
 
 // Clients
 Route::get('/clients', function () {
@@ -79,47 +97,62 @@ Route::get('/utilisateurs', function () {
     return view('pages.utilisateurs.utilisateur', ['title' => 'Gestion des utilisateurs']);
 })->name('utilisateurs.index');
 
-// Erreurs
-Route::get('/error-404', function () {
-    return view('pages.errors.error-404', ['title' => 'Error 404']);
-})->name('error-404');
-
-// Graphiques
-Route::get('/line-chart', function () {
-    return view('pages.chart.line-chart', ['title' => 'Line Chart']);
-})->name('line-chart');
-
-Route::get('/bar-chart', function () {
-    return view('pages.chart.bar-chart', ['title' => 'Bar Chart']);
-})->name('bar-chart');
-
-// Éléments UI
-Route::get('/alerts', function () {
-    return view('pages.ui-elements.alerts', ['title' => 'Alerts']);
-})->name('alerts');
-
-Route::get('/avatars', function () {
-    return view('pages.ui-elements.avatars', ['title' => 'Avatars']);
-})->name('avatars');
-
-Route::get('/badge', function () {
-    return view('pages.ui-elements.badges', ['title' => 'Badges']);
-})->name('badges');
-
-Route::get('/buttons', function () {
-    return view('pages.ui-elements.buttons', ['title' => 'Buttons']);
-})->name('buttons');
-
-Route::get('/image', function () {
-    return view('pages.ui-elements.images', ['title' => 'Images']);
-})->name('images');
-
-Route::get('/videos', function () {
-    return view('pages.ui-elements.videos', ['title' => 'Videos']);
-})->name('videos');
-
 // Page de configuration des documents ACD
-
 Route::get('/documents', function () {
     return view('pages.documents.document', ['title' => 'Gestion des documents']);
 })->name('documents.index');
+
+// Import CSV (ADMIN uniquement — contrôlé dans le contrôleur)
+Route::get('/import', [ImportController::class, 'index'])->name('import.index');
+Route::get('/import/template/{entity}', [ImportController::class, 'template'])->name('import.template');
+
+// Propriétaires Terriens (ADMIN uniquement)
+Route::get('/proprietaires', [ProprietaireTerrienController::class, 'index'])->name('proprietaires.index');
+
+}); // fin du groupe auth:utilisateurs + force.password.change
+
+// ── Portail client (PWA) ─────────────────────────────────────────────────────
+Route::get('/portail/manifest.webmanifest', [PortailAuthController::class, 'manifest'])->name('portail.manifest');
+
+Route::prefix('portail')->name('portail.')->group(function () {
+
+    Route::middleware('guest:clients')->group(function () {
+        Route::get('/connexion', [PortailAuthController::class, 'showLogin'])->name('login');
+        Route::post('/connexion', [PortailAuthController::class, 'login']);
+    });
+
+    Route::post('/deconnexion', [PortailAuthController::class, 'logout'])
+        ->middleware('auth:clients')
+        ->name('logout');
+
+    Route::middleware('auth:clients')->group(function () {
+        Route::get('/changer-mot-de-passe', [PortailAuthController::class, 'showChangePassword'])->name('password.change');
+        Route::post('/changer-mot-de-passe', [PortailAuthController::class, 'changePassword'])->name('password.change.update');
+    });
+
+    // Réinitialisation par code OTP SMS — accessible connecté ou non
+    Route::get('/mot-de-passe-oublie', [PortailPasswordResetController::class, 'showRequest'])->name('otp.request');
+    Route::post('/mot-de-passe-oublie', [PortailPasswordResetController::class, 'sendCode'])->name('otp.send');
+    Route::get('/mot-de-passe-oublie/verification', [PortailPasswordResetController::class, 'showVerify'])->name('otp.verify.show');
+    Route::post('/mot-de-passe-oublie/verification', [PortailPasswordResetController::class, 'confirmReset'])->name('otp.verify');
+
+    Route::middleware(['auth:clients', 'force.client.password.change'])->group(function () {
+        Route::get('/', [PortailDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/contrats', [PortailContratController::class, 'index'])->name('contrats.index');
+        Route::get('/contrats/{id}', [PortailContratController::class, 'show'])->name('contrats.show');
+        Route::get('/contrats/{id}/etat', [PortailContratController::class, 'etat'])->name('contrats.etat');
+        Route::get('/documents/{id}/telecharger', [PortailDocumentController::class, 'download'])->name('documents.download');
+        Route::get('/paiements/{id}/recu', [PortailPaiementController::class, 'recu'])->name('paiements.recu');
+        Route::get('/notifications', [PortailNotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/{id}/ouvrir', [PortailNotificationController::class, 'ouvrir'])->name('notifications.ouvrir');
+        Route::post('/notifications/tout-lire', [PortailNotificationController::class, 'toutLire'])->name('notifications.tout-lire');
+        Route::get('/profil', [PortailDashboardController::class, 'profile'])->name('profile');
+    });
+});
+
+// ── Documents pour l'app mobile (liens signés, sans session) ─────────────────
+Route::middleware('signed')->group(function () {
+    Route::get('/documents/contrats/{id}/etat', [SignedDocumentController::class, 'etatContrat'])->name('client.contrats.etat.signed');
+    Route::get('/documents/paiements/{id}/recu', [SignedDocumentController::class, 'recuPaiement'])->name('client.paiements.recu.signed');
+    Route::get('/documents/{id}/telecharger', [SignedDocumentController::class, 'telechargerDocument'])->name('client.documents.telecharger.signed');
+});

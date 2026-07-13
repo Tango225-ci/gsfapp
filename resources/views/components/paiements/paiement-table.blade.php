@@ -45,7 +45,7 @@
                     </div>
 
                     <!-- Bouton Nouveau Paiement -->
-                    <button @click="newPaiement"
+                    <button @click="newPaiement" x-show="window.gsfUser.can.paiements.create"
                         class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -76,65 +76,28 @@
 
         <!-- Cartes statistiques -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Total paiements</p>
-                        <p class="text-2xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total paiements</p>
+                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Validés</p>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400" x-text="stats.valides"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Validés</p>
+                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.valides"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">En attente</p>
-                        <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.en_attente"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">En attente</p>
+                <p class="mt-2 text-4xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.en_attente"></p>
             </div>
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Montant total</p>
-                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.montant_total_formatted"></p>
-                    </div>
-                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Montant total</p>
+                <p class="mt-2 text-[10px] font-bold tracking-[0.15em] text-gray-400 dark:text-gray-500 uppercase">FCFA</p>
+                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400 leading-tight" x-text="stats.montant_total_formatted.replace(' FCFA','')"></p>
             </div>
         </div>
 
         <!-- Overlay formulaire création/modification paiement -->
-        <div x-show="showPaiementForm" x-cloak @keydown.escape.window="closePaiementForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showPaiementForm" x-cloak @keydown.escape.window="closePaiementForm" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
 
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
@@ -157,8 +120,34 @@
                         </div>
                     </template>
 
-                    <!-- Sélecteur type de paiement -->
+                    <!-- Sélection du contrat (en premier) -->
                     <div class="grid gap-5 sm:grid-cols-2 mb-4">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Contrat *</label>
+                            <select x-model="form.id_contrat" required @change="onContratChange" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                                <option value="">Sélectionnez un contrat</option>
+
+                                {{-- Groupe 1 : contrats actifs (mensualités encore dues) --}}
+                                <optgroup label="▸ Contrats actifs – mensualités en cours">
+                                    <template x-for="contrat in contratsListe.filter(c => !c.est_solde)" :key="'actif_' + contrat.id_contrat">
+                                        <option :value="contrat.id_contrat"
+                                                x-text="contrat.reference_contrat + ' – ' + (contrat.client?.nom_prenoms || 'Client')">
+                                        </option>
+                                    </template>
+                                </optgroup>
+
+                                {{-- Groupe 2 : contrats soldés mais frais ACD encore dus --}}
+                                <optgroup label="✓ Soldés – Frais ACD restants">
+                                    <template x-for="contrat in contratsListe.filter(c => c.est_solde && !c.est_totalement_solde)" :key="'solde_' + contrat.id_contrat">
+                                        <option :value="contrat.id_contrat"
+                                                x-text="contrat.reference_contrat + ' – ' + (contrat.client?.nom_prenoms || 'Client') + '  [Frais ACD]'">
+                                        </option>
+                                    </template>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <!-- Type de paiement (en second) -->
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Type de paiement *</label>
                             <select x-model="form.type_paiement" required @change="onTypePaiementChange" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
@@ -167,9 +156,11 @@
                                 <option value="AUTRE">Autre</option>
                             </select>
                         </div>
+                    </div>
 
-                        <!-- Sélection du document (si type = FRAIS_DOCUMENT) -->
-                        <div x-show="form.type_paiement === 'FRAIS_DOCUMENT'" x-transition>
+                    <!-- Sélection du document (si type = FRAIS_DOCUMENT et contrat sélectionné) -->
+                    <div x-show="form.type_paiement === 'FRAIS_DOCUMENT' && form.id_contrat" x-transition class="grid gap-5 sm:grid-cols-2 mb-4">
+                        <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Document ACD *</label>
                             <select x-model="form.id_contrat_document" :required="form.type_paiement === 'FRAIS_DOCUMENT'" @change="onDocumentChange" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
                                 <option value="">-- Sélectionnez un document --</option>
@@ -177,23 +168,13 @@
                                     <option :value="doc.id_contrat_document" x-text="doc.document_type_nom + ' - ' + doc.montant_formatted"></option>
                                 </template>
                             </select>
-                            <p class="mt-1 text-xs text-gray-500" x-show="documentsDisponibles.length === 0 && form.type_paiement === 'FRAIS_DOCUMENT'">
+                            <p class="mt-1 text-xs text-gray-500" x-show="documentsDisponibles.length === 0 && form.type_paiement === 'FRAIS_DOCUMENT' && form.id_contrat">
                                 Aucun document disponible. Tous les documents sont déjà payés.
                             </p>
                         </div>
                     </div>
 
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Contrat *</label>
-                            <select x-model="form.id_contrat" required @change="onContratChange" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
-                                <option value="">Sélectionnez un contrat</option>
-                                <template x-for="contrat in contratsListe" :key="contrat.id_contrat">
-                                    <option :value="contrat.id_contrat" x-text="contrat.reference_contrat + ' - ' + (contrat.client?.nom_prenoms || 'Client')" :disabled="contrat.est_solde || contrat.statut === 'SOLDE' || (contrat.type_paiement === 'COMPTANT' && contrat.montant_paye > 0)"></option>
-                                </template>
-                            </select>
-                        </div>
-
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Référence *</label>
                             <input type="text" x-model="form.reference" required readonly class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-gray-600 cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400" placeholder="Générée automatiquement">
@@ -247,6 +228,17 @@
                             </select>
                         </div>
 
+                        <div x-show="form.mode_paiement === 'MOBILE_MONEY'" x-transition>
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Opérateur Mobile Money *</label>
+                            <select x-model="form.banque_paiement" :required="form.mode_paiement === 'MOBILE_MONEY'" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                                <option value="">Sélectionnez un opérateur</option>
+                                <option value="WAVE">Wave</option>
+                                <option value="ORANGE_MONEY">Orange Money</option>
+                                <option value="MTN_MONEY">Mtn Money</option>
+                                <option value="MOOV_MONEY">Moov Money</option>
+                            </select>
+                        </div>
+
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Statut *</label>
                             <select x-model="form.statut" required @change="validateMontant" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
@@ -297,9 +289,11 @@
                 </form>
             </div>
         </div>
+        </template>
 
         <!-- Modal Détails paiement -->
-        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showDetailsModal" x-cloak @keydown.escape.window="closeDetailsModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900">
                     <div><h3 class="text-lg font-semibold text-gray-900 dark:text-white">Détails du paiement</h3></div>
@@ -313,7 +307,7 @@
                         <div><label class="mb-1 block text-xs font-medium text-gray-500">Date</label><input type="text" x-model="selectedPaiement?.date_paiement_formatted" readonly disabled class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed"></div>
                         <div><label class="mb-1 block text-xs font-medium text-gray-500">Montant</label><input type="text" x-model="selectedPaiement?.montant_formatted" readonly disabled class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed"></div>
                         <div><label class="mb-1 block text-xs font-medium text-gray-500">Mode</label><input type="text" x-model="selectedPaiement?.mode_paiement_label" readonly disabled class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed"></div>
-                        <div x-show="selectedPaiement?.banque_paiement"><label class="mb-1 block text-xs font-medium text-gray-500">Banque</label><input type="text" x-model="selectedPaiement?.banque_label" readonly disabled class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed"></div>
+                        <div x-show="selectedPaiement?.banque_paiement"><label class="mb-1 block text-xs font-medium text-gray-500" x-text="selectedPaiement?.mode_paiement === 'MOBILE_MONEY' ? 'Opérateur' : 'Banque'"></label><input type="text" x-model="selectedPaiement?.banque_label" readonly disabled class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed"></div>
                         <div><label class="mb-1 block text-xs font-medium text-gray-500">Statut</label><input type="text" x-model="selectedPaiement?.statut_label" readonly disabled class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm text-gray-600 cursor-not-allowed"></div>
                     </div>
                     <div class="mt-5 flex gap-3 border-t border-gray-200 pt-4">
@@ -324,9 +318,11 @@
                 </div>
             </div>
         </div>
+        </template>
 
         <!-- Modales de confirmation -->
-        <div x-show="showValiderModal" x-cloak @keydown.escape.window="closeValiderModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showValiderModal" x-cloak @keydown.escape.window="closeValiderModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="p-6 text-center">
                     <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
@@ -347,8 +343,10 @@
                 </div>
             </div>
         </div>
+        </template>
 
-        <div x-show="showRejeterModal" x-cloak @keydown.escape.window="closeRejeterModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showRejeterModal" x-cloak @keydown.escape.window="closeRejeterModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="p-6 text-center">
                     <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900">
@@ -369,8 +367,10 @@
                 </div>
             </div>
         </div>
+        </template>
 
-        <div x-show="showDeleteModal" x-cloak @keydown.escape.window="closeDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showDeleteModal" x-cloak @keydown.escape.window="closeDeleteModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="p-6 text-center">
                     <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
@@ -391,8 +391,10 @@
                 </div>
             </div>
         </div>
+        </template>
 
-        <div x-show="showEditConfirmModal" x-cloak @keydown.escape.window="closeEditConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showEditConfirmModal" x-cloak @keydown.escape.window="closeEditConfirmModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="p-6 text-center">
                     <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
@@ -413,9 +415,11 @@
                 </div>
             </div>
         </div>
+        </template>
 
         <!-- Modales admin -->
-        <div x-show="showValidatedActionDialog" x-cloak @keydown.escape.window="closeValidatedActionDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showValidatedActionDialog" x-cloak @keydown.escape.window="closeValidatedActionDialog" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-lg rounded-xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="p-6">
                     <div class="flex items-start gap-4">
@@ -451,8 +455,10 @@
                 </div>
             </div>
         </div>
+        </template>
 
-        <div x-show="showAdminPasswordModal" x-cloak @keydown.escape.window="closeAdminPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <template x-teleport="body">
+        <div x-show="showAdminPasswordModal" x-cloak @keydown.escape.window="closeAdminPasswordModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div @click.stop class="relative w-full max-w-md rounded-xl bg-white shadow-2xl dark:bg-gray-900">
                 <div class="p-6">
                     <div class="text-center mb-4">
@@ -490,8 +496,9 @@
                 </div>
             </div>
         </div>
+        </template>
 
-        <!-- Tableau - Colonne référence élargie -->
+        <!-- Tableau -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-900">
@@ -525,10 +532,10 @@
                             <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
                                 <button @click.stop="viewDetails(item)" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-2 transition-colors" title="Détails"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
                                 <button @click.stop="printReceipt(item)" class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300 mr-2 transition-colors" title="Reçu"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path></svg></button>
-                                <button x-show="item.statut === 'EN_ATTENTE'" @click.stop="openValiderModal(item)" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-2 transition-colors" title="Valider"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>
-                                <button x-show="item.statut === 'EN_ATTENTE'" @click.stop="openRejeterModal(item)" class="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300 mr-2 transition-colors" title="Rejeter"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                                <button x-show="item.peut_etre_modifie !== false" @click.stop="openEditConfirmModal(item)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-2 transition-colors" title="Modifier"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
-                                <button @click.stop="openDeleteModal(item)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" title="Supprimer"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                <button x-show="item.statut === 'EN_ATTENTE' && window.gsfUser.can.paiements.valider" @click.stop="openValiderModal(item)" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-2 transition-colors" title="Valider"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>
+                                <button x-show="item.statut === 'EN_ATTENTE' && window.gsfUser.can.paiements.rejeter" @click.stop="openRejeterModal(item)" class="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300 mr-2 transition-colors" title="Rejeter"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                <button x-show="item.peut_etre_modifie !== false && window.gsfUser.can.paiements.update" @click.stop="openEditConfirmModal(item)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-2 transition-colors" title="Modifier"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+                                <button @click.stop="openDeleteModal(item)" x-show="window.gsfUser.can.paiements.delete" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" title="Supprimer"><svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                             </td>
                         </tr>
                     </template>
@@ -626,7 +633,7 @@ document.addEventListener('alpine:init', () => {
         selectRow(id) { this.selectedRow = id },
 
         getModePaiementLabel(m) { const l = {'ESPECES':'Espèces','VIREMENT':'Virement bancaire','CHEQUE':'Chèque','MOBILE_MONEY':'Mobile Money'}; return l[m] || m },
-        getBanqueLabel(b) { const l = {'SGBCI':'SGBCI','ECOBANK':'Ecobank CI','NSIA':'NSIA Banque','ORABANK':'Orabank','BICICI':'BICICI','BRIDGE':'Bridge Bank','CORIS':'Coris Bank','BANK_OF_AFRICA':'Bank of Africa'}; return l[b] || b },
+        getBanqueLabel(b) { const l = {'SGBCI':'SGBCI','ECOBANK':'Ecobank CI','NSIA':'NSIA Banque','ORABANK':'Orabank','BICICI':'BICICI','BRIDGE':'Bridge Bank','CORIS':'Coris Bank','BANK_OF_AFRICA':'Bank of Africa','WAVE':'Wave','ORANGE_MONEY':'Orange Money','MTN_MONEY':'Mtn Money','MOOV_MONEY':'Moov Money'}; return l[b] || b },
         getStatutLabel(s) { const l = {'EN_ATTENTE':'En attente','VALIDE':'Validé','ANNULE':'Annulé','REJETE':'Rejeté'}; return l[s] || s },
         getTypePaiementLabel(t) { const l = {'MENSUALITE':'Mensualité','FRAIS_DOCUMENT':'Frais document ACD','AUTRE':'Autre'}; return l[t] || t || 'Mensualité' },
 
@@ -700,21 +707,16 @@ document.addEventListener('alpine:init', () => {
         },
 
         onTypePaiementChange() {
-            if (this.form.type_paiement === 'FRAIS_DOCUMENT') {
-                if (this.form.id_contrat) {
-                    this.loadDocumentsForContrat(this.form.id_contrat);
-                } else {
-                    alert('Veuillez d\'abord sélectionner un contrat');
-                    this.form.type_paiement = 'MENSUALITE';
-                }
-            } else {
-                this.documentsDisponibles = [];
-                this.form.id_contrat_document = '';
-                this.documentSelectionne = null;
-                if (this.form.type_paiement === 'MENSUALITE') {
-                    this.chargerSuggestionMontant(this.form.id_contrat);
-                }
+            // Ne pas réinitialiser le contrat, juste recharger les documents si besoin
+            if (this.form.type_paiement === 'FRAIS_DOCUMENT' && this.form.id_contrat) {
+                this.loadDocumentsForContrat(this.form.id_contrat);
+            } else if (this.form.type_paiement === 'MENSUALITE' && this.form.id_contrat) {
+                this.chargerSuggestionMontant(this.form.id_contrat);
             }
+            // Réinitialiser les champs document
+            this.form.id_contrat_document = '';
+            this.documentSelectionne = null;
+            this.documentsDisponibles = [];
         },
 
         async onContratChange() {
@@ -744,13 +746,67 @@ document.addEventListener('alpine:init', () => {
         },
 
         validateMontant() { this.montantWarning = ''; if (this.form.montant && this.contratSelectionne && this.form.statut === 'VALIDE' && this.form.type_paiement !== 'FRAIS_DOCUMENT' && parseFloat(this.form.montant) > this.contratSelectionne.reste_a_payer) this.montantWarning = `Le montant dépasse le reste à payer (${this.formatPrice(this.contratSelectionne.reste_a_payer)})` },
-        resetBanque() { if (this.form.mode_paiement !== 'VIREMENT' && this.form.mode_paiement !== 'CHEQUE') this.form.banque_paiement = '' },
+        resetBanque() { if (!['VIREMENT', 'CHEQUE', 'MOBILE_MONEY'].includes(this.form.mode_paiement)) this.form.banque_paiement = '' },
 
-        async init() { await this.loadContrats(); await this.loadPaiementsFromDB(); window.addEventListener('open-paiement-form', (e) => { const { id_contrat, reference_contrat, client_nom, reste_a_payer } = e.detail; this.openPaiementWithContrat(id_contrat, reference_contrat, client_nom, reste_a_payer) }); window.addEventListener('paiement-updated', () => { this.loadContrats() }) },
-        openPaiementWithContrat(idC, ref, nom, reste) { this.editingPaiement = null; this.form = { id_contrat: idC, date_paiement: this.getTodayDate(), montant: '', mode_paiement: 'ESPECES', reference: '', banque_paiement: '', statut: 'VALIDE', notes: '', type_paiement: 'MENSUALITE', id_contrat_document: '' }; this.contratSelectionne = { reference_contrat: ref, client_nom: nom, reste_a_payer: reste }; this.formErrors = []; this.showPaiementForm = true; this.generateReference(); this.chargerSuggestionMontant(idC) },
-        async loadContrats() { try { const r = await fetch('/api/contrats'); if (r.ok) this.contratsListe = await r.json() } catch(e) {} },
-        newPaiement() { this.editingPaiement = null; this.contratSelectionne = null; this.montantWarning = ''; this.montantSuggere = 0; this.montantSuggereMessage = ''; this.prochaineEcheanceInfo = null; this.documentsDisponibles = []; this.documentSelectionne = null; this.form = { id_contrat: '', date_paiement: this.getTodayDate(), montant: '', mode_paiement: 'ESPECES', reference: '', banque_paiement: '', statut: 'VALIDE', notes: '', type_paiement: 'MENSUALITE', id_contrat_document: '' }; this.formErrors = []; this.showPaiementForm = true },
-        editItem(item) { this.editingPaiement = item; this.form = { id_contrat: item.id_contrat, date_paiement: item.date_paiement, montant: item.montant, mode_paiement: item.mode_paiement, reference: item.reference, banque_paiement: item.banque_paiement || '', statut: item.statut, notes: item.notes || '', type_paiement: item.type_paiement || 'MENSUALITE', id_contrat_document: item.id_contrat_document || '' }; this.onContratChange(); this.formErrors = []; this.showPaiementForm = true },
+        async init() { 
+            await this.loadContrats(); 
+            await this.loadPaiementsFromDB(); 
+            window.addEventListener('open-paiement-form', (e) => { const { id_contrat, reference_contrat, client_nom, reste_a_payer } = e.detail; this.openPaiementWithContrat(id_contrat, reference_contrat, client_nom, reste_a_payer) }); 
+            window.addEventListener('paiement-updated', () => { this.loadContrats(); this.loadPaiementsFromDB(); }) 
+        },
+        
+        openPaiementWithContrat(idC, ref, nom, reste) { 
+            this.editingPaiement = null; 
+            this.form = { id_contrat: idC, date_paiement: this.getTodayDate(), montant: '', mode_paiement: 'ESPECES', reference: '', banque_paiement: '', statut: 'VALIDE', notes: '', type_paiement: 'MENSUALITE', id_contrat_document: '' }; 
+            this.contratSelectionne = { reference_contrat: ref, client_nom: nom, reste_a_payer: reste }; 
+            this.formErrors = []; 
+            this.showPaiementForm = true; 
+            this.generateReference(); 
+            this.chargerSuggestionMontant(idC) 
+        },
+        
+        async loadContrats() { 
+            try { 
+                const r = await fetch('/api/contrats'); 
+                if (r.ok) {
+                    this.contratsListe = await r.json();
+                }
+            } catch(e) {} 
+        },
+        
+        newPaiement() { 
+            this.editingPaiement = null; 
+            this.contratSelectionne = null; 
+            this.montantWarning = ''; 
+            this.montantSuggere = 0; 
+            this.montantSuggereMessage = ''; 
+            this.prochaineEcheanceInfo = null; 
+            this.documentsDisponibles = []; 
+            this.documentSelectionne = null; 
+            this.form = { id_contrat: '', date_paiement: this.getTodayDate(), montant: '', mode_paiement: 'ESPECES', reference: '', banque_paiement: '', statut: 'VALIDE', notes: '', type_paiement: 'MENSUALITE', id_contrat_document: '' }; 
+            this.formErrors = []; 
+            this.showPaiementForm = true; 
+        },
+        
+        editItem(item) { 
+            this.editingPaiement = item; 
+            this.form = { 
+                id_contrat: item.id_contrat, 
+                date_paiement: item.date_paiement, 
+                montant: item.montant, 
+                mode_paiement: item.mode_paiement, 
+                reference: item.reference, 
+                banque_paiement: item.banque_paiement || '', 
+                statut: item.statut, 
+                notes: item.notes || '', 
+                type_paiement: item.type_paiement || 'MENSUALITE', 
+                id_contrat_document: item.id_contrat_document || '' 
+            }; 
+            this.onContratChange(); 
+            this.formErrors = []; 
+            this.showPaiementForm = true; 
+        },
+        
         closePaiementForm() { this.showPaiementForm = false; this.editingPaiement = null; this.contratSelectionne = null; this.montantWarning = ''; this.montantSuggere = 0; this.formErrors = [] },
         closeDetailsModal() { this.showDetailsModal = false; this.selectedPaiement = null },
         viewDetails(item) { this.selectedPaiement = { ...item, mode_paiement_label: this.getModePaiementLabel(item.mode_paiement), banque_label: this.getBanqueLabel(item.banque_paiement), type_paiement_label: this.getTypePaiementLabel(item.type_paiement) }; this.showDetailsModal = true },
@@ -807,8 +863,250 @@ document.addEventListener('alpine:init', () => {
                         statut_label: this.getStatutLabel(item.statut),
                         type_paiement_label: this.getTypePaiementLabel(item.type_paiement)
                     }
-                    const printWindow = window.open('', '_blank', 'width=900,height=700')
-                    printWindow.document.write(`<!DOCTYPE html><html><head><title>Reçu ${data.reference}</title><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;margin:30px;background:#fff;color:#1f2937}.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px}.company h3{font-size:18px;color:#1e40af}.company p{font-size:12px;color:#6b7280}h1{color:#1e40af;font-size:22px;text-align:center;margin-bottom:30px;text-transform:uppercase;letter-spacing:2px}.line{width:80px;height:3px;background:#2563eb;margin:10px auto 30px}.section{margin-bottom:25px}.section-title{font-size:12px;color:#6b7280;text-transform:uppercase;margin-bottom:5px;font-weight:600}.box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:15px;margin-bottom:15px}.box p{margin:3px 0;font-size:14px}.label{color:#6b7280;font-size:12px}.value{font-weight:600;color:#111827}table{width:100%;border-collapse:collapse;margin:15px 0}th{background:#f3f4f6;padding:10px;text-align:left;font-size:12px;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb}td{padding:10px;border-bottom:1px solid #e5e7eb;font-size:14px}.text-right{text-align:right}.total{font-size:16px;font-weight:700;color:#111827}.total-amount{font-size:20px;font-weight:700;color:#16a34a}.status-badge{display:inline-block;padding:5px 15px;border-radius:20px;font-size:12px;font-weight:600}.status-valide{background:#d1fae5;color:#065f46}.status-attente{background:#fef3c7;color:#92400e}.signatures{display:flex;justify-content:space-between;margin-top:50px}.signature-box{text-align:center;width:45%}.signature-box .line{margin:60px auto 5px;width:200px;height:1px;background:#d1d5db}.signature-box p{font-size:12px;color:#6b7280}.footer{margin-top:40px;text-align:center;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:15px}.no-print{background:#2563eb;color:white;padding:10px 20px;border:none;border-radius:8px;cursor:pointer;margin-bottom:20px;font-size:14px}@media print{body{margin:15px}.no-print{display:none}}</style></head><body><button class="no-print" onclick="window.print()">Imprimer le reçu</button><div class="header"><div><h2 style="color:#1e40af">GSF SARLU</h2><p>Société de promotion immobilière</p><p style="font-size:11px">01 BP 1234 Abidjan 01 - Côte d'Ivoire</p></div><div class="text-right"><p style="font-size:12px;color:#6b7280">Fait à Abidjan, le ${new Date().toLocaleDateString('fr-FR')}</p></div></div><h1>REÇU DE PAIEMENT N° ${data.reference}</h1><div class="line"></div><div class="section"><div class="section-title">REÇU DE :</div><div class="box"><p><span class="label">Nom : </span><span class="value">${data.client_nom}</span></p><p><span class="label">Adresse : </span>${data.client_adresse}</p><p><span class="label">Tél : </span>${data.client_contact} <span style="margin-left:20px"><span class="label">Email : </span>${data.client_email}</span></p></div></div><div class="section"><div class="section-title">OBJET :</div><div class="box" style="background:#eff6ff;border-color:#bfdbfe"><p>Paiement pour le contrat <strong>${data.contrat_reference}</strong> - Lot <strong>${data.lot_numero}</strong> (Îlot ${data.lot_ilot})</p><p style="margin-top:5px"><strong>Type :</strong> ${data.type_paiement_label}</p></div></div><table><thead><tr><th>DÉSIGNATION</th><th class="text-right">MONTANT (FCFA)</th></tr></thead><tbody><tr><td>${data.type_paiement === 'FRAIS_DOCUMENT' ? 'Frais document ACD' : 'Paiement mensualité'}<br><span style="font-size:11px;color:#6b7280">Mode: ${data.mode_paiement_label}${data.banque_paiement ? ' | Banque: ' + data.banque_label : ''}</span></td><td class="text-right">${data.montant_formatted}</td></tr><tr style="background:#f9fafb"><td class="total">TOTAL</td><td class="text-right total-amount">${data.montant_formatted}</td></tr></tbody></table><div class="box"><p><span class="label">Arrêté la présente quittance de la somme de :</span></p><p style="font-weight:600;font-size:15px;margin-top:5px">${data.montant_lettres}</p></div><div style="margin:20px 0;padding:10px 15px;border-radius:8px;background:${data.statut === 'VALIDE' ? '#d1fae5' : '#fef3c7'};border:1px solid ${data.statut === 'VALIDE' ? '#6ee7b7' : '#fde047'}"><span style="font-weight:600">Statut :</span> <span class="status-badge ${data.statut === 'VALIDE' ? 'status-valide' : 'status-attente'}">${data.statut_label}</span></div><div class="signatures"><div class="signature-box"><p>Le bénéficiaire</p><div class="line"></div><p style="font-size:10px">(Signature précédée de la mention<br>"Bon pour encaissement")</p></div><div class="signature-box"><p>Pour GESTION LOTISSEMENTS</p><div class="line"></div><p style="font-size:10px">(Signature et cachet)</p></div></div><div class="footer">Document généré automatiquement - Fait foi entre les parties - Généré le ${new Date().toLocaleString('fr-FR')}</div><script>setTimeout(function(){window.print()},500)<\/script></body></html>`)
+                    const printWindow = window.open('', '_blank', 'width=900,height=750')
+                    const logoUrl = window.location.origin + '/images/logo/gsf-logo.png'
+                    const isValide = data.statut === 'VALIDE'
+                    printWindow.document.write(`<!DOCTYPE html>
+<html lang="fr">
+<head>
+<title>Reçu ${data.reference}</title>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f0f0f0;color:#1a1a1a;font-size:13px}
+
+/* ── PAGE ── */
+.page{max-width:740px;margin:0 auto;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.12)}
+
+/* ── TOP BAR : fine bande rouge tout en haut ── */
+.top-bar{height:5px;background:#C8000A}
+
+/* ── HEADER ── */
+.header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;padding:20px 32px 16px;border-bottom:1px solid #ebebeb}
+.logo-wrap img{height:56px;display:block}
+.co-name{font-size:17px;font-weight:700;color:#1a1a1a;letter-spacing:.3px}
+.co-sub{font-size:11px;color:#777;margin-top:3px}
+.co-addr{font-size:10px;color:#aaa;margin-top:2px}
+.ref-block{text-align:right}
+.ref-tag{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.ref-num{font-size:16px;font-weight:800;color:#C8000A;letter-spacing:.5px}
+.ref-date{font-size:11px;color:#888;margin-top:5px}
+
+/* ── TITLE ── */
+.title-area{text-align:center;padding:22px 32px 18px}
+.title-deco{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:8px}
+.title-deco-line{width:60px;height:2px;background:#C8000A}
+.title-deco-dot{width:7px;height:7px;background:#C8000A;border-radius:50%}
+.title-main{font-size:21px;font-weight:700;color:#1a1a1a;text-transform:uppercase;letter-spacing:3px}
+.title-sub{font-size:12px;color:#888;margin-top:6px;letter-spacing:.5px}
+
+/* ── BODY ── */
+.body{padding:0 32px 28px}
+
+/* ── 2-COL INFO STRIP ── */
+.info-strip{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#ebebeb;border:1px solid #ebebeb;border-radius:8px;overflow:hidden;margin-bottom:18px}
+.info-cell{background:#fff;padding:14px 18px}
+.info-cell.full{grid-column:span 2}
+.ic-label{font-size:9px;color:#C8000A;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:5px}
+.ic-val{font-size:13px;font-weight:600;color:#1a1a1a}
+.ic-val.large{font-size:15px}
+.ic-val.light{font-weight:400;color:#444}
+
+/* ── OBJECT CARD ── */
+.obj-card{background:#fff8f8;border:1px solid #fca5a5;border-radius:8px;padding:14px 18px;margin-bottom:18px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
+.obj-label{font-size:9px;color:#C8000A;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:5px}
+.obj-val{font-size:13px;font-weight:700;color:#1a1a1a}
+.obj-type-label{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.obj-type-val{font-size:12px;font-weight:700;color:#C8000A;background:#fff;border:1px solid #fca5a5;border-radius:20px;padding:3px 12px;display:inline-block}
+
+/* ── TABLE ── */
+.tbl-wrap{border-radius:8px;overflow:hidden;border:1px solid #ebebeb;margin-bottom:18px}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#1a1a1a}
+th{color:#fff;padding:11px 18px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+th:last-child{text-align:right}
+td{padding:14px 18px;border-bottom:1px solid #f5f5f5;vertical-align:top}
+td:last-child{text-align:right;font-weight:700;font-size:14px;color:#1a1a1a}
+tr:last-child td{border-bottom:0}
+.dsub{font-size:11px;color:#999;margin-top:4px;font-weight:400}
+.dfont{font-size:13px;font-weight:600;color:#1a1a1a}
+tr.total-row{background:#f9f9f9}
+tr.total-row td:first-child{font-size:13px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px}
+tr.total-row td:last-child{font-size:22px;font-weight:800;color:#C8000A}
+
+/* ── QUITTANCE ── */
+.quittance{background:#fafafa;border-radius:8px;padding:16px 20px;margin-bottom:18px;position:relative;overflow:hidden}
+.quittance::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:#C8000A}
+.q-label{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.q-val{font-size:14px;font-weight:700;color:#1a1a1a;font-style:italic}
+
+/* ── STATUS ── */
+.status-line{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:8px;margin-bottom:24px}
+.sl-valide{background:#f0fdf4;border:1px solid #86efac}
+.sl-attente{background:#fffbeb;border:1px solid #fcd34d}
+.sl-label{font-size:11px;color:#555;font-weight:600}
+.sl-badge{font-size:11px;font-weight:800;padding:4px 16px;border-radius:20px;letter-spacing:.5px}
+.sl-badge.bv{background:#dcfce7;color:#15803d}
+.sl-badge.ba{background:#fef9c3;color:#92400e}
+
+/* ── SIGNATURES ── */
+.sigs{display:flex;justify-content:space-between;padding-top:22px;border-top:1px dashed #ddd}
+.sig{text-align:center;width:44%}
+.sig-role{font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:52px}
+.sig-line{height:1px;background:#bbb;margin-bottom:8px}
+.sig-note{font-size:10px;color:#aaa;line-height:1.6}
+
+/* ── FOOTER ── */
+.footer{background:#1a1a1a;color:#666;padding:12px 32px;text-align:center;font-size:10px;letter-spacing:.3px}
+.footer strong{color:#C8000A;font-weight:700}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar{height:5px;background:#C8000A}
+
+/* ── NO PRINT BUTTON ── */
+.no-print-wrap{background:#f0f0f0;padding:14px 32px;display:flex;justify-content:flex-end}
+.btn-print{background:#C8000A;color:#fff;padding:9px 22px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:.5px}
+
+@media print{
+  body{background:#fff}
+  .no-print-wrap{display:none}
+  .page{box-shadow:none;max-width:100%}
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact
+}
+</style>
+</head>
+<body>
+
+<div class="no-print-wrap">
+  <button class="btn-print" onclick="window.print()">&#128438;&nbsp; Imprimer</button>
+</div>
+
+<div class="page">
+  <div class="top-bar"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-wrap">
+      <img src="${logoUrl}" alt="GSF" onerror="this.style.display='none'">
+    </div>
+    <div class="ref-block">
+      <div class="ref-tag">Numéro de reçu</div>
+      <div class="ref-num">${data.reference}</div>
+      <div class="ref-date">Abidjan, le ${new Date().toLocaleDateString('fr-FR')}</div>
+    </div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="title-area">
+    <div class="title-deco">
+      <div class="title-deco-line"></div>
+      <div class="title-deco-dot"></div>
+      <div class="title-main">Reçu de Paiement</div>
+      <div class="title-deco-dot"></div>
+      <div class="title-deco-line"></div>
+    </div>
+    <div class="title-sub">Document officiel &mdash; Fait foi entre les parties</div>
+  </div>
+
+  <div class="body">
+
+    <!-- CLIENT INFO -->
+    <div class="info-strip">
+      <div class="info-cell full">
+        <div class="ic-label">Reçu de</div>
+        <div class="ic-val large">${data.client_nom}</div>
+      </div>
+      <div class="info-cell">
+        <div class="ic-label">Adresse</div>
+        <div class="ic-val light">${data.client_adresse}</div>
+      </div>
+      <div class="info-cell">
+        <div class="ic-label">Téléphone</div>
+        <div class="ic-val">${data.client_contact}</div>
+      </div>
+      <div class="info-cell full">
+        <div class="ic-label">Email</div>
+        <div class="ic-val light">${data.client_email}</div>
+      </div>
+    </div>
+
+    <!-- OBJET -->
+    <div class="obj-card">
+      <div>
+        <div class="obj-label">Objet du paiement</div>
+        <div class="obj-val">Contrat ${data.contrat_reference} &mdash; Lot ${data.lot_numero} &mdash; Îlot ${data.lot_ilot}</div>
+      </div>
+      <div>
+        <div class="obj-type-label">Type</div>
+        <div class="obj-type-val">${data.type_paiement_label}</div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Désignation</th>
+            <th>Montant (FCFA)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="dfont">${data.type_paiement === 'FRAIS_DOCUMENT' ? 'Frais document ACD' : 'Paiement mensualité'}</div>
+              <div class="dsub">Mode&nbsp;: ${data.mode_paiement_label}${data.banque_paiement ? '&nbsp;&nbsp;|&nbsp;&nbsp;Banque&nbsp;: ' + data.banque_label : ''}</div>
+            </td>
+            <td>${data.montant_formatted}</td>
+          </tr>
+          <tr class="total-row">
+            <td>Total</td>
+            <td>${data.montant_formatted}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- QUITTANCE -->
+    <div class="quittance">
+      <div class="q-label">Arrêté la présente quittance de la somme de</div>
+      <div class="q-val">${data.montant_lettres}</div>
+    </div>
+
+    <!-- STATUT -->
+    <div class="status-line ${isValide ? 'sl-valide' : 'sl-attente'}">
+      <span class="sl-label">Statut du paiement :</span>
+      <span class="sl-badge ${isValide ? 'bv' : 'ba'}">${data.statut_label}</span>
+    </div>
+
+    <!-- SIGNATURES -->
+    <div class="sigs">
+      <div class="sig">
+        <div class="sig-role">Le bénéficiaire</div>
+        <div class="sig-line"></div>
+        <div class="sig-note">(Signature précédée de la mention<br>&laquo;&nbsp;Bon pour encaissement&nbsp;&raquo;)</div>
+      </div>
+      <div class="sig">
+        <div class="sig-role">Pour GSF</div>
+        <div class="sig-line"></div>
+        <div class="sig-note">(Signature et cachet)</div>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Document généré automatiquement &mdash; <strong>GSF</strong> &mdash; ${new Date().toLocaleString('fr-FR')}
+  </div>
+  <div class="bottom-bar"></div>
+
+</div><!-- /page -->
+
+<script>setTimeout(function(){window.print()},600)<\/script>
+</body>
+</html>`)
                     printWindow.document.close()
                 }
             } catch (error) { console.error('Erreur impression reçu:', error); alert('Erreur lors de l\'impression du reçu') }
@@ -853,9 +1151,9 @@ document.addEventListener('alpine:init', () => {
             try {
                 const r = await fetch(`/api/paiements/${id}/valider`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 'Accept': 'application/json' } });
                 const d = await r.json();
-                if (d.success) { await this.loadPaiementsFromDB(); await this.loadContrats(); alert(d.message || 'Paiement validé avec succès'); window.dispatchEvent(new CustomEvent('paiement-updated')); }
-                else { alert(d.message || 'Erreur lors de la validation'); }
-            } catch(e) { alert('Erreur de connexion'); }
+                if (d.success) { await this.loadPaiementsFromDB(); await this.loadContrats(); window.gsfToast(d.message || 'Paiement validé avec succès', 'success'); window.dispatchEvent(new CustomEvent('paiement-updated')); }
+                else { window.gsfToast(d.message || 'Erreur lors de la validation', 'error'); }
+            } catch(e) { window.gsfToast('Erreur de connexion', 'error'); }
         },
 
         async confirmRejeterPaiement() {
@@ -865,9 +1163,9 @@ document.addEventListener('alpine:init', () => {
             try {
                 const r = await fetch(`/api/paiements/${id}/rejeter`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 'Accept': 'application/json' } });
                 const d = await r.json();
-                if (d.success) { await this.loadPaiementsFromDB(); alert(d.message || 'Paiement rejeté'); window.dispatchEvent(new CustomEvent('paiement-updated')); }
-                else { alert(d.message || 'Erreur lors du rejet'); }
-            } catch(e) { alert('Erreur de connexion'); }
+                if (d.success) { await this.loadPaiementsFromDB(); window.gsfToast(d.message || 'Paiement rejeté', 'warning'); window.dispatchEvent(new CustomEvent('paiement-updated')); }
+                else { window.gsfToast(d.message || 'Erreur lors du rejet', 'error'); }
+            } catch(e) { window.gsfToast('Erreur de connexion', 'error'); }
         },
 
         async confirmDeletePaiement() {
@@ -877,9 +1175,9 @@ document.addEventListener('alpine:init', () => {
             try {
                 const r = await fetch(`/api/paiements/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 'Accept': 'application/json' } });
                 const d = await r.json();
-                if (d.success) { this.items = this.items.filter(i => i.id_paiement !== id); alert('Paiement supprimé avec succès'); window.dispatchEvent(new CustomEvent('paiement-updated')); }
-                else { alert(d.message || 'Erreur lors de la suppression'); }
-            } catch(e) { alert('Erreur de connexion'); }
+                if (d.success) { this.items = this.items.filter(i => i.id_paiement !== id); window.gsfToast('Paiement supprimé avec succès', 'success'); window.dispatchEvent(new CustomEvent('paiement-updated')); }
+                else { window.gsfToast(d.message || 'Erreur lors de la suppression', 'error'); }
+            } catch(e) { window.gsfToast('Erreur de connexion', 'error'); }
         },
 
         async submitAdminAction() {
@@ -899,7 +1197,7 @@ document.addEventListener('alpine:init', () => {
                         this.items = this.items.filter(i => i.id_paiement !== item.id_paiement);
                         this.closeAdminPasswordModal();
                         await this.loadContrats();
-                        alert(d.message || 'Paiement supprimé avec succès');
+                        window.gsfToast(d.message || 'Paiement supprimé avec succès', 'success');
                         window.dispatchEvent(new CustomEvent('paiement-updated'));
                     } else { this.adminPasswordError = d.message || 'Mot de passe administrateur incorrect.'; }
                 } catch(e) { this.adminPasswordError = 'Erreur de connexion au serveur.'; }
@@ -927,6 +1225,7 @@ document.addEventListener('alpine:init', () => {
             if (!this.form.date_paiement) this.formErrors.push('La date de paiement est requise.');
             if (!this.form.montant || parseFloat(this.form.montant) <= 0) this.formErrors.push('Le montant doit être supérieur à 0.');
             if ((this.form.mode_paiement === 'VIREMENT' || this.form.mode_paiement === 'CHEQUE') && !this.form.banque_paiement) this.formErrors.push('La banque est requise pour ce mode de paiement.');
+            if (this.form.mode_paiement === 'MOBILE_MONEY' && !this.form.banque_paiement) this.formErrors.push('L\'opérateur Mobile Money est requis pour ce mode de paiement.');
             if (this.form.type_paiement === 'FRAIS_DOCUMENT' && !this.form.id_contrat_document) this.formErrors.push('Le document ACD est requis.');
             if (this.form.statut === 'VALIDE' && this.form.type_paiement !== 'FRAIS_DOCUMENT' && this.contratSelectionne && parseFloat(this.form.montant) > this.contratSelectionne.reste_a_payer) {
                 this.formErrors.push(`Le montant dépasse le reste à payer (${this.formatPrice(this.contratSelectionne.reste_a_payer)}).`);
@@ -938,6 +1237,16 @@ document.addEventListener('alpine:init', () => {
             }
 
             if (this.formErrors.length) return;
+
+            const confirmed = await window.gsfConfirm({
+                title: this.editingPaiement ? 'Modifier le paiement' : 'Enregistrer le paiement',
+                message: this.editingPaiement
+                    ? `Confirmer la modification du paiement ?`
+                    : `Confirmer l'enregistrement du paiement de <strong>${this.formatPrice(parseFloat(this.form.montant) || 0)}</strong> ?`,
+                type: 'info',
+                confirmText: this.editingPaiement ? 'Modifier' : 'Enregistrer'
+            });
+            if (!confirmed) return;
 
             let url;
             if (this.editingPaiement) {
@@ -987,19 +1296,19 @@ document.addEventListener('alpine:init', () => {
                         message += ` ${data.echeances_affectees.length} échéance(s) mise(s) à jour.`;
                     }
                     this.closePaiementForm();
-                    alert(message);
+                    window.gsfToast(message, 'success');
                     window.dispatchEvent(new CustomEvent('paiement-updated'));
                     window.dispatchEvent(new CustomEvent('contrat-updated'));
                 } else {
                     if (data.errors) {
                         this.formErrors = Object.values(data.errors).flat();
                     } else {
-                        alert('Erreur: ' + (data.message || 'Erreur inconnue'));
+                        window.gsfToast('Erreur: ' + (data.message || 'Erreur inconnue'), 'error');
                     }
                 }
             } catch(error) {
                 console.error('Erreur savePaiement:', error);
-                alert('Erreur de connexion au serveur: ' + error.message);
+                window.gsfToast('Erreur de connexion au serveur: ' + error.message, 'error');
             }
         },
 

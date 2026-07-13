@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\NotifHelper;
+use App\Helpers\PermissionHelper;
 use App\Models\Contrat;
 use App\Models\Client;
 use App\Models\Lot;
@@ -9,6 +11,7 @@ use App\Models\Paiement;
 use App\Models\Echeance;
 use App\Models\VilleDocumentFrais;
 use App\Models\DocumentType;
+use App\Models\ContratDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,14 +25,7 @@ class ContratController extends Controller
      */
     public function index()
     {
-        $contrats = Contrat::with(['client', 'lot', 'lot.lotissement'])
-                           ->withCount(['paiements as nombre_paiements' => function($query) {
-                               $query->where('statut', 'VALIDE')
-                                     ->where(function($q) {
-                                         $q->where('valeursupprimee', '!=', 1)
-                                           ->orWhereNull('valeursupprimee');
-                                     });
-                           }])
+        $contrats = Contrat::with(['client', 'lot', 'lot.lotissement', 'contratDocuments'])
                            ->where('valeursupprimee', '!=', 1)
                            ->orWhereNull('valeursupprimee')
                            ->orderBy('date_contrat', 'desc')
@@ -49,6 +45,8 @@ class ContratController extends Controller
         }]);
 
         $contrats->each(function($contrat) {
+            // montant_paye / reste_a_payer_calcule excluent déjà les frais de dossier ACD
+            // (FRAIS_DOCUMENT) au niveau du modèle : pas besoin de les recalculer ici.
             $contrat->append([
                 'montant_paye',
                 'montant_paye_formatted',
@@ -56,7 +54,7 @@ class ContratController extends Controller
                 'reste_a_payer_formatted',
                 'progression_paiement',
                 'est_solde',
-                'est_totalement_solde', // NOUVEAU
+                'est_totalement_solde',
                 'peut_etre_modifie',
                 'statut_label',
                 'type_paiement_label',
@@ -65,7 +63,10 @@ class ContratController extends Controller
                 'banque_paiement_label'
             ]);
 
-            $contrat->nombre_paiements = (int)($contrat->nombre_paiements ?? 0);
+            // Alias conservé pour compatibilité avec le frontend existant
+            $contrat->reste_a_payer_raw = $contrat->reste_a_payer_calcule;
+            // Le décompte se base sur la relation "paiements" déjà chargée ci-dessus (même filtre VALIDE/non supprimé)
+            $contrat->nombre_paiements = $contrat->paiements->count();
         });
 
         return response()->json($contrats);
@@ -101,7 +102,7 @@ class ContratController extends Controller
         $contrat->refresh();
         $contrat->load('echeances');
         
-        $contrat->append('est_totalement_solde'); // NOUVEAU
+        $contrat->append('est_totalement_solde');
 
         return response()->json($contrat);
     }
@@ -142,7 +143,7 @@ class ContratController extends Controller
             $contrat->refresh();
             $contrat->load('echeances');
 
-            $contrat->append('tous_documents_acceptes', 'est_totalement_solde'); // MODIFIÉ
+            $contrat->append('tous_documents_acceptes', 'est_totalement_solde');
 
             return response()->json($contrat);
 
@@ -256,9 +257,12 @@ class ContratController extends Controller
 
             $contrat->verifierEtMettreAJourStatut();
             $contrat->refresh();
-            $contrat->load('echeances');
+            // refresh() ne préserve pas les eager loads imbriqués : on recharge explicitement
+            $contrat->load(['echeances', 'contratDocuments.paiements']);
 
-            $paiements = Paiement::where('id_contrat', $id)
+            // Récupérer les paiements avec la relation contratDocument et documentType
+            $paiements = Paiement::with(['contratDocument.documentType'])
+                                 ->where('id_contrat', $id)
                                  ->where('statut', 'VALIDE')
                                  ->where(function($query) {
                                      $query->where('valeursupprimee', '!=', 1)
@@ -270,7 +274,12 @@ class ContratController extends Controller
             Log::info('Nombre de paiements trouvés: ' . $paiements->count());
 
             $montantTotal = floatval($contrat->montant_total ?? 0);
-            $montantPaye = $paiements->sum('montant');
+            
+            // IMPORTANT: Ne prendre en compte que les paiements de type MENSUALITE ou COMPTANT
+            // Exclure les paiements de type FRAIS_DOCUMENT du calcul du montant payé pour le terrain
+            $montantPaye = $paiements->filter(function($paiement) {
+                return $paiement->type_paiement !== 'FRAIS_DOCUMENT';
+            })->sum('montant');
 
             $estSolde = $contrat->statut === 'SOLDE';
             $resteAPayer = $estSolde ? 0 : max(0, $montantTotal - $montantPaye);
@@ -279,6 +288,7 @@ class ContratController extends Controller
             if ($estSolde && $montantPaye == 0 && $contrat->type_paiement === 'COMPTANT') {
                 $paiementAuto = Paiement::where('id_contrat', $id)
                                         ->where('statut', 'VALIDE')
+                                        ->where('type_paiement', '!=', 'FRAIS_DOCUMENT')
                                         ->first();
                 if ($paiementAuto) {
                     $montantPaye = floatval($paiementAuto->montant);
@@ -292,14 +302,14 @@ class ContratController extends Controller
                 }
             }
 
-            // Vérifier si des frais ACD restent à payer
-            $fraisNonPayes = $contrat->contratDocuments()
+            // Vérifier si des frais ACD restent à payer (à partir de la relation déjà chargée, pas de requête supplémentaire)
+            $fraisNonPayes = $contrat->contratDocuments
                                      ->where('statut_paiement', '!=', 'paye')
                                      ->where('montant', '>', 0)
                                      ->count();
-            
+
             $estTotalementSolde = $estSolde && $fraisNonPayes === 0;
-            $peutRecevoirPaiement = $contrat->peutRecevoirPaiement() && !$estTotalementSolde;
+            $peutRecevoirPaiement = ($contrat->statut !== 'SOLDE' && $resteAPayer > 0) || $fraisNonPayes > 0;
 
             $prochaineEcheance = $contrat->prochaine_echeance;
 
@@ -324,30 +334,13 @@ class ContratController extends Controller
                 ];
             });
 
-            // Ajouter les frais ACD à la réponse
-            $fraisAcd = [];
-            $totalFraisAcd = 0;
-            $ville = $contrat->lot && $contrat->lot->lotissement ? $contrat->lot->lotissement->ville : null;
-            
-            if ($ville) {
-                $fraisAcdData = VilleDocumentFrais::with('documentType')
-                    ->where('ville', $ville)
-                    ->where('valeursupprimee', 0)
-                    ->get();
-                
-                $fraisAcd = $fraisAcdData->map(function($item) {
-                    return [
-                        'id_frais' => $item->id_frais,
-                        'id_document_type' => $item->id_document_type,
-                        'type_document' => $item->documentType ? $item->documentType->nom : 'Inconnu',
-                        'code' => $item->documentType ? $item->documentType->code : '',
-                        'montant' => $item->montant,
-                        'montant_formatted' => number_format($item->montant, 0, ',', ' ') . ' FCFA',
-                        'est_obligatoire' => $item->documentType ? $item->documentType->est_obligatoire : false
-                    ];
-                });
-                $totalFraisAcd = $fraisAcdData->sum('montant');
-            }
+            // Ajouter les frais ACD à la réponse (à partir de la relation contratDocuments.paiements déjà chargée)
+            $fraisAcdDetail = $this->buildFraisAcdDetail($contrat);
+            $ville = $fraisAcdDetail['ville'];
+            $fraisAcd = $fraisAcdDetail['frais'];
+            $totalFraisAcd = $fraisAcdDetail['total'];
+            $totalFraisAcdPaye = $fraisAcdDetail['total_paye'];
+            $totalFraisAcdReste = $fraisAcdDetail['total_reste'];
 
             return response()->json([
                 'success' => true,
@@ -370,7 +363,7 @@ class ContratController extends Controller
                     'banque_paiement' => $contrat->banque_paiement,
                     'banque_paiement_label' => $contrat->banque_paiement_label,
                     'est_solde' => $estSolde,
-                    'est_totalement_solde' => $estTotalementSolde, // NOUVEAU
+                    'est_totalement_solde' => $estTotalementSolde,
                     'peut_etre_modifie' => $contrat->peut_etre_modifie,
                     'nombre_echeances_total' => $contrat->nombre_echeances_total,
                     'nombre_echeances_payees' => $contrat->nombre_echeances_payees,
@@ -378,7 +371,11 @@ class ContratController extends Controller
                     'ville' => $ville,
                     'frais_acd' => $fraisAcd,
                     'total_frais_acd' => $totalFraisAcd,
-                    'total_frais_acd_formatted' => number_format($totalFraisAcd, 0, ',', ' ') . ' FCFA'
+                    'total_frais_acd_formatted' => number_format($totalFraisAcd, 0, ',', ' ') . ' FCFA',
+                    'total_frais_acd_paye' => $totalFraisAcdPaye,
+                    'total_frais_acd_paye_formatted' => number_format($totalFraisAcdPaye, 0, ',', ' ') . ' FCFA',
+                    'total_frais_acd_reste' => $totalFraisAcdReste,
+                    'total_frais_acd_reste_formatted' => number_format($totalFraisAcdReste, 0, ',', ' ') . ' FCFA'
                 ],
                 'situation' => [
                     'montant_total' => number_format($montantTotal, 0, ',', ' ') . ' FCFA',
@@ -394,6 +391,19 @@ class ContratController extends Controller
                 'echeances' => $echeances,
                 'prochaine_echeance' => $prochaineEcheance,
                 'paiements' => $paiements->map(function($paiement) {
+                    // Déterminer le libellé du type de paiement
+                    $typePaiementLabel = 'Mensualité';
+                    
+                    if ($paiement->type_paiement === 'FRAIS_DOCUMENT') {
+                        if ($paiement->contratDocument && $paiement->contratDocument->documentType) {
+                            $typePaiementLabel = $paiement->contratDocument->documentType->nom;
+                        } else {
+                            $typePaiementLabel = 'Frais document ACD';
+                        }
+                    } elseif ($paiement->type_paiement === 'AUTRE') {
+                        $typePaiementLabel = 'Autre';
+                    }
+                    
                     return [
                         'id_paiement' => $paiement->id_paiement,
                         'date_paiement' => $paiement->date_paiement_formatted,
@@ -406,7 +416,9 @@ class ContratController extends Controller
                         'statut' => $paiement->statut,
                         'statut_label' => $paiement->statut_label,
                         'banque_paiement' => $paiement->banque_paiement,
-                        'banque_label' => $paiement->banque_label
+                        'banque_label' => $paiement->banque_label,
+                        'type_paiement' => $paiement->type_paiement ?? 'MENSUALITE',
+                        'type_paiement_label' => $typePaiementLabel
                     ];
                 })->values()->toArray()
             ]);
@@ -420,6 +432,66 @@ class ContratController extends Controller
                 'message' => 'Erreur: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Construire le détail des frais ACD (par type de document) pour un contrat,
+     * avec le montant payé par document calculé à partir des paiements VALIDE liés.
+     * Nécessite que la relation 'contratDocuments.paiements' du contrat soit déjà chargée.
+     */
+    private function buildFraisAcdDetail(Contrat $contrat): array
+    {
+        $ville = $contrat->lot && $contrat->lot->lotissement ? $contrat->lot->lotissement->ville : null;
+
+        if (!$ville) {
+            return [
+                'ville' => null,
+                'frais' => collect(),
+                'total' => 0,
+                'total_paye' => 0,
+                'total_reste' => 0
+            ];
+        }
+
+        $fraisAcdData = VilleDocumentFrais::with('documentType')
+            ->where('ville', $ville)
+            ->where('valeursupprimee', 0)
+            ->get();
+
+        $documentsParType = $contrat->contratDocuments->keyBy('id_document_type');
+
+        $totalPaye = 0;
+        $frais = $fraisAcdData->map(function($item) use ($documentsParType, &$totalPaye) {
+            $document = $documentsParType->get($item->id_document_type);
+            $montantPaye = $document
+                ? $document->paiements->where('statut', 'VALIDE')->sum('montant')
+                : 0;
+            $totalPaye += $montantPaye;
+
+            return [
+                'id_frais' => $item->id_frais,
+                'id_document_type' => $item->id_document_type,
+                'type_document' => $item->documentType ? $item->documentType->nom : 'Inconnu',
+                'code' => $item->documentType ? $item->documentType->code : '',
+                'montant' => $item->montant,
+                'montant_formatted' => number_format($item->montant, 0, ',', ' ') . ' FCFA',
+                'montant_paye' => $montantPaye,
+                'montant_paye_formatted' => number_format($montantPaye, 0, ',', ' ') . ' FCFA',
+                'reste_a_payer' => max(0, $item->montant - $montantPaye),
+                'est_obligatoire' => $item->documentType ? $item->documentType->est_obligatoire : false,
+                'statut_paiement' => $document ? $document->statut_paiement : 'non_paye'
+            ];
+        });
+
+        $total = $fraisAcdData->sum('montant');
+
+        return [
+            'ville' => $ville,
+            'frais' => $frais,
+            'total' => $total,
+            'total_paye' => $totalPaye,
+            'total_reste' => max(0, $total - $totalPaye)
+        ];
     }
 
     /**
@@ -539,6 +611,8 @@ class ContratController extends Controller
      */
     public function store(Request $request)
     {
+        PermissionHelper::abort403('contrats', 'create');
+
         try {
             $validated = $request->validate([
                 'id_client'         => 'required|exists:clients,id',
@@ -594,10 +668,10 @@ class ContratController extends Controller
                         'message' => 'Le mode de paiement est requis.'
                     ], 422);
                 }
-                if (in_array($validated['mode_paiement'], ['VIREMENT', 'CHEQUE']) && empty($validated['banque_paiement'])) {
+                if (in_array($validated['mode_paiement'], ['VIREMENT', 'CHEQUE', 'MOBILE_MONEY']) && empty($validated['banque_paiement'])) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'La banque est requise.'
+                        'message' => in_array($validated['mode_paiement'], ['VIREMENT', 'CHEQUE']) ? 'La banque est requise.' : 'L\'opérateur Mobile Money est requis.'
                     ], 422);
                 }
                 $validated['duree_mois'] = 1;
@@ -645,6 +719,16 @@ class ContratController extends Controller
             $contrat = Contrat::with(['client', 'lot', 'paiements', 'echeances'])
                               ->find($contrat->id_contrat);
 
+            NotifHelper::notifyAdmins('Nouveau contrat créé', [
+                '**Un nouveau contrat a été enregistré.**',
+                'Référence : ' . ($contrat->reference_contrat ?? '—'),
+                'Client : ' . ($contrat->client->nom_prenoms ?? '—'),
+                'Lot : ' . ($contrat->lot->numero_lot ?? '—'),
+                'Montant : ' . number_format($contrat->montant_total, 0, ',', ' ') . ' FCFA',
+                'Type de paiement : ' . ($contrat->type_paiement_label ?? $contrat->type_paiement),
+                'Statut : ' . ($contrat->statut_label ?? $contrat->statut),
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Contrat créé avec succès',
@@ -688,6 +772,8 @@ class ContratController extends Controller
      */
     public function update(Request $request, $id)
     {
+        PermissionHelper::abort403('contrats', 'update');
+
         try {
             $contrat = Contrat::where('id_contrat', $id)
                               ->where('valeursupprimee', '!=', 1)
@@ -759,10 +845,10 @@ class ContratController extends Controller
                         'message' => 'Le mode de paiement est requis.'
                     ], 422);
                 }
-                if (in_array($validated['mode_paiement'], ['VIREMENT', 'CHEQUE']) && empty($validated['banque_paiement'])) {
+                if (in_array($validated['mode_paiement'], ['VIREMENT', 'CHEQUE', 'MOBILE_MONEY']) && empty($validated['banque_paiement'])) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'La banque est requise.'
+                        'message' => in_array($validated['mode_paiement'], ['VIREMENT', 'CHEQUE']) ? 'La banque est requise.' : 'L\'opérateur Mobile Money est requis.'
                     ], 422);
                 }
                 $validated['duree_mois'] = 1;
@@ -843,6 +929,15 @@ class ContratController extends Controller
 
             $contrat->load(['client', 'lot', 'paiements', 'echeances']);
 
+            NotifHelper::notifyAdmins('Contrat modifié', [
+                '**Un contrat a été modifié.**',
+                'Référence : ' . ($contrat->reference_contrat ?? '—'),
+                'Client : ' . ($contrat->client->nom_prenoms ?? '—'),
+                'Lot : ' . ($contrat->lot->numero_lot ?? '—'),
+                'Montant : ' . number_format($contrat->montant_total, 0, ',', ' ') . ' FCFA',
+                'Statut : ' . ($contrat->statut_label ?? $contrat->statut),
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Contrat modifié avec succès',
@@ -864,6 +959,8 @@ class ContratController extends Controller
      */
     public function adminDelete(Request $request, $id)
     {
+        PermissionHelper::abort403('contrats', 'admin_delete');
+
         try {
             $request->validate([
                 'admin_password' => 'required|string',
@@ -940,6 +1037,8 @@ class ContratController extends Controller
      */
     public function destroy($id)
     {
+        PermissionHelper::abort403('contrats', 'delete');
+
         try {
             $contrat = Contrat::where('id_contrat', $id)->firstOrFail();
 
@@ -988,6 +1087,13 @@ class ContratController extends Controller
 
             DB::commit();
 
+            NotifHelper::notifyAdmins('Contrat supprimé', [
+                '**Un contrat a été supprimé.**',
+                'Référence : ' . ($contrat->reference_contrat ?? '—'),
+                'Client : ' . ($contrat->client->nom_prenoms ?? '—'),
+                'Lot : ' . ($contrat->lot->numero_lot ?? '—'),
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Contrat supprimé avec succès. Le lot associé a été remis à disponible.'
@@ -1012,6 +1118,7 @@ class ContratController extends Controller
 
     /**
      * Mettre à jour le statut d'un lot après suppression d'un contrat
+     * CORRIGÉ : Remet systématiquement le lot à DISPONIBLE s'il n'y a plus de contrat actif
      */
     private function updateLotStatutAfterContratDeletion($lotId, $excludedContratId = null)
     {
@@ -1021,7 +1128,7 @@ class ContratController extends Controller
             return;
         }
 
-        // Vérifier s'il existe d'autres contrats actifs sur ce lot
+        // Vérifier s'il existe d'autres contrats actifs sur ce lot (non supprimés)
         $query = Contrat::where('id_lot', $lotId)
                         ->where(function($query) {
                             $query->where('valeursupprimee', '!=', 1)
@@ -1035,29 +1142,24 @@ class ContratController extends Controller
         $autreContratActif = $query->exists();
 
         if (!$autreContratActif) {
-            // Aucun autre contrat actif sur ce lot → remettre à DISPONIBLE
+            // Aucun autre contrat actif sur ce lot → remettre à DISPONIBLE (même s'il était VENDU)
             $ancienStatut = $lot->statut;
+            
+            $lot->statut = 'DISPONIBLE';
+            $lot->save();
 
-            // Vérifier que le lot n'est pas marqué comme vendu définitivement
-            if ($lot->statut !== 'VENDU') {
-                $lot->statut = 'DISPONIBLE';
-                $lot->save();
-
-                Log::info('Lot remis à DISPONIBLE après suppression de contrat', [
-                    'lot_id' => $lotId,
-                    'lot_numero' => $lot->numero_lot,
-                    'ancien_statut' => $ancienStatut,
-                    'contrat_supprime_id' => $excludedContratId
-                ]);
-            } else {
-                Log::info('Lot VENDU non modifié après suppression de contrat', [
-                    'lot_id' => $lotId,
-                    'contrat_supprime_id' => $excludedContratId
-                ]);
-            }
+            Log::info('Lot remis à DISPONIBLE après suppression de contrat', [
+                'lot_id' => $lotId,
+                'lot_numero' => $lot->numero_lot,
+                'ancien_statut' => $ancienStatut,
+                'nouveau_statut' => 'DISPONIBLE',
+                'contrat_supprime_id' => $excludedContratId
+            ]);
         } else {
             Log::info('Lot non modifié car un autre contrat actif existe', [
                 'lot_id' => $lotId,
+                'lot_numero' => $lot->numero_lot,
+                'statut_actuel' => $lot->statut,
                 'contrat_supprime_id' => $excludedContratId
             ]);
         }
@@ -1071,7 +1173,7 @@ class ContratController extends Controller
         $clients = Client::where('valeursupprimee', '!=', 1)
                          ->orWhereNull('valeursupprimee')
                          ->orderBy('nom_prenoms', 'asc')
-                         ->get(['id', 'nom_prenoms']);
+                         ->get(['id', 'nom_prenoms', 'reference_client']);
 
         return response()->json($clients);
     }
@@ -1133,9 +1235,12 @@ class ContratController extends Controller
 
             $contrat->verifierEtMettreAJourStatut();
             $contrat->refresh();
-            $contrat->load('echeances');
+            // refresh() ne préserve pas les eager loads imbriqués : on recharge explicitement
+            $contrat->load(['echeances', 'contratDocuments.paiements']);
 
+            // Ne prendre que les paiements VALIDES et non supprimés, en excluant les FRAIS_DOCUMENT
             $paiements = Paiement::where('id_contrat', $id)
+                                 ->where('statut', 'VALIDE')
                                  ->where(function($query) {
                                      $query->where('valeursupprimee', '!=', 1)
                                            ->orWhereNull('valeursupprimee');
@@ -1144,7 +1249,10 @@ class ContratController extends Controller
                                  ->get();
 
             $montantTotal = floatval($contrat->montant_total ?? 0);
-            $montantPaye = $paiements->where('statut', 'VALIDE')->sum('montant');
+            // Exclure les FRAIS_DOCUMENT du calcul du montant payé pour le terrain
+            $montantPaye = $paiements->filter(function($paiement) {
+                return $paiement->type_paiement !== 'FRAIS_DOCUMENT';
+            })->sum('montant');
             $resteAPayer = max(0, $montantTotal - $montantPaye);
             $progression = $montantTotal > 0 ? min(100, round(($montantPaye / $montantTotal) * 100)) : 0;
 
@@ -1163,28 +1271,12 @@ class ContratController extends Controller
                 ];
             });
 
-            // Ajouter les frais ACD à la réponse
-            $fraisAcd = [];
-            $totalFraisAcd = 0;
-            $ville = $contrat->lot && $contrat->lot->lotissement ? $contrat->lot->lotissement->ville : null;
-            
-            if ($ville) {
-                $fraisAcdData = VilleDocumentFrais::with('documentType')
-                    ->where('ville', $ville)
-                    ->where('valeursupprimee', 0)
-                    ->get();
-                
-                $fraisAcd = $fraisAcdData->map(function($item) {
-                    return [
-                        'type_document' => $item->documentType ? $item->documentType->nom : 'Inconnu',
-                        'code' => $item->documentType ? $item->documentType->code : '',
-                        'montant' => $item->montant,
-                        'montant_formatted' => number_format($item->montant, 0, ',', ' ') . ' FCFA',
-                        'est_obligatoire' => $item->documentType ? $item->documentType->est_obligatoire : false
-                    ];
-                });
-                $totalFraisAcd = $fraisAcdData->sum('montant');
-            }
+            // Ajouter les frais ACD à la réponse (à partir de la relation contratDocuments.paiements déjà chargée)
+            $fraisAcdDetail = $this->buildFraisAcdDetail($contrat);
+            $ville = $fraisAcdDetail['ville'];
+            $fraisAcd = $fraisAcdDetail['frais'];
+            $totalFraisAcd = $fraisAcdDetail['total'];
+            $totalFraisAcdPaye = $fraisAcdDetail['total_paye'];
 
             return response()->json([
                 'success' => true,
@@ -1204,7 +1296,9 @@ class ContratController extends Controller
                     'ville' => $ville,
                     'frais_acd' => $fraisAcd,
                     'total_frais_acd' => $totalFraisAcd,
-                    'total_frais_acd_formatted' => number_format($totalFraisAcd, 0, ',', ' ') . ' FCFA'
+                    'total_frais_acd_formatted' => number_format($totalFraisAcd, 0, ',', ' ') . ' FCFA',
+                    'total_frais_acd_paye' => $totalFraisAcdPaye,
+                    'total_frais_acd_paye_formatted' => number_format($totalFraisAcdPaye, 0, ',', ' ') . ' FCFA'
                 ],
                 'situation' => [
                     'montant_total' => number_format($montantTotal, 0, ',', ' ') . ' FCFA',

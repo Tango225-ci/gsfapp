@@ -35,4 +35,21 @@ return [
         ],
     ],
 
+    'sms' => [
+        'driver' => env('SMS_DRIVER', 'log'),
+        'log_channel' => env('SMS_LOG_CHANNEL', 'stack'),
+    ],
+
+    'twilio' => [
+        'sid' => env('TWILIO_SID'),
+        'token' => env('TWILIO_AUTH_TOKEN'),
+        'from' => env('TWILIO_FROM_NUMBER'),
+    ],
+
+    'africastalking' => [
+        'username' => env('AFRICASTALKING_USERNAME'),
+        'api_key' => env('AFRICASTALKING_API_KEY'),
+        'sandbox' => env('AFRICASTALKING_SANDBOX', false),
+    ],
+
 ];

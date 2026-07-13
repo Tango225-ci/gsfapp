@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PermissionHelper;
 use App\Models\Echeance;
 use App\Models\Contrat;
 use App\Models\Paiement;
@@ -228,6 +229,8 @@ class EcheanceController extends Controller
      */
     public function marquerPayee($id)
     {
+        PermissionHelper::abort403('echeances', 'marquer_payee');
+
         try {
             DB::beginTransaction();
 

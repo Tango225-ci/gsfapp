@@ -50,8 +50,7 @@
 
             <!-- Logo (mobile only) -->
             <a href="/" class="xl:hidden">
-                <img class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
-                <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
+                <img src="/images/logo/gsf-logo.png" alt="GSF Logo" style="height:36px;width:auto;object-fit:contain;" />
             </a>
 
             <!-- Application Menu Toggle (mobile only) -->

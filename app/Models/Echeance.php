@@ -208,33 +208,32 @@ class Echeance extends Model
      */
     public function getNumeroEcheanceAttribute()
     {
-        if (!$this->id_contrat) {
+        // La position est déjà stockée en base (définie lors de la génération des échéances),
+        // pas besoin de recharger toutes les échéances du contrat pour la recalculer.
+        $position = $this->attributes['numero_echeance'] ?? null;
+
+        if (!$position || !$this->id_contrat) {
             return 'ECH-' . date('Y-m') . '-001';
         }
 
-        // Récupérer le contrat associé
-        $contrat = $this->contrat;
-        if (!$contrat) {
-            return 'ECH-' . date('Y-m') . '-001';
+        if ($this->relationLoaded('contrat')) {
+            // Relation déjà chargée par l'appelant : on la réutilise sans requête supplémentaire
+            $contrat = $this->contrat;
+            $refContrat = $contrat ? ($contrat->reference_contrat ?? $contrat->id_contrat) : $this->id_contrat;
+        } else {
+            // Requête scalaire légère : on évite de charger (et mettre en cache comme relation)
+            // le modèle Contrat complet, ce qui déclencherait tous ses accessors lourds dès que
+            // cette échéance est sérialisée en JSON (la relation chargée est incluse dans toArray()).
+            $refContrat = self::query()->getConnection()->table('contrats')
+                ->where('id_contrat', $this->id_contrat)
+                ->value('reference_contrat') ?? $this->id_contrat;
         }
 
-        // Récupérer toutes les échéances du contrat triées par date
-        $echeances = self::where('id_contrat', $this->id_contrat)
-                         ->where('valeursupprimee', 0)
-                         ->orderBy('date_echeance', 'asc')
-                         ->get();
-
-        // Trouver la position de cette échéance
-        $position = 1;
-        foreach ($echeances as $index => $echeance) {
-            if ($echeance->id == $this->id) {
-                $position = $index + 1;
-                break;
-            }
+        if (!$refContrat) {
+            return 'ECH-' . date('Y-m') . '-001';
         }
 
         // Formater le numéro avec la référence du contrat et la séquence
-        $refContrat = $contrat->reference_contrat ?? $contrat->id_contrat;
         $refContrat = preg_replace('/[^A-Za-z0-9]/', '', $refContrat); // Nettoyer la référence
 
         // Format: ECH-{REF_CONTRAT}-{POSITION_SUR_3_CHIFFRES}

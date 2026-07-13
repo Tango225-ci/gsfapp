@@ -6,12 +6,13 @@ class MenuHelper
 {
     public static function getMainNavItems()
     {
-        return [
+        $role = auth('utilisateurs')->user()?->role ?? 'GUEST';
+
+        $items = [
             [
                 'icon' => 'dashboard',
                 'name' => 'Dashboard',
                 'path' => '/',
-
             ],
             [
                 'icon' => 'user-profile',
@@ -23,12 +24,12 @@ class MenuHelper
                 'name' => 'Gestion des lotissements',
                 'path' => '/lotissements',
             ],
-              [
+            [
                 'icon' => 'building',
                 'name' => 'Gestion des lots',
                 'path' => '/lots',
             ],
-              [
+            [
                 'icon' => 'forms',
                 'name' => 'Gestion des contrats',
                 'path' => '/contrats',
@@ -38,12 +39,12 @@ class MenuHelper
                 'name' => 'Gestion des paiements',
                 'path' => '/paiements',
             ],
-             [
+            [
                 'icon' => 'charts',
                 'name' => 'Gestion des Visites',
                 'path' => '/visites',
             ],
-             [
+            [
                 'icon' => 'calendar',
                 'name' => 'Gestion des Echeances',
                 'path' => '/echeances',
@@ -53,35 +54,33 @@ class MenuHelper
                 'name' => 'Calendrier',
                 'path' => '/calendar',
             ],
+            // ADMIN seulement
             [
-                'icon' => 'user-profile',
-                'name' => 'Gestion des Utilisateurs',
-                'path' => '/utilisateurs',
+                'icon'  => 'user-profile',
+                'name'  => 'Gestion des Utilisateurs',
+                'path'  => '/utilisateurs',
+                'roles' => ['ADMIN'],
             ],
             [
-                'name' => 'Parametrage',
-                'icon' => 'forms',
-                'subItems' => [
-                    ['name' => 'Gestion des documents', 'path' => '/documents', 'pro' => false]
-
-                ],
+                'icon'  => 'user-tie',
+                'name'  => 'Gestion des Propriétaires',
+                'path'  => '/proprietaires',
+                'roles' => ['ADMIN'],
             ],
             [
-                'name' => 'Tables',
-                'icon' => 'tables',
+                'name'  => 'Parametrage',
+                'icon'  => 'forms',
+                'roles' => ['ADMIN'],
                 'subItems' => [
-                    ['name' => 'Basic Tables', 'path' => '/basic-tables', 'pro' => false]
-                ],
-            ],
-            [
-                'name' => 'Pages',
-                'icon' => 'pages',
-                'subItems' => [
-                    ['name' => 'Blank Page', 'path' => '/blank', 'pro' => false],
-                    ['name' => '404 Error', 'path' => '/error-404', 'pro' => false]
+                    ['name' => 'Gestion des documents', 'path' => '/documents', 'pro' => false],
+                    ['name' => 'Import CSV',            'path' => '/import',    'pro' => false],
                 ],
             ],
         ];
+
+        return array_values(array_filter($items, function ($item) use ($role) {
+            return !isset($item['roles']) || in_array($role, $item['roles']);
+        }));
     }
 
    /* public static function getOthersItems()

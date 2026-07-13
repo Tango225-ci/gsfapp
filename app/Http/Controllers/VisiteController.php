@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PermissionHelper;
 use App\Models\Visite;
 use Illuminate\Http\Request;
 
@@ -27,6 +28,8 @@ class VisiteController extends Controller
      */
     public function store(Request $request)
     {
+        PermissionHelper::abort403('visites', 'create');
+
         $validated = $request->validate([
             'nom_visiteur'      => 'required|string|max:255',
             'contact_visiteur'  => 'required|string|max:20',
@@ -54,6 +57,8 @@ class VisiteController extends Controller
      */
     public function update(Request $request, $id)
     {
+        PermissionHelper::abort403('visites', 'update');
+
         $visite = Visite::where('id_visite', $id)
                         ->where('valeursupprimee', '!=', 1)
                         ->firstOrFail();
@@ -82,6 +87,8 @@ class VisiteController extends Controller
      */
     public function destroy($id)
     {
+        PermissionHelper::abort403('visites', 'delete');
+
         $visite = Visite::findOrFail($id);
 
         // On ne supprime pas, on met à jour le flag

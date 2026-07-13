@@ -32,8 +32,10 @@ class Lot extends Model
         'superficie',
         'prix_comptant',
         'prix_echelonne',
+        'prix_achat',
         'statut',
         'id_lotissement',
+        'id_proprietaire',
         'created_at',
         'valeursupprimee',
         'ville_libelle'
@@ -43,11 +45,12 @@ class Lot extends Model
      * Les attributs qui doivent être castés.
      */
     protected $casts = [
-        'superficie' => 'decimal:2',
-        'prix_comptant' => 'decimal:2',
-        'prix_echelonne' => 'decimal:2',
-        'created_at' => 'datetime',
-        'valeursupprimee' => 'boolean'
+        'superficie'      => 'decimal:2',
+        'prix_comptant'   => 'decimal:2',
+        'prix_echelonne'  => 'decimal:2',
+        'prix_achat'      => 'decimal:2',
+        'created_at'      => 'datetime',
+        'valeursupprimee' => 'boolean',
     ];
 
     /**
@@ -91,6 +94,14 @@ class Lot extends Model
                 $model->prix_echelonne = 0;
             }
         });
+    }
+
+    /**
+     * Relation avec le propriétaire terrien
+     */
+    public function proprietaire()
+    {
+        return $this->belongsTo(ProprietaireTerrien::class, 'id_proprietaire', 'id_proprietaire');
     }
 
     /**

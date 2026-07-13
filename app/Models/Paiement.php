@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\PortailPaiementValideNotification;
 
 class Paiement extends Model
 {
@@ -93,6 +94,10 @@ class Paiement extends Model
 
             if ($model->contrat) {
                 $model->contrat->updateContratStatut();
+
+                if ($model->statut === 'VALIDE' && $model->contrat->client) {
+                    $model->contrat->client->notify(new PortailPaiementValideNotification($model));
+                }
             }
         });
 
@@ -107,6 +112,10 @@ class Paiement extends Model
 
             if ($model->contrat) {
                 $model->contrat->updateContratStatut();
+
+                if ($model->wasChanged('statut') && $model->statut === 'VALIDE' && $model->contrat->client) {
+                    $model->contrat->client->notify(new PortailPaiementValideNotification($model));
+                }
             }
         });
 
@@ -120,23 +129,15 @@ class Paiement extends Model
     /**
      * Générer une référence unique pour le paiement
      */
-    public static function generateReference()
+    public static function generateReference(): string
     {
-        $yearMonth = date('Ym');
+        $last = self::where('reference', 'LIKE', 'PAI-%')
+            ->orderByRaw('CAST(SUBSTRING(reference, 5) AS UNSIGNED) DESC')
+            ->value('reference');
 
-        $lastPaiement = self::where('reference', 'LIKE', 'PAI-' . $yearMonth . '-%')
-                            ->orderBy('id_paiement', 'desc')
-                            ->first();
+        $seq = $last ? intval(substr($last, 4)) + 1 : 1;
 
-        if ($lastPaiement && $lastPaiement->reference) {
-            $parts = explode('-', $lastPaiement->reference);
-            $lastNumber = intval(end($parts));
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '0001';
-        }
-
-        return 'PAI-' . $yearMonth . '-' . $newNumber;
+        return 'PAI-' . str_pad($seq, 5, '0', STR_PAD_LEFT);
     }
 
     /**
