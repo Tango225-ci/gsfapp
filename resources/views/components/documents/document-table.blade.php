@@ -2,13 +2,12 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <!-- Header avec recherche et boutons -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Configuration des Documents ACD</h2>
+            <div class="flex flex-col lg:flex-row justify-end items-start lg:items-center gap-4">
 
-                <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex w-full lg:w-auto items-center gap-3 flex-wrap">
                     <!-- Filtre par statut -->
                     <select x-model="filtreStatut" @change="currentPage = 1"
-                        class="w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Tous les statuts</option>
                         <option value="1">Actif</option>
                         <option value="0">Inactif</option>
@@ -16,7 +15,7 @@
 
                     <!-- Filtre par ville -->
                     <select x-model="filtreVille" @change="currentPage = 1; chargerFrais()"
-                        class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Toutes les villes</option>
                         <template x-for="ville in villesListe" :key="ville">
                             <option :value="ville" x-text="ville"></option>
@@ -24,7 +23,7 @@
                     </select>
 
                     <!-- Barre de recherche -->
-                    <div class="relative w-64">
+                    <div class="relative w-full sm:w-64">
                         <input type="text" x-model="search" placeholder="Rechercher type, code..."
                             class="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm">
                         <svg class="absolute right-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,22 +71,22 @@
         </div>
 
         <!-- Cartes statistiques -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Types de documents</p>
-                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total_types"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-gray-800 dark:text-white" x-text="stats.total_types"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Documents actifs</p>
-                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.types_actifs"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-green-600 dark:text-green-400" x-text="stats.types_actifs"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Villes configurées</p>
-                <p class="mt-2 text-4xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.villes_count"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-purple-600 dark:text-purple-400" x-text="stats.villes_count"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tarifs configurés</p>
-                <p class="mt-2 text-4xl font-bold text-orange-600 dark:text-orange-400" x-text="stats.tarifs_count"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-orange-600 dark:text-orange-400" x-text="stats.tarifs_count"></p>
             </div>
         </div>
 
@@ -115,7 +114,7 @@
                         <div><label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nom *</label><input type="text" x-model="typeForm.nom" required class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"></div>
                         <div><label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Code *</label><input type="text" x-model="typeForm.code" required class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white" placeholder="DOSSIER_TECH"></div>
                         <div><label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label><textarea x-model="typeForm.description" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"></textarea></div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div><label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Ordre d'affichage</label><input type="number" x-model="typeForm.ordre_affichage" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"></div>
                             <div><label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Statut</label><select x-model="typeForm.actif" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"><option :value="1">Actif</option><option :value="0">Inactif</option></select></div>
                         </div>
@@ -621,13 +620,7 @@ document.addEventListener('alpine:init', () => {
             const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `documents_types_${new Date().toISOString().split('T')[0]}.csv`; link.click(); URL.revokeObjectURL(link.href);
         },
 
-        exportExcel() {
-            const headers = ['Nom', 'Code', 'Description', 'Ordre', 'Obligatoire', 'Actif'];
-            const rows = this.filteredData.map(t => [t.nom, t.code, t.description || '', t.ordre_affichage, t.est_obligatoire ? 'Oui' : 'Non', t.actif ? 'Oui' : 'Non']);
-            const excel = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n');
-            const blob = new Blob(['\uFEFF' + excel], { type: 'application/vnd.ms-excel' });
-            const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `documents_types_${new Date().toISOString().split('T')[0]}.xls`; link.click(); URL.revokeObjectURL(link.href);
-        }
+        exportExcel() { window.location.href = '/export/documents'; }
     }));
 });
 </script>

@@ -8,7 +8,7 @@
     <div class="mb-6">
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Gestion des Paiements</h1>
         <div class="border-b border-gray-200 dark:border-gray-800">
-            <nav class="-mb-px flex gap-1">
+            <nav class="-mb-px flex gap-1 overflow-x-auto">
                 <button
                     @click="activeTab = 'clients'"
                     :class="activeTab === 'clients'
@@ -205,7 +205,7 @@
             </div>
 
             {{-- Montant + Date --}}
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Montant (FCFA) <span class="text-red-500">*</span></label>
                     <input type="number" x-model="vForm.montant" min="1" step="1" required
@@ -257,7 +257,7 @@
             </div>
 
             {{-- Chèque → Banque + Référence --}}
-            <div x-show="vForm.mode_paiement === 'CHEQUE'" class="grid grid-cols-2 gap-4">
+            <div x-show="vForm.mode_paiement === 'CHEQUE'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banque <span class="text-red-500">*</span></label>
                     <input type="text" x-model="vForm.banque"

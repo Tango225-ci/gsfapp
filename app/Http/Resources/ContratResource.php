@@ -36,6 +36,9 @@ class ContratResource extends JsonResource
                 return $this->paiements->where('statut', 'VALIDE')->sortByDesc('date_paiement')->values();
             })),
             'documents' => ContratDocumentResource::collection($this->whenLoaded('contratDocuments')),
+            'echeances' => EcheanceResource::collection($this->whenLoaded('echeances', function () {
+                return $this->echeances->sortBy('date_echeance')->values();
+            })),
         ];
     }
 }

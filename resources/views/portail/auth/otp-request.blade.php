@@ -51,12 +51,12 @@
                     @else
                         <div class="mb-5">
                             <label for="identifiant" class="block text-sm font-medium text-gray-700 mb-1.5">
-                                Téléphone ou email
+                                Numéro client ou email
                             </label>
                             <input id="identifiant" name="identifiant" type="text"
                                 value="{{ old('identifiant') }}"
                                 required autofocus
-                                placeholder="Ex: 0700000000 ou vous@email.com"
+                                placeholder="Ex: CLI00001 ou vous@email.com"
                                 class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition @error('identifiant') border-red-500 @enderror">
                         </div>
                     @endif

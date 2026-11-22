@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portail;
 
+use App\Helpers\LoginThrottle;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use Illuminate\Http\Request;
@@ -26,12 +27,16 @@ class PortailAuthController extends Controller
             'identifiant' => 'required|string',
             'password'    => 'required|string',
         ], [
-            'identifiant.required' => 'Le téléphone ou l\'email est obligatoire.',
+            'identifiant.required' => 'Le numéro client ou l\'email est obligatoire.',
             'password.required'    => 'Le mot de passe est obligatoire.',
         ]);
 
+        if (LoginThrottle::tooManyAttempts('client', $request->identifiant)) {
+            return back()->withErrors(['identifiant' => LoginThrottle::lockoutMessage('client', $request->identifiant)])->withInput($request->only('identifiant'));
+        }
+
         $client = Client::where(function ($q) use ($request) {
-                $q->where('contact', $request->identifiant)
+                $q->where('reference_client', strtoupper(trim($request->identifiant)))
                   ->orWhere('email', $request->identifiant);
             })
             ->where(function ($q) {
@@ -40,12 +45,16 @@ class PortailAuthController extends Controller
             ->first();
 
         if (! $client || ! $client->password || ! Hash::check($request->password, $client->password)) {
+            LoginThrottle::hit('client', $request->identifiant);
+
             return back()->withErrors(['identifiant' => 'Identifiants incorrects.'])->withInput($request->only('identifiant'));
         }
 
         if ($client->statut === 'SUSPENDU') {
             return back()->withErrors(['identifiant' => 'Ce compte est suspendu. Contactez GSF.'])->withInput($request->only('identifiant'));
         }
+
+        LoginThrottle::clear('client', $request->identifiant);
 
         auth('clients')->login($client, $request->boolean('remember'));
 

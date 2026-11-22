@@ -2,13 +2,12 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <!-- Header avec recherche et boutons -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Tableau Récapitulatif des Lotissements</h2>
+            <div class="flex flex-col lg:flex-row justify-end items-start lg:items-center gap-4">
 
-                <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex w-full lg:w-auto items-center gap-3 flex-wrap">
                     <!-- Filtre par statut -->
                     <select x-model="filtreStatut" @change="currentPage = 1"
-                        class="w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Tous les statuts</option>
                         <option value="NON_APPROUVE">Non approuvé</option>
                         <option value="APPROUVE">Approuvé</option>
@@ -19,7 +18,7 @@
 
                     <!-- Filtre par ville -->
                     <select x-model="filtreVille" @change="currentPage = 1"
-                        class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Toutes les villes</option>
                         <template x-for="ville in villesListe" :key="ville">
                             <option :value="ville" x-text="ville"></option>
@@ -27,7 +26,7 @@
                     </select>
 
                     <!-- Barre de recherche -->
-                    <div class="relative w-64">
+                    <div class="relative w-full sm:w-64">
                         <input type="text" x-model="search" placeholder="Rechercher nom, ville..."
                             class="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm">
                         <svg class="absolute right-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,22 +65,22 @@
         </div>
 
         <!-- Cartes statistiques -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total lotissements</p>
-                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Approuvés & diffusés</p>
-                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.approuves_diffuses"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-green-600 dark:text-green-400" x-text="stats.approuves_diffuses"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Non approuvés</p>
-                <p class="mt-2 text-4xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.non_approuves"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-yellow-600 dark:text-yellow-400" x-text="stats.non_approuves"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">ACD (Individuel/Global)</p>
-                <p class="mt-2 text-4xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.acd"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-purple-600 dark:text-purple-400" x-text="stats.acd"></p>
             </div>
         </div>
 
@@ -915,30 +914,7 @@ document.addEventListener('alpine:init', () => {
             URL.revokeObjectURL(link.href);
         },
 
-        exportExcel() {
-            const headers = ['ID', 'Nom', 'Ville', 'Localisation', 'Statut', 'Numéro Approbation', 'Date Approbation'];
-            const rows = this.filteredData.map(item => [
-                item.id_lotissement,
-                item.nom,
-                item.ville,
-                item.localisation || '',
-                item.statut_lotissement_label || '',
-                item.numero_approbation || '',
-                item.date_approbation_formatee || ''
-            ]);
-
-            const excelContent = [
-                headers.join('\t'),
-                ...rows.map(row => row.join('\t'))
-            ].join('\n');
-
-            const blob = new Blob(['\uFEFF' + excelContent], { type: 'application/vnd.ms-excel' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `lotissements_${new Date().toISOString().split('T')[0]}.xls`;
-            link.click();
-            URL.revokeObjectURL(link.href);
-        }
+        exportExcel() { window.location.href = '/export/lotissements'; }
     }));
 });
 </script>

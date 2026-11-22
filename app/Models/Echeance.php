@@ -27,6 +27,7 @@ class Echeance extends Model
         'montant_prevu',
         'montant_paye',
         'statut',
+        'derniere_relance_at',
         'valeursupprimee'
     ];
 
@@ -37,6 +38,7 @@ class Echeance extends Model
         'date_echeance' => 'date',
         'montant_prevu' => 'decimal:2',
         'montant_paye' => 'decimal:2',
+        'derniere_relance_at' => 'datetime',
         'valeursupprimee' => 'boolean'
     ];
 
@@ -294,7 +296,13 @@ class Echeance extends Model
         if ($montant >= $reste_a_payer) {
             $this->montant_paye = $this->montant_prevu;
             $this->statut = 'PAYE';
-            $this->save();
+            // saveQuietly : l'appelant (Contrat::traiterPaiementEcheances) resynchronise
+            // déjà le contrat une seule fois après avoir traité toutes les échéances
+            // concernées. Un save() normal ici redéclenche Echeance::updated, qui relance
+            // Contrat::verifierEtMettreAJourStatut() (laquelle resauvegarde CHAQUE échéance
+            // du contrat) une fois par échéance affectée — un paiement touchant 2-3
+            // échéances peut ainsi provoquer des dizaines de requêtes redondantes.
+            $this->saveQuietly();
 
             Log::info('Échéance payée intégralement', [
                 'echeance_id' => $this->id,
@@ -307,7 +315,7 @@ class Echeance extends Model
 
         // Sinon, paiement partiel
         $this->montant_paye += $montant;
-        $this->save();
+        $this->saveQuietly();
 
         Log::info('Paiement partiel appliqué sur échéance', [
             'echeance_id' => $this->id,

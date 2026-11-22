@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portail;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contrat;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PortailContratController extends Controller
 {
@@ -39,6 +40,7 @@ class PortailContratController extends Controller
 
         abort_unless($contrat->id_client === auth('clients')->id(), 403);
 
-        return view('portail.contrats.etat', compact('contrat'));
+        return Pdf::loadView('pdf.contrat-etat', compact('contrat'))
+            ->download('etat-contrat-' . str_replace(['/', '\\'], '-', $contrat->reference_contrat) . '.pdf');
     }
 }

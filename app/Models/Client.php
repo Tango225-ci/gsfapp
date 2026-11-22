@@ -64,17 +64,17 @@ class Client extends Authenticatable
 
     public static function generateReference(): string
     {
-        $last = self::where('reference_client', 'LIKE', 'CLI-%')
-            ->orderByRaw('CAST(SUBSTRING(reference_client, 5) AS UNSIGNED) DESC')
+        $last = self::where('reference_client', 'LIKE', 'CLI%')
+            ->orderByRaw('CAST(SUBSTRING(reference_client, 4) AS UNSIGNED) DESC')
             ->value('reference_client');
 
-        $seq = $last ? intval(substr($last, 4)) + 1 : 1;
+        $seq = $last ? intval(substr($last, 3)) + 1 : 1;
 
-        return 'CLI-' . str_pad($seq, 5, '0', STR_PAD_LEFT);
+        return 'CLI' . str_pad($seq, 5, '0', STR_PAD_LEFT);
     }
 
     public function getReferenceDisplayAttribute(): string
     {
-        return $this->reference_client ?? ('CLI-' . str_pad($this->id, 5, '0', STR_PAD_LEFT));
+        return $this->reference_client ?? ('CLI' . str_pad($this->id, 5, '0', STR_PAD_LEFT));
     }
 }

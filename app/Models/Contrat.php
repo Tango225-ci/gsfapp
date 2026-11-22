@@ -908,7 +908,10 @@ class Contrat extends Model
 
         foreach ($this->echeances as $echeance) {
             $echeance->updateStatutAutomatique();
-            $echeance->save();
+            // saveQuietly : cette méthode EST la resynchronisation globale du contrat ;
+            // laisser un save() normal ici redéclencherait Echeance::updated ->
+            // verifierEtMettreAJourStatut() en boucle sur elle-même pour chaque échéance.
+            $echeance->saveQuietly();
         }
 
         $this->load('echeances');

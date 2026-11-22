@@ -170,7 +170,7 @@
         @include('layouts.backdrop')
         @include('layouts.sidebar')
 
-        <div class="flex-1 transition-all duration-300 ease-in-out"
+        <div class="flex-1 min-w-0 transition-all duration-300 ease-in-out"
             :class="{
                 'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
                 'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
@@ -247,7 +247,7 @@
     </div>
 
     <!-- Toast Notifications -->
-    <div class="fixed top-4 right-4 z-[300000] flex flex-col gap-2 pointer-events-none" style="width:320px">
+    <div class="fixed top-4 right-4 left-4 sm:left-auto sm:w-80 z-[300000] flex flex-col gap-2 pointer-events-none">
         <template x-for="toast in $store.gsfToast.items" :key="toast.id">
             <div class="flex items-start gap-3 rounded-xl p-4 shadow-xl border pointer-events-auto"
                  :class="{

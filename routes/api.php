@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ProprietaireTerrienController;
+use App\Http\Controllers\BanqueController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\VisiteController;
 use App\Http\Controllers\LotissementController;
@@ -235,6 +236,24 @@ Route::prefix('proprietaires')->group(function () {
     Route::delete('/{id}/versements/{idVersement}',     [ProprietaireTerrienController::class, 'destroyVersement']);
 });
 
+/*
+|--------------------------------------------------------------------------
+| Banque GSF (comptes bancaires de l'entreprise)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('banque')->group(function () {
+    Route::get('/comptes',                       [BanqueController::class, 'comptes']);
+    Route::post('/comptes',                      [BanqueController::class, 'storeCompte']);
+    Route::put('/comptes/{id}',                  [BanqueController::class, 'updateCompte']);
+    Route::delete('/comptes/{id}',               [BanqueController::class, 'destroyCompte']);
+    Route::get('/operations',                    [BanqueController::class, 'operations']);
+    Route::post('/operations',                   [BanqueController::class, 'storeOperation']);
+    Route::put('/operations/{id}',               [BanqueController::class, 'updateOperation']);
+    Route::delete('/operations/{id}',            [BanqueController::class, 'destroyOperation']);
+    Route::post('/operations/{id}/valider',      [BanqueController::class, 'validerOperation']);
+    Route::post('/operations/{id}/rejeter',      [BanqueController::class, 'rejeterOperation']);
+});
+
 }); // fin du groupe web + auth:utilisateurs
 
 // ── Routes API — Portail client mobile (Sanctum) ────────────────────────────
@@ -257,6 +276,9 @@ Route::prefix('client')->name('api.client.')->group(function () {
             Route::get('/contrats/{id}', [ClientContratController::class, 'show'])->name('contrats.show');
             Route::get('/contrats/{id}/etat', [ClientContratController::class, 'etat'])->name('contrats.etat');
             Route::get('/documents/{id}/telecharger-url', [ClientDocumentController::class, 'downloadUrl'])->name('documents.download-url');
+            Route::get('/paiements', [ClientPaiementController::class, 'index'])->name('paiements.index');
+            Route::post('/paiements', [ClientPaiementController::class, 'store'])->name('paiements.store');
+            Route::get('/paiements/{id}', [ClientPaiementController::class, 'show'])->whereNumber('id')->name('paiements.show');
             Route::get('/paiements/{id}/recu', [ClientPaiementController::class, 'recu'])->name('paiements.recu');
             Route::get('/notifications', [ClientNotificationController::class, 'index'])->name('notifications.index');
             Route::post('/notifications/{id}/ouvrir', [ClientNotificationController::class, 'ouvrir'])->name('notifications.ouvrir');

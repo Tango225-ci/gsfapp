@@ -7,6 +7,7 @@ use App\Helpers\PermissionHelper;
 use App\Models\Client;
 use App\Services\ClientAccountService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ClientController extends Controller
 {
@@ -32,8 +33,8 @@ class ClientController extends Controller
 
         $validated = $request->validate([
             'nom_prenoms'    => 'required|string|max:255',
-            'contact'        => 'required|string|max:50|unique:clients,contact',
-            'email'          => 'nullable|email|max:255|unique:clients,email',
+            'contact'        => ['required', 'string', 'max:50', Rule::unique('clients', 'contact')->where(fn ($q) => $q->where('valeursupprimee', '!=', 1))],
+            'email'          => ['nullable', 'email', 'max:255', Rule::unique('clients', 'email')->where(fn ($q) => $q->where('valeursupprimee', '!=', 1))],
             'adresse'        => 'nullable|string',
             'piece_identite' => 'nullable|string|max:100',
             'numero_piece'   => 'nullable|string|max:100',
@@ -81,8 +82,8 @@ class ClientController extends Controller
 
         $validated = $request->validate([
             'nom_prenoms'    => 'required|string|max:255',
-            'contact'        => 'required|string|max:50|unique:clients,contact,' . $id,
-            'email'          => 'nullable|email|max:255|unique:clients,email,' . $id,
+            'contact'        => ['required', 'string', 'max:50', Rule::unique('clients', 'contact')->ignore($id)->where(fn ($q) => $q->where('valeursupprimee', '!=', 1))],
+            'email'          => ['nullable', 'email', 'max:255', Rule::unique('clients', 'email')->ignore($id)->where(fn ($q) => $q->where('valeursupprimee', '!=', 1))],
             'adresse'        => 'nullable|string',
             'piece_identite' => 'nullable|string|max:100',
             'numero_piece'   => 'nullable|string|max:100',

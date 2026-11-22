@@ -27,11 +27,11 @@ class PortailPasswordResetController extends Controller
             $request->validate([
                 'identifiant' => 'required|string',
             ], [
-                'identifiant.required' => 'Le téléphone ou l\'email est obligatoire.',
+                'identifiant.required' => 'Le numéro client ou l\'email est obligatoire.',
             ]);
 
             $client = Client::where(function ($q) use ($request) {
-                    $q->where('contact', $request->identifiant)->orWhere('email', $request->identifiant);
+                    $q->where('reference_client', strtoupper(trim($request->identifiant)))->orWhere('email', $request->identifiant);
                 })
                 ->where(function ($q) {
                     $q->where('valeursupprimee', '!=', 1)->orWhereNull('valeursupprimee');

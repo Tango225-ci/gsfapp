@@ -3,7 +3,7 @@
 @section('content')
     <x-common.page-breadcrumb pageTitle="Gestion des Documents" />
     <div class="space-y-6">
-        <x-common.component-card title="">
+        <x-common.component-card title="Configuration des Documents ACD">
             <x-documents.document-table />
         </x-common.component-card>
 

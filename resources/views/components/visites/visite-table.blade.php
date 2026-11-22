@@ -2,13 +2,12 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <!-- Header avec recherche et boutons -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Tableau Récapitulatif des Visites</h2>
+            <div class="flex flex-col lg:flex-row justify-end items-start lg:items-center gap-4">
 
-                <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex w-full lg:w-auto items-center gap-3 flex-wrap">
                     <!-- Filtre par date -->
                     <select x-model="filtreDate" @change="currentPage = 1"
-                        class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Toutes les dates</option>
                         <option value="AUJOURDHUI">Aujourd'hui</option>
                         <option value="CETTE_SEMAINE">Cette semaine</option>
@@ -16,7 +15,7 @@
                     </select>
 
                     <!-- Barre de recherche -->
-                    <div class="relative w-56">
+                    <div class="relative w-full sm:w-56">
                         <input type="text" x-model="search" placeholder="Rechercher visiteur, motif..."
                             class="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm">
                         <svg class="absolute right-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,15 +57,15 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total visites</p>
-                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Aujourd'hui</p>
-                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.aujourdhui"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-green-600 dark:text-green-400" x-text="stats.aujourdhui"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ce mois</p>
-                <p class="mt-2 text-4xl font-bold text-purple-600 dark:text-purple-400" x-text="stats.ce_mois"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-purple-600 dark:text-purple-400" x-text="stats.ce_mois"></p>
             </div>
         </div>
 
@@ -454,12 +453,7 @@ document.addEventListener('alpine:init', () => {
             const b = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}); const l = document.createElement('a'); l.href=URL.createObjectURL(b); l.download=`visites_${new Date().toISOString().split('T')[0]}.csv`; l.click();
         },
 
-        exportExcel() {
-            const h = ['ID','Visiteur','Contact','Adresse','Date visite','Heure arrivée','Heure départ','Motif','Date création'];
-            const rows = this.filteredData.map(i => [i.id_visite,i.nom_visiteur,i.contact_visiteur,i.adresse_visiteur,i.date_visite,i.heure_arrivee||'',i.heure_depart,i.motif,i.date_create||'']);
-            const xl = [h.join('\t'),...rows.map(r=>r.join('\t'))].join('\n');
-            const b = new Blob(['\uFEFF'+xl],{type:'application/vnd.ms-excel'}); const l = document.createElement('a'); l.href=URL.createObjectURL(b); l.download=`visites_${new Date().toISOString().split('T')[0]}.xls`; l.click();
-        }
+        exportExcel() { window.location.href = '/export/visites'; }
     }))
 })
 </script>

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use App\Helpers\LoginThrottle;
 use App\Models\Utilisateur;
 
 class AuthController extends Controller
@@ -29,15 +30,23 @@ class AuthController extends Controller
             'password.required' => 'Le mot de passe est obligatoire.',
         ]);
 
+        if (LoginThrottle::tooManyAttempts('staff', $request->login)) {
+            return back()->withErrors(['login' => LoginThrottle::lockoutMessage('staff', $request->login)])->withInput($request->only('login'));
+        }
+
         $utilisateur = Utilisateur::where('login', $request->login)->first();
 
         if (! $utilisateur || ! Hash::check($request->password, $utilisateur->password)) {
+            LoginThrottle::hit('staff', $request->login);
+
             return back()->withErrors(['login' => 'Identifiants incorrects.'])->withInput($request->only('login'));
         }
 
         if (! $utilisateur->statut) {
             return back()->withErrors(['login' => 'Ce compte est désactivé. Contactez un administrateur.'])->withInput($request->only('login'));
         }
+
+        LoginThrottle::clear('staff', $request->login);
 
         auth('utilisateurs')->login($utilisateur, $request->boolean('remember'));
 

@@ -2,13 +2,12 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <!-- Header avec recherche et boutons -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Tableau Récapitulatif des Clients</h2>
+            <div class="flex flex-col lg:flex-row justify-end items-start lg:items-center gap-4">
 
-                <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex w-full lg:w-auto items-center gap-3 flex-wrap">
                     <!-- Filtre par statut -->
                     <select x-model="filtreStatut" @change="currentPage = 1"
-                        class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Tous les statuts</option>
                         <option value="ACTIF">Actifs</option>
                         <option value="SUSPENDU">Suspendus</option>
@@ -16,7 +15,7 @@
                     </select>
 
                     <!-- Barre de recherche -->
-                    <div class="relative w-64">
+                    <div class="relative w-full sm:w-64">
                         <input type="text" x-model="search" placeholder="Rechercher référence, nom, email..."
                             class="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm">
                         <svg class="absolute right-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,22 +54,22 @@
         </div>
 
         <!-- Cartes statistiques -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total clients</p>
-                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Actifs</p>
-                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.actifs"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-green-600 dark:text-green-400" x-text="stats.actifs"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Prospects</p>
-                <p class="mt-2 text-4xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.prospects"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-yellow-600 dark:text-yellow-400" x-text="stats.prospects"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Suspendus</p>
-                <p class="mt-2 text-4xl font-bold text-red-600 dark:text-red-400" x-text="stats.suspendus"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-red-600 dark:text-red-400" x-text="stats.suspendus"></p>
             </div>
         </div>
 
@@ -392,7 +391,7 @@
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <template x-for="item in paginatedData" :key="item.id">
-                        <tr @click="selectRow(item.id)"
+                        <tr @click="selectRow(item.id); viewDetails(item)"
                             :class="selectedRow === item.id ? 'bg-gray-200 dark:bg-gray-700 border-l-4 border-blue-500 shadow-sm' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'"
                             class="cursor-pointer transition-all duration-200">
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -625,7 +624,7 @@ document.addEventListener('alpine:init', () => {
                 if (Array.isArray(data) && data.length > 0) {
                     this.items = data.map(client => ({
                         id: client.id,
-                        reference_client: client.reference_client || ('CLI-ID' + client.id),
+                        reference_client: client.reference_client || ('CLIID' + client.id),
                         name: client.nom_prenoms,
                         email: client.email || '',
                         contact: client.contact,
@@ -890,28 +889,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         exportExcel() {
-            const headers = ['Référence', 'Nom', 'Email', 'Contact', 'Adresse', 'Statut', 'Solde compte'];
-            const rows = this.filteredData.map(item => [
-                item.reference_client,
-                item.name,
-                item.email,
-                item.contact,
-                item.adresse || '',
-                item.status,
-                item.solde_compte || '0 FCFA'
-            ]);
-
-            const excelContent = [
-                headers.join('\t'),
-                ...rows.map(row => row.join('\t'))
-            ].join('\n');
-
-            const blob = new Blob(['\uFEFF' + excelContent], { type: 'application/vnd.ms-excel' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `clients_${new Date().toISOString().split('T')[0]}.xls`;
-            link.click();
-            URL.revokeObjectURL(link.href);
+            window.location.href = '/export/clients';
         }
     }));
 });

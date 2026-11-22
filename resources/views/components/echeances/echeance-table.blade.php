@@ -2,23 +2,22 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <!-- Header avec recherche et boutons -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Tableau Récapitulatif des Échéances</h2>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <select x-model="filtreStatut" @change="currentPage = 1" class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+            <div class="flex flex-col lg:flex-row justify-end items-start lg:items-center gap-4">
+                <div class="flex w-full lg:w-auto items-center gap-3 flex-wrap">
+                    <select x-model="filtreStatut" @change="currentPage = 1" class="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Tous les statuts</option>
                         <option value="A_PAYER">À payer</option>
                         <option value="PAYE">Payées</option>
                         <option value="EN_RETARD">En retard</option>
                     </select>
-                    <select x-model="filtrePeriode" @change="currentPage = 1" class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                    <select x-model="filtrePeriode" @change="currentPage = 1" class="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Toutes les périodes</option>
                         <option value="CE_MOIS">Ce mois</option>
                         <option value="MOIS_PROCHAIN">Mois prochain</option>
                         <option value="RETARD">En retard</option>
                         <option value="30_JOURS">30 prochains jours</option>
                     </select>
-                    <div class="relative w-56">
+                    <div class="relative w-full sm:w-56">
                         <input type="text" x-model="search" placeholder="Rechercher client, contrat..." class="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:bg-gray-700 dark:text-white">
                         <svg class="absolute right-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
@@ -29,14 +28,14 @@
         </div>
 
         <!-- Cartes statistiques -->
-        <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total contrats</p>
-                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total_contrats"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-gray-800 dark:text-white" x-text="stats.total_contrats"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total échéances</p>
-                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Montant total</p>
@@ -50,7 +49,7 @@
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">En retard</p>
-                <p class="mt-2 text-4xl font-bold text-red-600 dark:text-red-400" x-text="stats.en_retard"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-red-600 dark:text-red-400" x-text="stats.en_retard"></p>
             </div>
         </div>
 
@@ -467,7 +466,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         exportCSV(){const hdr=['Contrat','Client','N°','Date','Montant','Payé','Reste','Statut'];const rows=[];this.filteredData.forEach(c=>{c.echeances.forEach(e=>{rows.push([c.contrat_reference,c.client_nom,e.numero,e.date_echeance,e.montant_prevu,e.montant_paye,e.reste_a_payer,e.statut_label])})});const csv=[hdr.join(','),...rows.map(r=>r.map(c=>`"${c}"`).join(','))].join('\n');const b=new Blob(['\uFEFF'+csv],{type:'text/csv'});const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=`echeances_${new Date().toISOString().split('T')[0]}.csv`;l.click()},
-        exportExcel(){const hdr=['Contrat','Client','N°','Date','Montant','Payé','Reste','Statut'];const rows=[];this.filteredData.forEach(c=>{c.echeances.forEach(e=>{rows.push([c.contrat_reference,c.client_nom,e.numero,e.date_echeance,e.montant_prevu,e.montant_paye,e.reste_a_payer,e.statut_label])})});const xl=[hdr.join('\t'),...rows.map(r=>r.join('\t'))].join('\n');const b=new Blob(['\uFEFF'+xl],{type:'application/vnd.ms-excel'});const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=`echeances_${new Date().toISOString().split('T')[0]}.xls`;l.click()}
+        exportExcel() { window.location.href = '/export/echeances'; }
     }))
 })
 </script>

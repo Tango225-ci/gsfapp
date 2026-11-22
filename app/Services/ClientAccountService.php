@@ -40,7 +40,7 @@ class ClientAccountService
 
     private function dispatchCredentials(Client $client, string $plainPassword): void
     {
-        $message = "GSF : votre espace client est prêt. Identifiant : {$client->contact}. "
+        $message = "GSF : votre espace client est prêt. Identifiant : {$client->reference_client}. "
             . "Mot de passe temporaire : {$plainPassword}. Connectez-vous sur " . url('/portail/connexion');
 
         $this->smsGateway->send($client->contact, $message);

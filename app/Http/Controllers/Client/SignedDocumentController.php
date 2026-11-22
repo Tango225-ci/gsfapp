@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contrat;
 use App\Models\ContratDocument;
 use App\Models\Paiement;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -27,7 +28,8 @@ class SignedDocumentController extends Controller
             }, 'echeances', 'contratDocuments.documentType'])
             ->firstOrFail();
 
-        return view('portail.contrats.etat', compact('contrat'));
+        return Pdf::loadView('pdf.contrat-etat', compact('contrat'))
+            ->download('etat-contrat-' . str_replace(['/', '\\'], '-', $contrat->reference_contrat) . '.pdf');
     }
 
     public function recuPaiement($id)
@@ -39,7 +41,8 @@ class SignedDocumentController extends Controller
             ->with(['contrat.client', 'contrat.lot'])
             ->firstOrFail();
 
-        return view('portail.paiements.recu', compact('paiement'));
+        return Pdf::loadView('pdf.paiement-recu', compact('paiement'))
+            ->download('recu-' . str_replace(['/', '\\'], '-', $paiement->reference) . '.pdf');
     }
 
     public function telechargerDocument($id)

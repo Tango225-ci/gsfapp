@@ -4,83 +4,68 @@ namespace App\Helpers;
 
 class MenuHelper
 {
-    public static function getMainNavItems()
+    /**
+     * Sections du menu latéral. Chaque entrée (ou sous-entrée) peut porter
+     * une clé 'roles' pour être réservée à certains rôles.
+     */
+    private static function menuDefinition(): array
     {
-        $role = auth('utilisateurs')->user()?->role ?? 'GUEST';
-
-        $items = [
+        return [
             [
-                'icon' => 'dashboard',
-                'name' => 'Dashboard',
-                'path' => '/',
+                'title' => 'Principal',
+                'items' => [
+                    ['icon' => 'nav-dashboard', 'name' => 'Tableau de bord', 'path' => '/'],
+                    ['icon' => 'nav-calendar',  'name' => 'Calendrier',      'path' => '/calendar'],
+                ],
             ],
             [
-                'icon' => 'user-profile',
-                'name' => 'Gestion des Clients',
-                'path' => '/clients',
+                'title' => 'Gestion',
+                'items' => [
+                    [
+                        'icon' => 'nav-users',
+                        'name' => 'Clients',
+                        'subItems' => [
+                            ['name' => 'Clients', 'path' => '/clients'],
+                            ['name' => 'Visites', 'path' => '/visites'],
+                        ],
+                    ],
+                    [
+                        'icon' => 'nav-map',
+                        'name' => 'Foncier',
+                        'subItems' => [
+                            ['name' => 'Lotissements',  'path' => '/lotissements'],
+                            ['name' => 'Lots',          'path' => '/lots'],
+                            ['name' => 'Propriétaires', 'path' => '/proprietaires', 'roles' => ['ADMIN']],
+                        ],
+                    ],
+                    [
+                        'icon' => 'nav-file',
+                        'name' => 'Ventes',
+                        'subItems' => [
+                            ['name' => 'Contrats',  'path' => '/contrats'],
+                            ['name' => 'Échéances', 'path' => '/echeances'],
+                        ],
+                    ],
+                    [
+                        'icon' => 'nav-wallet',
+                        'name' => 'Finance',
+                        'subItems' => [
+                            ['name' => 'Paiements',  'path' => '/paiements'],
+                            ['name' => 'Banque GSF', 'path' => '/banque'],
+                        ],
+                    ],
+                ],
             ],
             [
-                'icon' => 'building',
-                'name' => 'Gestion des lotissements',
-                'path' => '/lotissements',
-            ],
-            [
-                'icon' => 'building',
-                'name' => 'Gestion des lots',
-                'path' => '/lots',
-            ],
-            [
-                'icon' => 'forms',
-                'name' => 'Gestion des contrats',
-                'path' => '/contrats',
-            ],
-            [
-                'icon' => 'dollar',
-                'name' => 'Gestion des paiements',
-                'path' => '/paiements',
-            ],
-            [
-                'icon' => 'charts',
-                'name' => 'Gestion des Visites',
-                'path' => '/visites',
-            ],
-            [
-                'icon' => 'calendar',
-                'name' => 'Gestion des Echeances',
-                'path' => '/echeances',
-            ],
-            [
-                'icon' => 'calendar',
-                'name' => 'Calendrier',
-                'path' => '/calendar',
-            ],
-            // ADMIN seulement
-            [
-                'icon'  => 'user-profile',
-                'name'  => 'Gestion des Utilisateurs',
-                'path'  => '/utilisateurs',
+                'title' => 'Administration',
                 'roles' => ['ADMIN'],
-            ],
-            [
-                'icon'  => 'user-tie',
-                'name'  => 'Gestion des Propriétaires',
-                'path'  => '/proprietaires',
-                'roles' => ['ADMIN'],
-            ],
-            [
-                'name'  => 'Parametrage',
-                'icon'  => 'forms',
-                'roles' => ['ADMIN'],
-                'subItems' => [
-                    ['name' => 'Gestion des documents', 'path' => '/documents', 'pro' => false],
-                    ['name' => 'Import CSV',            'path' => '/import',    'pro' => false],
+                'items' => [
+                    ['icon' => 'nav-user-cog', 'name' => 'Utilisateurs', 'path' => '/utilisateurs'],
+                    ['icon' => 'nav-folder',   'name' => 'Documents',    'path' => '/documents'],
+                    ['icon' => 'nav-upload',   'name' => 'Import CSV',   'path' => '/import'],
                 ],
             ],
         ];
-
-        return array_values(array_filter($items, function ($item) use ($role) {
-            return !isset($item['roles']) || in_array($role, $item['roles']);
-        }));
     }
 
    /* public static function getOthersItems()
@@ -119,15 +104,53 @@ class MenuHelper
 
     public static function getMenuGroups()
     {
+        $role    = auth('utilisateurs')->user()?->role ?? 'GUEST';
+        $allowed = fn ($entry) => !isset($entry['roles']) || in_array($role, $entry['roles']);
+
+        $groups = [];
+        foreach (self::menuDefinition() as $group) {
+            if (!$allowed($group)) {
+                continue;
+            }
+            $items = [];
+            foreach ($group['items'] as $item) {
+                if (!$allowed($item)) {
+                    continue;
+                }
+                if (isset($item['subItems'])) {
+                    $item['subItems'] = array_values(array_filter($item['subItems'], $allowed));
+                    if (empty($item['subItems'])) {
+                        continue;
+                    }
+                }
+                $items[] = $item;
+            }
+            if ($items) {
+                $groups[] = ['title' => $group['title'], 'items' => $items];
+            }
+        }
+
+        return $groups;
+    }
+
+    /** Icône au trait (style Lucide), cohérente pour tout le menu. */
+    private static function strokeIcon(string $inner): string
+    {
+        return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">' . $inner . '</svg>';
+    }
+
+    private static function navIcons(): array
+    {
         return [
-            [
-                'title' => 'Menu',
-                'items' => self::getMainNavItems()
-            ],
-          /*  [
-                'title' => 'Others',
-                'items' => self::getOthersItems()
-            ]*/
+            'nav-dashboard' => '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+            'nav-calendar'  => '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+            'nav-users'     => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+            'nav-map'       => '<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15M9 3.236v15"/>',
+            'nav-file'      => '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"/>',
+            'nav-wallet'    => '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+            'nav-user-cog'  => '<circle cx="18" cy="15" r="3"/><circle cx="9" cy="7" r="4"/><path d="M10 15H6a4 4 0 0 0-4 4v2M21.7 16.4l-.9-.3M15.2 13.9l-.9-.3M16.6 18.7l.3-.9M19.1 12.2l.3-.9M19.6 18.7l-.4-1M16.8 12.3l-.4-1M14.3 16.6l1-.4M20.7 13.8l1-.4"/>',
+            'nav-folder'    => '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+            'nav-upload'    => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
         ];
     }
 
@@ -138,6 +161,11 @@ class MenuHelper
 
     public static function getIconSvg($iconName)
     {
+        $nav = self::navIcons();
+        if (isset($nav[$iconName])) {
+            return self::strokeIcon($nav[$iconName]);
+        }
+
         $icons = [
             'dashboard' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 3.25C4.25736 3.25 3.25 4.25736 3.25 5.5V8.99998C3.25 10.2426 4.25736 11.25 5.5 11.25H9C10.2426 11.25 11.25 10.2426 11.25 8.99998V5.5C11.25 4.25736 10.2426 3.25 9 3.25H5.5ZM4.75 5.5C4.75 5.08579 5.08579 4.75 5.5 4.75H9C9.41421 4.75 9.75 5.08579 9.75 5.5V8.99998C9.75 9.41419 9.41421 9.74998 9 9.74998H5.5C5.08579 9.74998 4.75 9.41419 4.75 8.99998V5.5ZM5.5 12.75C4.25736 12.75 3.25 13.7574 3.25 15V18.5C3.25 19.7426 4.25736 20.75 5.5 20.75H9C10.2426 20.75 11.25 19.7427 11.25 18.5V15C11.25 13.7574 10.2426 12.75 9 12.75H5.5ZM4.75 15C4.75 14.5858 5.08579 14.25 5.5 14.25H9C9.41421 14.25 9.75 14.5858 9.75 15V18.5C9.75 18.9142 9.41421 19.25 9 19.25H5.5C5.08579 19.25 4.75 18.9142 4.75 18.5V15ZM12.75 5.5C12.75 4.25736 13.7574 3.25 15 3.25H18.5C19.7426 3.25 20.75 4.25736 20.75 5.5V8.99998C20.75 10.2426 19.7426 11.25 18.5 11.25H15C13.7574 11.25 12.75 10.2426 12.75 8.99998V5.5ZM15 4.75C14.5858 4.75 14.25 5.08579 14.25 5.5V8.99998C14.25 9.41419 14.5858 9.74998 15 9.74998H18.5C18.9142 9.74998 19.25 9.41419 19.25 8.99998V5.5C19.25 5.08579 18.9142 4.75 18.5 4.75H15ZM15 12.75C13.7574 12.75 12.75 13.7574 12.75 15V18.5C12.75 19.7426 13.7574 20.75 15 20.75H18.5C19.7426 20.75 20.75 19.7427 20.75 18.5V15C20.75 13.7574 19.7426 12.75 18.5 12.75H15ZM14.25 15C14.25 14.5858 14.5858 14.25 15 14.25H18.5C18.9142 14.25 19.25 14.5858 19.25 15V18.5C19.25 18.9142 18.9142 19.25 18.5 19.25H15C14.5858 19.25 14.25 18.9142 14.25 18.5V15Z" fill="currentColor"></path></svg>',
 

@@ -67,6 +67,36 @@
         Télécharger l'état de contrat
     </a>
 
+    {{-- Échéances --}}
+    @if ($contrat->type_paiement === 'ECHELONNE' && $contrat->echeances->isNotEmpty())
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <p class="text-sm font-semibold text-gray-800">Échéances</p>
+            </div>
+            <div class="divide-y divide-gray-100">
+                @foreach ($contrat->echeances->sortBy('date_echeance') as $echeance)
+                    @php
+                        $echStatutClass = match ($echeance->statut) {
+                            'PAYE' => 'bg-green-100 text-green-700',
+                            'EN_RETARD' => 'bg-red-100 text-red-600',
+                            default => 'bg-amber-50 text-amber-600',
+                        };
+                    @endphp
+                    <div class="px-4 py-3 flex items-center justify-between text-xs">
+                        <div>
+                            <p class="font-medium text-gray-700">{{ $echeance->date_echeance_formatted }}</p>
+                            <p class="text-gray-400">{{ $echeance->montant_prevu_formatted }}</p>
+                        </div>
+                        <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full shrink-0 {{ $echStatutClass }}">
+                            {{ $echeance->statut_label }}
+                        </span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     {{-- Paiements --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
         <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-2">

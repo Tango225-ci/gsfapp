@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ProprietaireTerrienController;
+use App\Http\Controllers\BanqueController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Portail\PortailAuthController;
@@ -105,6 +107,12 @@ Route::get('/documents', function () {
 // Import CSV (ADMIN uniquement — contrôlé dans le contrôleur)
 Route::get('/import', [ImportController::class, 'index'])->name('import.index');
 Route::get('/import/template/{entity}', [ImportController::class, 'template'])->name('import.template');
+
+// Export Excel (permission par entité contrôlée dans le contrôleur)
+Route::get('/export/{entity}', [ExportController::class, 'export'])->name('export');
+
+// Banque GSF (comptes bancaires de l'entreprise)
+Route::get('/banque', [BanqueController::class, 'index'])->name('banque.index');
 
 // Propriétaires Terriens (ADMIN uniquement)
 Route::get('/proprietaires', [ProprietaireTerrienController::class, 'index'])->name('proprietaires.index');

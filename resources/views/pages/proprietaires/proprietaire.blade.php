@@ -5,7 +5,7 @@
 <div x-data="proprietairesApp()" x-init="init()" class="space-y-6">
 
 {{-- En-tête page --}}
-<div class="flex items-center justify-between">
+<div class="flex flex-wrap items-center justify-between gap-3">
     <div>
         <h1 class="text-xl font-bold text-gray-900 dark:text-white">Gestion des Propriétaires</h1>
         <p class="text-xs text-gray-400 mt-0.5">Propriétaires fonciers, lots associés et suivi des versements</p>
@@ -190,7 +190,7 @@
                 <input type="text" x-model="form.nom" required placeholder="Nom du propriétaire"
                     class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"/>
             </div>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone</label>
                     <input type="text" x-model="form.contact" placeholder="07 XX XX XX XX"
@@ -249,7 +249,7 @@
             <div class="flex flex-col min-h-0 flex-1">
 
                 {{-- Header --}}
-                <div class="flex items-start justify-between px-6 py-5 border-b border-gray-100 dark:border-gray-800 shrink-0">
+                <div class="flex flex-col sm:flex-row items-start justify-between gap-3 px-4 sm:px-6 py-5 border-b border-gray-100 dark:border-gray-800 shrink-0">
                     <div class="flex items-center gap-4">
                         <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shrink-0">
                             <span class="text-white font-bold text-xl" x-text="detail.proprietaire?.nom?.charAt(0)?.toUpperCase()"></span>
@@ -272,7 +272,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
                         <button @click="printFicheProprietaire()"
                             class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                             title="Fiche à remettre au propriétaire (sans données financières internes)">
@@ -293,7 +293,7 @@
                 </div>
 
                 {{-- Stats financières --}}
-                <div class="grid grid-cols-4 gap-0 border-b border-gray-100 dark:border-gray-800 shrink-0 divide-x divide-gray-100 dark:divide-gray-800">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-0 border-b border-gray-100 dark:border-gray-800 shrink-0 divide-x divide-gray-100 dark:divide-gray-800">
                     <div class="px-5 py-4 text-center">
                         <p class="text-xs text-gray-400 dark:text-gray-500">Lots totaux</p>
                         <p class="text-2xl font-bold text-gray-900 dark:text-white mt-0.5" x-text="detail.stats?.nb_lots ?? 0"></p>
@@ -506,7 +506,7 @@
 
                                     <form @submit.prevent="saveVersement()" class="p-6 space-y-4">
 
-                                        <div class="grid grid-cols-2 gap-4">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Montant (FCFA) <span class="text-red-500">*</span></label>
                                                 <input type="number" x-model="versementForm.montant" min="1" step="1" required placeholder="Ex : 500 000"
@@ -556,7 +556,7 @@
                                         </div>
 
                                         {{-- Chèque → Banque + Référence --}}
-                                        <div x-show="versementForm.mode_paiement === 'CHEQUE'" class="grid grid-cols-2 gap-4">
+                                        <div x-show="versementForm.mode_paiement === 'CHEQUE'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Banque <span class="text-red-500">*</span></label>
                                                 <input type="text" x-model="versementForm.banque"
@@ -603,7 +603,7 @@
                         <div x-show="tab === 'analyse'" class="p-6 space-y-5">
 
                             {{-- Résumé en 3 blocs --}}
-                            <div class="grid grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                                 {{-- 1. Marge théorique GSF --}}
                                 <div class="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/10 p-4">

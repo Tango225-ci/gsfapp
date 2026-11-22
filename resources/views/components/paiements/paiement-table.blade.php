@@ -2,13 +2,13 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <!-- Header avec recherche et boutons -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Tableau Récapitulatif des Paiements</h2>
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Tableau Récapitulatif des Paiements</h2>
+            <div class="flex flex-col lg:flex-row justify-end items-start lg:items-center gap-4">
 
-                <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex w-full lg:w-auto items-center gap-3 flex-wrap">
                     <!-- Filtre par statut -->
                     <select x-model="filtreStatut" @change="currentPage = 1"
-                        class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Tous les statuts</option>
                         <option value="VALIDE">Validés</option>
                         <option value="EN_ATTENTE">En attente</option>
@@ -18,7 +18,7 @@
 
                     <!-- Filtre par mode -->
                     <select x-model="filtreMode" @change="currentPage = 1"
-                        class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Tous les modes</option>
                         <option value="ESPECES">Espèces</option>
                         <option value="VIREMENT">Virement</option>
@@ -28,7 +28,7 @@
 
                     <!-- Filtre par type de paiement -->
                     <select x-model="filtreTypePaiement" @change="currentPage = 1"
-                        class="w-44 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-44 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Tous les types</option>
                         <option value="MENSUALITE">Mensualités</option>
                         <option value="FRAIS_DOCUMENT">Frais document ACD</option>
@@ -36,7 +36,7 @@
                     </select>
 
                     <!-- Barre de recherche -->
-                    <div class="relative w-56">
+                    <div class="relative w-full sm:w-56">
                         <input type="text" x-model="search" placeholder="Rechercher référence, contrat..."
                             class="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm">
                         <svg class="absolute right-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,18 +75,18 @@
         </div>
 
         <!-- Cartes statistiques -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total paiements</p>
-                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Validés</p>
-                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.valides"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-green-600 dark:text-green-400" x-text="stats.valides"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">En attente</p>
-                <p class="mt-2 text-4xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.en_attente"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-yellow-600 dark:text-yellow-400" x-text="stats.en_attente"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Montant total</p>
@@ -1320,13 +1320,7 @@ tr.total-row td:last-child{font-size:22px;font-weight:800;color:#C8000A}
             const l = document.createElement('a'); l.href=URL.createObjectURL(b); l.download=`paiements_${new Date().toISOString().split('T')[0]}.csv`; l.click()
         },
 
-        exportExcel() {
-            const h = ['Référence','Contrat','Type','Date Paiement','Montant','Mode','Banque','Statut'];
-            const rows = this.filteredData.map(i => [i.reference,i.contrat_reference,i.type_paiement_label,i.date_paiement_formatted,i.montant,i.mode_paiement_label,i.banque_label||'-',i.statut_label]);
-            const xl = [h.join('\t'),...rows.map(r=>r.join('\t'))].join('\n');
-            const b = new Blob(['\uFEFF'+xl],{type:'application/vnd.ms-excel'});
-            const l = document.createElement('a'); l.href=URL.createObjectURL(b); l.download=`paiements_${new Date().toISOString().split('T')[0]}.xls`; l.click()
-        }
+        exportExcel() { window.location.href = '/export/paiements'; }
     }))
 })
 </script>

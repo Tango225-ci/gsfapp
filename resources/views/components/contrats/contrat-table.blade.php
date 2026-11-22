@@ -2,12 +2,11 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <!-- Header avec recherche et boutons -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Tableau Récapitulatif des Contrats</h2>
+            <div class="flex flex-col lg:flex-row justify-end items-start lg:items-center gap-4">
 
-                <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex w-full lg:w-auto items-center gap-3 flex-wrap">
                     <select x-model="filtreStatut" @change="currentPage = 1"
-                        class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        class="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Tous les statuts</option>
                         <option value="EN_COURS">En cours</option>
                         <option value="SOLDE">Soldés</option>
@@ -22,7 +21,7 @@
                         <option value="ECHELONNE">Échelonné</option>
                     </select>
 
-                    <div class="relative w-56">
+                    <div class="relative w-full sm:w-56">
                         <input type="text" x-model="search" placeholder="Rechercher référence, client..."
                             class="w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm">
                         <svg class="absolute right-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,22 +57,22 @@
         </div>
 
         <!-- Cartes statistiques -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total contrats</p>
-                <p class="mt-2 text-4xl font-bold text-gray-800 dark:text-white" x-text="stats.total"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-gray-800 dark:text-white" x-text="stats.total"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Soldés</p>
-                <p class="mt-2 text-4xl font-bold text-green-600 dark:text-green-400" x-text="stats.soldes"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-green-600 dark:text-green-400" x-text="stats.soldes"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">En retard</p>
-                <p class="mt-2 text-4xl font-bold text-red-600 dark:text-red-400" x-text="stats.en_retard"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-red-600 dark:text-red-400" x-text="stats.en_retard"></p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm text-center">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">En cours</p>
-                <p class="mt-2 text-4xl font-bold text-yellow-600 dark:text-yellow-400" x-text="stats.en_cours"></p>
+                <p class="mt-2 text-2xl sm:text-3xl xl:text-4xl font-bold break-words text-yellow-600 dark:text-yellow-400" x-text="stats.en_cours"></p>
             </div>
         </div>
 
@@ -338,7 +337,7 @@
                                 SITUATION DES PAIEMENTS
                             </h4>
                             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 p-3 rounded-lg">
-                                <div class="grid grid-cols-3 gap-3 text-center mb-2">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center mb-2">
                                     <div><p class="text-xs text-gray-500">Total</p><p class="text-base font-bold" x-text="situationPaiement?.montant_total || '0 FCFA'"></p></div>
                                     <div><p class="text-xs text-gray-500">Payé</p><p class="text-base font-bold text-green-600" x-text="situationPaiement?.montant_paye || '0 FCFA'"></p></div>
                                     <div><p class="text-xs text-gray-500">Reste</p><p class="text-base font-bold" :class="(situationPaiement?.reste_a_payer_raw || 0) > 0 ? 'text-orange-600' : 'text-green-600'" x-text="situationPaiement?.reste_a_payer || '0 FCFA'"></p></div>
@@ -419,7 +418,7 @@
                                 <div class="bg-green-600 h-2.5 rounded-full transition-all duration-300" 
                                      :style="'width: ' + ((documentsStats?.payes || 0) / (documentsStats?.total || 1) * 100) + '%'"></div>
                             </div>
-                            <div class="grid grid-cols-4 gap-2 mt-3 text-center text-xs">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center text-xs">
                                 <div><span class="text-gray-500">Total:</span> <span class="font-semibold" x-text="documentsStats?.total || 0"></span></div>
                                 <div><span class="text-green-500">Payés:</span> <span class="font-semibold" x-text="documentsStats?.payes || 0"></span></div>
                                 <div><span class="text-blue-500">Disponibles:</span> <span class="font-semibold" x-text="documentsStats?.disponibles || 0"></span></div>
@@ -433,7 +432,7 @@
                             <p class="text-xs text-gray-400 mt-1">Les documents sont générés automatiquement à la création du contrat.</p>
                         </div>
 
-                        <div x-show="documentsAcD && documentsAcD.length > 0" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                        <div x-show="documentsAcD && documentsAcD.length > 0" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-100 dark:bg-gray-800">
                                     <tr>
@@ -607,7 +606,7 @@
                 <div class="overflow-y-auto" style="max-height: calc(90vh - 120px);">
                     <form @submit.prevent="submitDocumentPayment" class="p-4">
                         <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4">
-                            <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center">
                                 <div>
                                     <p class="text-xs text-gray-500">Total</p>
                                     <p class="text-sm font-bold" x-text="selectedDocument?.montant_formatted"></p>
@@ -1148,7 +1147,7 @@ document.addEventListener('alpine:init', () => {
         },
         
         exportCSV() { const headers = ['Référence', 'Client', 'Lot', 'Date', 'Montant', 'Reste', 'Paiements', 'Type', 'Statut']; const rows = this.filteredData.map(i => [i.reference_contrat, i.client_nom, i.lot_numero, i.date_contrat_formatted, i.montant_total, i.reste_a_payer_raw, i.nombre_paiements || 0, i.type_paiement_label, i.statut_label]); const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n'); const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `contrats_${new Date().toISOString().split('T')[0]}.csv`; link.click(); URL.revokeObjectURL(link.href); },
-        exportExcel() { const headers = ['Référence', 'Client', 'Lot', 'Date', 'Montant', 'Reste', 'Paiements', 'Type', 'Statut']; const rows = this.filteredData.map(i => [i.reference_contrat, i.client_nom, i.lot_numero, i.date_contrat_formatted, i.montant_total, i.reste_a_payer_raw, i.nombre_paiements || 0, i.type_paiement_label, i.statut_label]); const excel = [headers.join('\t'), ...rows.map(r => r.join('\t'))].join('\n'); const blob = new Blob(['\uFEFF' + excel], { type: 'application/vnd.ms-excel' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `contrats_${new Date().toISOString().split('T')[0]}.xls`; link.click(); URL.revokeObjectURL(link.href); }
+        exportExcel() { window.location.href = '/export/contrats'; }
     }));
 });
 </script>

@@ -61,6 +61,15 @@ class PermissionHelper
             'update' => ['ADMIN', 'ASSISTANT'],
             'delete' => ['ADMIN'],
         ],
+        'banque' => [
+            'view'    => ['ADMIN', 'DIRECTEUR', 'ASSISTANT'],
+            'create'  => ['ADMIN', 'DIRECTEUR', 'ASSISTANT'],
+            'update'  => ['ADMIN', 'DIRECTEUR', 'ASSISTANT'],
+            'delete'  => ['ADMIN'],
+            'valider' => ['ADMIN', 'DIRECTEUR'],
+            'rejeter' => ['ADMIN', 'DIRECTEUR'],
+            'comptes' => ['ADMIN'],
+        ],
         'utilisateurs' => [
             'view'   => ['ADMIN'],
             'create' => ['ADMIN'],

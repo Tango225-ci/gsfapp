@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Jobs\SendClientSmsJob;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\PortailPaiementEnregistreNotification;
 use App\Notifications\PortailPaiementValideNotification;
 
 class Paiement extends Model
@@ -95,8 +97,10 @@ class Paiement extends Model
             if ($model->contrat) {
                 $model->contrat->updateContratStatut();
 
-                if ($model->statut === 'VALIDE' && $model->contrat->client) {
-                    $model->contrat->client->notify(new PortailPaiementValideNotification($model));
+                if ($model->statut === 'VALIDE') {
+                    self::notifierClientPaiementValide($model);
+                } else {
+                    self::notifierClientPaiementEnregistre($model);
                 }
             }
         });
@@ -113,8 +117,8 @@ class Paiement extends Model
             if ($model->contrat) {
                 $model->contrat->updateContratStatut();
 
-                if ($model->wasChanged('statut') && $model->statut === 'VALIDE' && $model->contrat->client) {
-                    $model->contrat->client->notify(new PortailPaiementValideNotification($model));
+                if ($model->wasChanged('statut') && $model->statut === 'VALIDE') {
+                    self::notifierClientPaiementValide($model);
                 }
             }
         });
@@ -124,6 +128,55 @@ class Paiement extends Model
                 $model->contrat->updateContratStatut();
             }
         });
+    }
+
+    /**
+     * Notifie le client (in-app) qu'un paiement vient d'être enregistré, et lui
+     * envoie un SMS. L'envoi SMS passe par la queue (pas par defer()) : un envoi
+     * SMS est un appel réseau qui peut prendre plusieurs secondes ou plus en cas
+     * de lenteur/timeout — defer() ne s'exécute vraiment après la réponse HTTP
+     * que derrière PHP-FPM (production), pas sous le serveur de développement,
+     * où il bloquerait quand même la requête de l'utilisateur.
+     */
+    private static function notifierClientPaiementEnregistre(self $paiement): void
+    {
+        $client = $paiement->contrat->client ?? null;
+
+        if (!$client) {
+            return;
+        }
+
+        $client->notify(new PortailPaiementEnregistreNotification($paiement));
+
+        if ($client->contact) {
+            SendClientSmsJob::dispatch(
+                $client->contact,
+                "GSF : votre paiement de {$paiement->montant_formatted} pour le contrat "
+                    . "{$paiement->contrat->reference_contrat} a été enregistré et est en attente de validation."
+            );
+        }
+    }
+
+    /**
+     * Notifie le client (in-app + SMS en queue) qu'un paiement a été validé.
+     */
+    private static function notifierClientPaiementValide(self $paiement): void
+    {
+        $client = $paiement->contrat->client ?? null;
+
+        if (!$client) {
+            return;
+        }
+
+        $client->notify(new PortailPaiementValideNotification($paiement));
+
+        if ($client->contact) {
+            SendClientSmsJob::dispatch(
+                $client->contact,
+                "GSF : votre paiement de {$paiement->montant_formatted} pour le contrat "
+                    . "{$paiement->contrat->reference_contrat} a été validé. Merci pour votre confiance."
+            );
+        }
     }
 
     /**
@@ -215,7 +268,11 @@ class Paiement extends Model
             'BICICI' => 'BICICI',
             'BRIDGE' => 'Bridge Bank Group',
             'CORIS' => 'Coris Bank International',
-            'BANK_OF_AFRICA' => 'Bank of Africa'
+            'BANK_OF_AFRICA' => 'Bank of Africa',
+            'WAVE' => 'Wave',
+            'ORANGE_MONEY' => 'Orange Money',
+            'MTN_MONEY' => 'MTN Money',
+            'MOOV_MONEY' => 'Moov Money',
         ];
 
         return $banques[$this->banque_paiement] ?? $this->banque_paiement ?? '-';
@@ -253,11 +310,17 @@ class Paiement extends Model
     {
         $this->update(['statut' => 'VALIDE']);
 
-        // Si c'est un paiement de frais de document, marquer le document comme payé
+        // Si c'est un paiement de frais de document, mettre à jour le statut du document.
+        // Le document peut être réglé en plusieurs paiements (partiels) : ne le marquer
+        // définitivement "payé" que lorsqu'il ne reste plus rien à payer dessus.
         if ($this->type_paiement === 'FRAIS_DOCUMENT' && $this->id_contrat_document) {
             $contratDocument = ContratDocument::find($this->id_contrat_document);
             if ($contratDocument) {
-                $contratDocument->marquerPaye($this->reference);
+                if ($contratDocument->reste_a_payer > 0) {
+                    $contratDocument->marquerPartiel();
+                } else {
+                    $contratDocument->marquerPaye($this->reference);
+                }
             }
         }
 

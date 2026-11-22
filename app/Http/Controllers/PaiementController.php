@@ -442,9 +442,32 @@ class PaiementController extends Controller
 
             $contrat = Contrat::with('echeances')->find($paiement->id_contrat);
 
-            if ($contrat) {
+            // Les frais de document (FRAIS_DOCUMENT) sont un budget totalement à part du prix
+            // du terrain : ils ont leur propre plafond (le montant du document concerné) et ne
+            // doivent jamais être additionnés aux paiements du contrat / des échéances, ni
+            // inversement. Cf. Contrat::getMontantPayeAttribute() qui applique déjà cette règle.
+            if ($paiement->type_paiement === 'FRAIS_DOCUMENT') {
+                if ($paiement->id_contrat_document) {
+                    $document = ContratDocument::find($paiement->id_contrat_document);
+
+                    if ($document) {
+                        $dejaPayeSansCePaiement = $document->paiements()
+                                                            ->where('statut', 'VALIDE')
+                                                            ->where('id_paiement', '!=', $paiement->id_paiement)
+                                                            ->sum('montant');
+
+                        if ($dejaPayeSansCePaiement + $paiement->montant > $document->montant) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Impossible de valider ce paiement car il dépasserait le montant du document.'
+                            ], 422);
+                        }
+                    }
+                }
+            } elseif ($contrat) {
                 $totalPayeSansCePaiement = Paiement::where('id_contrat', $contrat->id_contrat)
                                                    ->where('statut', 'VALIDE')
+                                                   ->where('type_paiement', '!=', 'FRAIS_DOCUMENT')
                                                    ->where('id_paiement', '!=', $paiement->id_paiement)
                                                    ->where(function($query) {
                                                        $query->where('valeursupprimee', '!=', 1)
@@ -464,9 +487,10 @@ class PaiementController extends Controller
 
             $paiement->valider();
 
-            // Affecter le paiement aux échéances si contrat échelonné
+            // Affecter le paiement aux échéances si contrat échelonné (jamais pour un paiement
+            // de frais de document : cf. remarque ci-dessus)
             $echeancesAffectees = [];
-            if ($contrat && $contrat->type_paiement === 'ECHELONNE') {
+            if ($contrat && $contrat->type_paiement === 'ECHELONNE' && $paiement->type_paiement !== 'FRAIS_DOCUMENT') {
                 $resultat = $contrat->traiterPaiementEcheances($paiement->montant);
                 $echeancesAffectees = $resultat['echeances_affectees'];
             }

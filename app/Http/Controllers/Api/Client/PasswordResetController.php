@@ -15,7 +15,7 @@ class PasswordResetController extends Controller
     private function findClient(string $identifiant): ?Client
     {
         return Client::where(function ($q) use ($identifiant) {
-                $q->where('contact', $identifiant)->orWhere('email', $identifiant);
+                $q->where('reference_client', strtoupper(trim($identifiant)))->orWhere('email', $identifiant);
             })
             ->where(function ($q) {
                 $q->where('valeursupprimee', '!=', 1)->orWhereNull('valeursupprimee');
@@ -28,7 +28,7 @@ class PasswordResetController extends Controller
         $request->validate([
             'identifiant' => 'required|string',
         ], [
-            'identifiant.required' => 'Le téléphone ou l\'email est obligatoire.',
+            'identifiant.required' => 'Le numéro client ou l\'email est obligatoire.',
         ]);
 
         $client = $this->findClient($request->identifiant);
@@ -60,7 +60,7 @@ class PasswordResetController extends Controller
             'code' => 'required|string|size:6',
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ], [
-            'identifiant.required' => 'Le téléphone ou l\'email est obligatoire.',
+            'identifiant.required' => 'Le numéro client ou l\'email est obligatoire.',
             'code.required' => 'Le code est obligatoire.',
             'code.size' => 'Le code doit contenir 6 chiffres.',
             'password.required' => 'Le nouveau mot de passe est obligatoire.',

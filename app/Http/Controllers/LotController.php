@@ -111,7 +111,7 @@ class LotController extends Controller
 
         try {
             $validated = $request->validate([
-                'numero_lot'        => 'required|string|max:100|unique:lots,numero_lot',
+                'numero_lot'        => ['required', 'string', 'max:100', Rule::unique('lots', 'numero_lot')->where(fn ($q) => $q->where('valeursupprimee', '!=', 1))],
                 'numero_ilot'       => 'required|string|max:10',
                 'type_lot'          => 'nullable|string|max:50|in:RESIDENTIEL,COMMERCIAL,INDUSTRIEL,MIXTE',
                 'superficie'        => 'nullable|numeric|min:0',
@@ -205,7 +205,7 @@ class LotController extends Controller
             }
 
             $validated = $request->validate([
-                'numero_lot'        => 'required|string|max:100|unique:lots,numero_lot,' . $id . ',id_lot',
+                'numero_lot'        => ['required', 'string', 'max:100', Rule::unique('lots', 'numero_lot')->ignore($id, 'id_lot')->where(fn ($q) => $q->where('valeursupprimee', '!=', 1))],
                 'numero_ilot'       => 'required|string|max:10',
                 'type_lot'          => 'nullable|string|max:50|in:RESIDENTIEL,COMMERCIAL,INDUSTRIEL,MIXTE',
                 'superficie'        => 'nullable|numeric|min:0',

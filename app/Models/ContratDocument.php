@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Jobs\SendClientSmsJob;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use App\Notifications\PortailDocumentDisponibleNotification;
+use App\Notifications\PortailDocumentRemisNotification;
 
 class ContratDocument extends Model
 {
@@ -163,6 +165,27 @@ class ContratDocument extends Model
     }
 
     /**
+     * Accesseur pour le reste à payer sur ce document (montant - paiements déjà validés)
+     */
+    public function getResteAPayerAttribute()
+    {
+        $paye = $this->paiements()->where('statut', 'VALIDE')->sum('montant');
+        return max(0, floatval($this->montant ?? 0) - floatval($paye));
+    }
+
+    /**
+     * Accesseur pour le reste à payer formaté
+     */
+    public function getResteAPayerFormattedAttribute()
+    {
+        $reste = $this->reste_a_payer;
+        if ($reste <= 0) {
+            return '0 FCFA';
+        }
+        return number_format($reste, 0, ',', ' ') . ' FCFA';
+    }
+
+    /**
      * Accesseur pour la date de paiement formatée
      */
     public function getDatePaiementFormattedAttribute()
@@ -296,6 +319,14 @@ class ContratDocument extends Model
             'contrat_document_id' => $this->id_contrat_document,
             'contrat_id' => $this->id_contrat
         ]);
+
+        if ($this->contrat && $this->contrat->client) {
+            $this->contrat->client->notify(new PortailDocumentRemisNotification($this));
+
+            $nomDocument = $this->document_type_nom ?? 'Votre document';
+            $message = "GSF - {$nomDocument} vous a été remis. Merci de votre confiance.";
+            SendClientSmsJob::dispatch($this->contrat->client->contact, $message);
+        }
 
         return $this;
     }

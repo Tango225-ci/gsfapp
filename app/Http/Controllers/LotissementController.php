@@ -8,6 +8,7 @@ use App\Models\Lot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class LotissementController extends Controller
 {
@@ -79,7 +80,7 @@ class LotissementController extends Controller
 
         try {
             $validated = $request->validate([
-                'nom'                 => 'required|string|max:150|unique:lotissements,nom',
+                'nom'                 => ['required', 'string', 'max:150', Rule::unique('lotissements', 'nom')->where(fn ($q) => $q->where('valeursupprimee', '!=', 1))],
                 'localisation'        => 'nullable|string',
                 'ville'               => 'required|string|max:255',
                 'statut_lotissement'  => 'nullable|in:NON_APPROUVE,APPROUVE,APPROUVE_DIFFUSE,ACD_INDIVIDUEL,ACD_GLOBAL',
@@ -136,7 +137,7 @@ class LotissementController extends Controller
             }
 
             $validated = $request->validate([
-                'nom'                 => 'required|string|max:150|unique:lotissements,nom,' . $id . ',id_lotissement',
+                'nom'                 => ['required', 'string', 'max:150', Rule::unique('lotissements', 'nom')->ignore($id, 'id_lotissement')->where(fn ($q) => $q->where('valeursupprimee', '!=', 1))],
                 'localisation'        => 'nullable|string',
                 'ville'               => 'required|string|max:255',
                 'statut_lotissement'  => 'nullable|in:NON_APPROUVE,APPROUVE,APPROUVE_DIFFUSE,ACD_INDIVIDUEL,ACD_GLOBAL',

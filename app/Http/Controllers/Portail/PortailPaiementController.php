@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portail;
 
 use App\Http\Controllers\Controller;
 use App\Models\Paiement;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PortailPaiementController extends Controller
 {
@@ -18,6 +19,7 @@ class PortailPaiementController extends Controller
 
         abort_unless($paiement->contrat && $paiement->contrat->id_client === auth('clients')->id(), 403);
 
-        return view('portail.paiements.recu', compact('paiement'));
+        return Pdf::loadView('pdf.paiement-recu', compact('paiement'))
+            ->download('recu-' . str_replace(['/', '\\'], '-', $paiement->reference) . '.pdf');
     }
 }

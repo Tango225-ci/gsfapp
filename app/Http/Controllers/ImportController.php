@@ -147,7 +147,7 @@ class ImportController extends Controller
         $nom = $get($row, 'nom');
         if (!$nom) return ['success' => false, 'error' => "Ligne $line : nom obligatoire."];
 
-        if (Lotissement::where('nom', $nom)->exists()) {
+        if (Lotissement::where('nom', $nom)->where('valeursupprimee', '!=', 1)->exists()) {
             return ['success' => false, 'error' => "Ligne $line : lotissement \"$nom\" existe déjà, ignoré."];
         }
 
@@ -193,7 +193,7 @@ class ImportController extends Controller
         $num = $get($row, 'numero_lot');
         if (!$num) return ['success' => false, 'error' => "Ligne $line : numero_lot obligatoire."];
 
-        if (Lot::where('numero_lot', $num)->exists()) {
+        if (Lot::where('numero_lot', $num)->where('valeursupprimee', '!=', 1)->exists()) {
             return ['success' => false, 'error' => "Ligne $line : lot \"$num\" existe déjà, ignoré."];
         }
 
@@ -253,6 +253,11 @@ class ImportController extends Controller
         $email = $get($row, 'email');
         if ($email && Client::where('email', $email)->where('valeursupprimee', '!=', 1)->exists()) {
             return ['success' => false, 'error' => "Ligne $line : email \"$email\" déjà utilisé, ignoré."];
+        }
+
+        $contact = $get($row, 'contact');
+        if ($contact && Client::where('contact', $contact)->where('valeursupprimee', '!=', 1)->exists()) {
+            return ['success' => false, 'error' => "Ligne $line : contact \"$contact\" déjà utilisé, ignoré."];
         }
 
         $validStatuts = ['ACTIF', 'SUSPENDU', 'PROSPECT'];
@@ -375,7 +380,7 @@ class ImportController extends Controller
             'statut'          => in_array($statut, $validStatuts) ? $statut : 'EN_ATTENTE',
             'reference'       => $reference,
             'notes'           => $get($row, 'notes'),
-            'type_paiement'   => 'MENSUALITE',
+            'type_paiement'   => $contrat->type_paiement,
             'valeursupprimee' => 0,
         ]);
 

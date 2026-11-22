@@ -8,7 +8,7 @@
 @endphp
 
 {{-- ===== En-tête ===== --}}
-<div class="mb-4 flex items-center justify-between">
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
     <div>
         <h1 class="text-xl font-bold text-gray-900 dark:text-white">Tableau de bord</h1>
         <p class="text-xs text-gray-400 mt-0.5">{{ $moisFr[(int)date('n')] }} {{ date('Y') }} — Géomètre Son Femme SARL</p>
@@ -207,7 +207,7 @@
                 <p class="text-xs">Aucun paiement enregistré aujourd'hui</p>
             </div>
         @else
-            <table class="w-full text-xs">
+            <div class="overflow-x-auto"><table class="w-full text-xs">
                 <thead class="bg-gray-50 dark:bg-gray-900/50">
                     <tr>
                         <th class="px-4 py-2 text-left font-medium text-gray-400 uppercase tracking-wide">Client</th>
@@ -227,7 +227,7 @@
                         </tr>
                     @endforeach
                 </tbody>
-            </table>
+            </table></div>
         @endif
     </div>
 
@@ -248,7 +248,7 @@
                 <p class="text-xs">Aucun contrat signé ce mois</p>
             </div>
         @else
-            <table class="w-full text-xs">
+            <div class="overflow-x-auto"><table class="w-full text-xs">
                 <thead class="bg-gray-50 dark:bg-gray-900/50">
                     <tr>
                         <th class="px-4 py-2 text-left font-medium text-gray-400 uppercase tracking-wide">Client</th>
@@ -274,7 +274,7 @@
                         </tr>
                     @endforeach
                 </tbody>
-            </table>
+            </table></div>
         @endif
     </div>
 </div>

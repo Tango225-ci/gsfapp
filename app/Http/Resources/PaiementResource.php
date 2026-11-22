@@ -20,6 +20,21 @@ class PaiementResource extends JsonResource
             'type_paiement_label' => $this->type_paiement_label,
             'statut' => $this->statut,
             'statut_label' => $this->statut_label,
+            'type_paiement' => $this->type_paiement,
+            'date_enregistrement_formatted' => $this->created_at
+                ? \Illuminate\Support\Carbon::parse($this->created_at)->format('d/m/Y à H:i')
+                : null,
+            'document' => $this->whenLoaded('contratDocument', function () {
+                return $this->contratDocument ? ['nom' => $this->contratDocument->document_type_nom] : null;
+            }),
+            'contrat' => $this->whenLoaded('contrat', function () {
+                return [
+                    'id' => $this->contrat->id_contrat,
+                    'reference' => $this->contrat->reference_contrat,
+                    'numero_lot' => $this->contrat->lot->numero_lot ?? null,
+                    'lotissement_nom' => $this->contrat->lot->lotissement_nom ?? null,
+                ];
+            }),
         ];
     }
 }

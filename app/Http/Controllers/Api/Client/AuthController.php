@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Client;
 
+use App\Helpers\LoginThrottle;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
@@ -17,12 +18,16 @@ class AuthController extends Controller
             'identifiant' => 'required|string',
             'password' => 'required|string',
         ], [
-            'identifiant.required' => 'Le téléphone ou l\'email est obligatoire.',
+            'identifiant.required' => 'Le numéro client ou l\'email est obligatoire.',
             'password.required' => 'Le mot de passe est obligatoire.',
         ]);
 
+        if (LoginThrottle::tooManyAttempts('client', $request->identifiant)) {
+            return response()->json(['message' => LoginThrottle::lockoutMessage('client', $request->identifiant)], 429);
+        }
+
         $client = Client::where(function ($q) use ($request) {
-                $q->where('contact', $request->identifiant)
+                $q->where('reference_client', strtoupper(trim($request->identifiant)))
                   ->orWhere('email', $request->identifiant);
             })
             ->where(function ($q) {
@@ -31,12 +36,16 @@ class AuthController extends Controller
             ->first();
 
         if (! $client || ! $client->password || ! Hash::check($request->password, $client->password)) {
+            LoginThrottle::hit('client', $request->identifiant);
+
             return response()->json(['message' => 'Identifiants incorrects.'], 422);
         }
 
         if ($client->statut === 'SUSPENDU') {
             return response()->json(['message' => 'Ce compte est suspendu. Contactez GSF.'], 403);
         }
+
+        LoginThrottle::clear('client', $request->identifiant);
 
         $token = $client->createToken('mobile')->plainTextToken;
 
